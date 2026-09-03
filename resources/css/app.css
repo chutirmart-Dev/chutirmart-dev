@@ -1,0 +1,331 @@
+@import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Hind Siliguri", "Inter", sans-serif;
+  --font-bangla: "Hind Siliguri", sans-serif;
+
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+}
+
+:root {
+  /* Storefront Design Tokens */
+  --background: 40 14% 95%; /* HSL for #F5F3EE */
+  --foreground: 0 0% 10%;
+  
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 10%;
+  
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 10%;
+  
+  --primary: 148 100% 31%; /* HSL for #009E49 (ChutirMart Branding Green) */
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 40 11% 93%; /* HSL for #EFEDE7 */
+  --secondary-foreground: 0 0% 10%;
+  
+  --muted: 40 11% 93%;
+  --muted-foreground: 220 9% 46%;
+  
+  --accent: 40 11% 93%;
+  --accent-foreground: 0 0% 10%;
+  
+  --destructive: 3 80% 49%; /* HSL for #E2231A (ChutirMart Branding Red) */
+  --destructive-foreground: 0 0% 100%;
+  
+  --border: 35 14% 87%; /* HSL for #E3E0D8 */
+  --input: 35 14% 87%;
+  --ring: 148 100% 31%;
+  
+  --radius: 0.75rem;
+}
+
+.admin-layout {
+  /* Admin (ChutirMart Branding) Design Tokens */
+  --background: 148 20% 98%; /* #FAFDFB clean soft green bg */
+  --card: 0 0% 100%;
+  --card-foreground: 148 24% 14%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 148 24% 14%;
+
+  --primary: 148 100% 31%; /* #009E49 green */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 148 20% 98%;
+  --secondary-foreground: 148 24% 14%;
+
+  --muted: 148 20% 98%;
+  --muted-foreground: 148 14% 60%;
+
+  --accent: 148 20% 98%;
+  --accent-foreground: 148 24% 14%;
+
+  --destructive: 0 84% 60%; /* #E2231A red */
+  --destructive-foreground: 0 0% 100%;
+
+  --border: 148 25% 94%;
+  --input: 148 25% 94%;
+  --ring: 148 100% 31%;
+}
+
+.admin-layout.dark {
+  /* Admin Dark Mode Tokens */
+  --background: 148 29% 8%;
+  --card: 148 24% 13%;
+  --card-foreground: 148 40% 98%;
+  
+  --popover: 148 24% 13%;
+  --popover-foreground: 148 40% 98%;
+  
+  --primary: 148 84% 45%;
+  --primary-foreground: 148 47% 11%;
+  
+  --secondary: 148 24% 20%;
+  --secondary-foreground: 148 40% 98%;
+  
+  --muted: 246 24% 20%;
+  --muted-foreground: 215 20% 65%;
+  
+  --accent: 246 24% 20%;
+  --accent-foreground: 210 40% 98%;
+  
+  --destructive: 0 63% 31%;
+  --destructive-foreground: 210 40% 98%;
+  
+  --border: 248 23% 22%;
+  --input: 248 23% 22%;
+  --ring: 248 84% 73%;
+}
+
+@layer base {
+  * {
+    @apply border-[hsl(var(--border))];
+  }
+  body {
+    @apply bg-[hsl(var(--background))] text-[hsl(var(--foreground))] font-sans antialiased;
+  }
+}
+
+.container {
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* ─── Admin Panel Polish ─────────────────────────────────────────────────── */
+
+/* ── Page background ── */
+.admin-layout {
+  background: #EEF2F9;
+}
+
+/* ── Card: applies to shadcn <Card>, and hand-rolled white divs ── */
+.admin-layout .card {
+  border-radius: 1.125rem !important;
+  border: 1px solid rgba(220, 224, 235, 0.55) !important;
+  box-shadow: 0 2px 8px rgba(91, 79, 233, 0.04), 0 6px 24px rgba(0, 0, 0, 0.06) !important;
+  transition: box-shadow 0.25s ease;
+  background: #ffffff;
+}
+.admin-layout .card:hover {
+  box-shadow: 0 4px 16px rgba(91, 79, 233, 0.08), 0 12px 36px rgba(0, 0, 0, 0.09) !important;
+}
+
+/* Card header separator */
+.admin-layout .card [class*="CardHeader"],
+.admin-layout .card [class*="card-header"] {
+  border-bottom: 1px solid rgba(220, 224, 235, 0.5);
+  padding-bottom: 1rem;
+}
+
+/* ── All form controls ── */
+.admin-layout input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.admin-layout textarea,
+.admin-layout select {
+  background: #F9FAFB !important;
+  border: 1.5px solid #E5E9F2 !important;
+  border-radius: 0.75rem !important;
+  color: #1A1A2E !important;
+  font-size: 0.875rem !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+.admin-layout input:not([type="checkbox"]):not([type="radio"]):focus,
+.admin-layout textarea:focus,
+.admin-layout select:focus {
+  outline: none !important;
+  border-color: #6C63F5 !important;
+  box-shadow: 0 0 0 3px rgba(108, 99, 245, 0.10) !important;
+  background: #ffffff !important;
+}
+.admin-layout select {
+  cursor: pointer;
+  padding-left: 0.75rem;
+  height: 2.75rem;
+}
+.admin-layout textarea {
+  padding: 0.65rem 0.75rem;
+  min-height: 6rem;
+  resize: vertical;
+}
+.admin-layout input::placeholder,
+.admin-layout textarea::placeholder {
+  color: #B0B7CC;
+}
+
+/* ── Label ── */
+.admin-layout label {
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #7C84A0 !important;
+  margin-bottom: 0.35rem;
+  display: block;
+}
+
+/* ── Table ── */
+.admin-layout table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.admin-layout table thead tr {
+  background: #F7F8FC;
+  border-bottom: 1px solid rgba(220, 224, 235, 0.5);
+}
+.admin-layout table thead th {
+  color: #9096B0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.875rem 1.25rem;
+}
+.admin-layout table tbody tr {
+  border-bottom: 1px solid rgba(220, 224, 235, 0.4);
+  transition: background 0.12s ease;
+}
+.admin-layout table tbody tr:hover {
+  background: #F7F8FC;
+}
+.admin-layout table tbody td {
+  font-size: 0.8125rem;
+  color: #2D3048;
+  padding: 0.9rem 1.25rem;
+}
+.admin-layout table tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* ── Pill badge ── */
+.admin-layout .badge-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  border: none;
+}
+
+/* ── Primary button (orange gradient) ── */
+.admin-layout .btn-save,
+.admin-layout button[class*="bg-primary"],
+.admin-layout button[data-primary] {
+  background: linear-gradient(135deg, #FF8C42 0%, #F86019 100%) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 0.875rem !important;
+  font-weight: 800 !important;
+  font-size: 0.875rem !important;
+  box-shadow: 0 4px 14px rgba(248, 96, 25, 0.32) !important;
+  transition: box-shadow 0.2s ease, transform 0.15s ease !important;
+}
+.admin-layout .btn-save:hover,
+.admin-layout button[class*="bg-primary"]:hover,
+.admin-layout button[data-primary]:hover {
+  box-shadow: 0 6px 20px rgba(248, 96, 25, 0.44) !important;
+  transform: translateY(-1px) !important;
+}
+.admin-layout .btn-save:active,
+.admin-layout button[class*="bg-primary"]:active,
+.admin-layout button[data-primary]:active {
+  transform: translateY(0) !important;
+}
+
+/* ── Icon buttons ── */
+.admin-layout .btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.625rem;
+  border: 1px solid #E5E9F2;
+  background: #fff;
+  color: #7C84A0;
+  transition: border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+.admin-layout .btn-icon:hover {
+  border-color: #6C63F5;
+  color: #6C63F5;
+  box-shadow: 0 2px 8px rgba(108, 99, 245, 0.12);
+}
+
+/* ── Scrollbar utilities ── */
+.scrollbar-hide          { scrollbar-width: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-thin          { scrollbar-width: thin; scrollbar-color: #E5E9F2 transparent; }
+.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #E5E9F2; border-radius: 99px; }
+
+/* ── ChutirMart Global Form Controls Branding ── */
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: #009E49 !important;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #009E49 !important;
+}
+
+::selection {
+  background-color: #009E49;
+  color: #ffffff;
+}
