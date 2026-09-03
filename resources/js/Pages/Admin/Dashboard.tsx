@@ -385,7 +385,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     </p>
                     <Link
                         href={route('admin.products.create')}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 sm:px-5 rounded-xl bg-[#009E49] hover:bg-[#00873E] text-white text-[12.5px] sm:text-[13px] font-bold shadow-xs transition-all shrink-0"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#009E49] hover:bg-[#00873E] text-white text-xs sm:text-[13px] font-semibold shadow-xs hover:shadow-sm active:scale-98 transition-all shrink-0"
                     >
                         <PackagePlus className="w-4 h-4" /> Add Product
                     </Link>

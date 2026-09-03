@@ -3,17 +3,17 @@ import { ChevronDown, Check } from 'lucide-react';
 
 // ── Card ──────────────────────────────────────────────────────────────────────
 export const AdminCard: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-    <div className={`bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,158,73,0.03),0_8px_28px_rgba(0,0,0,0.04)] ${className}`}>
+    <div className={`bg-white rounded-xl border border-slate-200/80 shadow-xs ${className}`}>
         {children}
     </div>
 );
 
 // ── Section Header inside a card ───────────────────────────────────────────
 export const CardHead: React.FC<{ title: string; subtitle?: string; action?: React.ReactNode }> = ({ title, subtitle, action }) => (
-    <div className="flex items-center justify-between px-6 py-4 border-b border-[#EBEDF2]">
+    <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#EBEDF2]">
         <div>
-            <h3 className="text-[15px] font-black text-[#1A1A2E]">{title}</h3>
-            {subtitle && <p className="text-[12px] text-[#9096B0] mt-0.5">{subtitle}</p>}
+            <h3 className="text-[14px] font-black text-[#1A1A2E]">{title}</h3>
+            {subtitle && <p className="text-[11.5px] text-[#9096B0] mt-0.5">{subtitle}</p>}
         </div>
         {action && <div>{action}</div>}
     </div>
@@ -21,10 +21,10 @@ export const CardHead: React.FC<{ title: string; subtitle?: string; action?: Rea
 
 // ── Page header (title + subtitle + optional action) ───────────────────────
 export const PageHeader: React.FC<{ title: string; subtitle?: string; action?: React.ReactNode }> = ({ title, subtitle, action }) => (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
-            <h2 className="text-[22px] font-black text-[#1A1A2E]">{title}</h2>
-            {subtitle && <p className="text-[13px] text-[#9096B0] mt-0.5">{subtitle}</p>}
+            <h2 className="text-[20px] font-black text-[#1A1A2E] tracking-tight">{title}</h2>
+            {subtitle && <p className="text-[12.5px] text-[#9096B0] mt-0.5">{subtitle}</p>}
         </div>
         {action && <div>{action}</div>}
     </div>
@@ -36,7 +36,7 @@ export const PrimaryBtn: React.FC<{ children: React.ReactNode; onClick?: () => v
         type={type}
         onClick={onClick}
         disabled={disabled}
-        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#009E49] text-white text-[13px] font-bold hover:bg-[#007F3B] transition-all shadow-[0_4px_14px_rgba(0,158,73,0.2)] border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${className}`}
+        className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#009E49] text-white text-xs font-semibold hover:bg-[#007F3B] transition-all shadow-xs hover:shadow-sm active:scale-98 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed select-none ${className}`}
     >
         {children}
     </button>
@@ -47,8 +47,8 @@ export const SaveBtn: React.FC<{ children: React.ReactNode; type?: 'button' | 's
     <button
         type={type}
         disabled={disabled}
-        className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-white text-[13px] font-bold transition-all border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${className}`}
-        style={{ background: 'linear-gradient(135deg,#E2231A 0%,#B8150D 100%)', boxShadow: '0 4px 14px rgba(226,35,26,0.25)' }}
+        className={`inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-white text-xs font-bold transition-all shadow-xs hover:shadow-sm active:scale-98 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed select-none ${className}`}
+        style={{ background: 'linear-gradient(135deg,#E2231A 0%,#B8150D 100%)' }}
     >
         {children}
     </button>
@@ -59,9 +59,9 @@ export const AdminInput: React.FC<React.InputHTMLAttributes<HTMLInputElement> & 
     <div>
         <input
             {...props}
-            className={`w-full h-11 px-3.5 rounded-xl border ${error ? 'border-red-400 bg-red-50' : 'border-[#EBEDF2] bg-[#F7F8FA]'} text-[14px] text-[#1A1A2E] placeholder-[#C0C6D8] focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 hover:border-[#009E49]/40 transition-all ${className}`}
+            className={`w-full h-10 px-3 rounded-lg border ${error ? 'border-red-400 bg-red-50' : 'border-[#EBEDF2] bg-[#F7F8FA]'} text-[13.5px] text-[#1A1A2E] placeholder-[#C0C6D8] focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 hover:border-[#009E49]/40 transition-all ${className}`}
         />
-        {error && <p className="text-[12px] text-red-500 mt-1">{error}</p>}
+        {error && <p className="text-[11.5px] text-red-500 mt-1">{error}</p>}
     </div>
 );
 
@@ -70,9 +70,9 @@ export const AdminTextarea: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaEl
     <div>
         <textarea
             {...props}
-            className={`w-full px-3.5 py-3 rounded-xl border ${error ? 'border-red-400 bg-red-50' : 'border-[#EBEDF2] bg-[#F7F8FA]'} text-[14px] text-[#1A1A2E] placeholder-[#C0C6D8] focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 hover:border-[#009E49]/40 transition-all resize-none ${className}`}
+            className={`w-full px-3 py-2.5 rounded-lg border ${error ? 'border-red-400 bg-red-50' : 'border-[#EBEDF2] bg-[#F7F8FA]'} text-[13.5px] text-[#1A1A2E] placeholder-[#C0C6D8] focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 hover:border-[#009E49]/40 transition-all resize-none ${className}`}
         />
-        {error && <p className="text-[12px] text-red-500 mt-1">{error}</p>}
+        {error && <p className="text-[11.5px] text-red-500 mt-1">{error}</p>}
     </div>
 );
 
@@ -154,20 +154,20 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
                 id={id}
                 disabled={disabled}
                 onClick={() => !disabled && setIsOpen(!isOpen)}
-                className={`w-full h-11 px-3.5 pr-9 rounded-xl border text-[14px] font-semibold text-[#1A1A2E] text-left flex items-center justify-between transition-all cursor-pointer ${
+                className={`w-full h-10 px-3 pr-8 rounded-lg border text-[13px] font-semibold text-[#1A1A2E] text-left flex items-center justify-between transition-all cursor-pointer ${
                     disabled
                         ? 'bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed'
                         : isOpen
-                        ? 'bg-white border-[#009E49] ring-2 ring-[#009E49]/15 shadow-sm'
+                        ? 'bg-white border-[#009E49] ring-2 ring-[#009E49]/15 shadow-2xs'
                         : 'border-[#EBEDF2] bg-[#F7F8FA] hover:border-[#009E49]/40 hover:bg-[#FAFDFB]'
                 }`}
             >
                 <span className="truncate block">
                     {selectedOption ? selectedOption.label : 'Select...'}
                 </span>
-                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#009E49]">
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-[#009E49]">
                     <ChevronDown
-                        className={`w-4 h-4 stroke-[2.5] transition-transform duration-200 ${
+                        className={`w-3.5 h-3.5 stroke-[2.5] transition-transform duration-200 ${
                             isOpen ? 'rotate-180 text-[#009E49]' : 'text-[#009E49]'
                         }`}
                     />
@@ -176,7 +176,7 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
 
             {/* Floating Branded Dropdown Menu */}
             {isOpen && (
-                <div className="absolute left-0 right-0 top-full mt-1.5 p-1.5 bg-white border border-[#E6F5EC] rounded-2xl shadow-[0_12px_32px_rgba(0,158,73,0.14),0_4px_12px_rgba(0,0,0,0.06)] z-50 max-h-60 overflow-y-auto scrollbar-thin animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute left-0 right-0 top-full mt-1.5 p-1 bg-white border border-[#E6F5EC] rounded-xl shadow-[0_12px_32px_rgba(0,158,73,0.14),0_4px_12px_rgba(0,0,0,0.06)] z-50 max-h-60 overflow-y-auto scrollbar-thin animate-in fade-in zoom-in-95 duration-100">
                     {options.map((opt, idx) => {
                         const isSelected = String(opt.value) === String(currentValue);
                         return (
@@ -185,7 +185,7 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
                                 type="button"
                                 disabled={opt.disabled}
                                 onClick={() => handleSelect(opt)}
-                                className={`w-full px-3 py-2.5 rounded-xl text-[13px] text-left flex items-center justify-between transition-all cursor-pointer border-none mb-0.5 last:mb-0 ${
+                                className={`w-full px-2.5 py-2 rounded-lg text-xs text-left flex items-center justify-between transition-all cursor-pointer border-none mb-0.5 last:mb-0 ${
                                     opt.disabled
                                         ? 'opacity-40 cursor-not-allowed'
                                         : isSelected
@@ -195,7 +195,7 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
                             >
                                 <span className="truncate">{opt.label}</span>
                                 {isSelected && (
-                                    <Check className="w-4 h-4 text-white stroke-[2.5] shrink-0 ml-2" />
+                                    <Check className="w-3.5 h-3.5 text-white stroke-[2.5] shrink-0 ml-2" />
                                 )}
                             </button>
                         );
@@ -247,23 +247,25 @@ export const THead: React.FC<{ cols: string[] }> = ({ cols }) => (
 );
 
 // ── Status pill ────────────────────────────────────────────────────────────
-export const StatusPill: React.FC<{ status: string }> = ({ status }) => {
-    const map: Record<string, string> = {
-        active: 'bg-[#E3FAF0] text-[#16A34A]',
-        inactive: 'bg-[#FAFDFB] text-[#9096B0]',
-        draft: 'bg-[#FFF8E6] text-[#D97706]',
-        archived: 'bg-[#FAFDFB] text-[#9096B0]',
-        processing: 'bg-[#E6F5EC] text-[#009E49]',
-        on_hold: 'bg-[#FFF8E6] text-[#D97706]',
-        complete: 'bg-[#E3FAF0] text-[#16A34A]',
-        cancelled: 'bg-[#FFECEC] text-[#DC2626]',
-        pending: 'bg-[#FFF4EC] text-[#EA7C2B]',
-        paid: 'bg-[#E3FAF0] text-[#16A34A]',
+export const StatusPill: React.FC<{ status: string; className?: string }> = ({ status, className = '' }) => {
+    const map: Record<string, { bg: string; text: string; border: string }> = {
+        active: { bg: 'bg-[#E3FAF0]', text: 'text-[#16A34A]', border: 'border-emerald-200/70' },
+        inactive: { bg: 'bg-slate-50', text: 'text-slate-500', border: 'border-slate-200' },
+        draft: { bg: 'bg-[#FFF8E6]', text: 'text-[#D97706]', border: 'border-amber-200/70' },
+        archived: { bg: 'bg-slate-50', text: 'text-slate-500', border: 'border-slate-200' },
+        processing: { bg: 'bg-[#E6F5EC]', text: 'text-[#009E49]', border: 'border-emerald-200/80' },
+        on_hold: { bg: 'bg-[#FFF8E6]', text: 'text-[#D97706]', border: 'border-amber-200/70' },
+        complete: { bg: 'bg-[#E3FAF0]', text: 'text-[#16A34A]', border: 'border-emerald-200/70' },
+        cancelled: { bg: 'bg-[#FFECEC]', text: 'text-[#DC2626]', border: 'border-rose-200/70' },
+        pending: { bg: 'bg-[#FFF4EC]', text: 'text-[#EA7C2B]', border: 'border-orange-200/70' },
+        paid: { bg: 'bg-[#E3FAF0]', text: 'text-[#16A34A]', border: 'border-emerald-200/70' },
     };
-    const cls = map[status] ?? 'bg-[#FAFDFB] text-[#9096B0]';
-    const label = status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    const s = map[status] ?? { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200' };
+    const label = status ? status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : '';
     return (
-        <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[12px] font-bold ${cls}`}>{label}</span>
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[11px] font-semibold tracking-wide ${s.bg} ${s.text} ${s.border} ${className}`}>
+            {label}
+        </span>
     );
 };
 

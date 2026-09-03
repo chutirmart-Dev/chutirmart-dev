@@ -55,32 +55,32 @@ const CourierSelect: React.FC<CourierSelectProps> = ({ value, onChange, disabled
                 disabled={disabled}
                 onClick={() => setOpen(prev => !prev)}
                 className={`
-                    flex items-center gap-1.5 h-9 pl-3 pr-2.5 rounded-xl
+                    flex items-center gap-1.5 h-8 px-2.5 rounded-lg
                     bg-white
-                    border-2 ${open ? 'border-[#009E49]' : 'border-[#009E49]/30'}
-                    text-[12px] font-black text-[#009E49]
-                    shadow-[0_2px_10px_rgba(0,158,73,0.13)]
-                    hover:border-[#009E49] hover:shadow-[0_3px_12px_rgba(0,158,73,0.2)]
+                    border ${open ? 'border-[#009E49] ring-2 ring-[#009E49]/15' : 'border-slate-200 hover:border-[#009E49]/50'}
+                    text-[12px] font-semibold text-slate-700 hover:text-[#009E49]
+                    shadow-2xs
                     transition-all duration-150
                     cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed
                     whitespace-nowrap
                 `}
             >
+                <span className="w-1.5 h-1.5 rounded-full bg-[#009E49] shrink-0" />
                 <span>{selected.label}</span>
-                <ChevronDown className={`w-3.5 h-3.5 text-[#009E49] transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${open ? 'rotate-180 text-[#009E49]' : ''}`} />
             </button>
 
             {/* Dropdown Panel */}
             {open && (
                 <div className="
-                    absolute left-0 top-[calc(100%+6px)] z-50
-                    w-40
+                    absolute left-0 top-[calc(100%+4px)] z-50
+                    w-38
                     bg-white
-                    rounded-2xl
-                    border border-[#009E49]/15
-                    shadow-[0_8px_30px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,158,73,0.1)]
-                    overflow-hidden
-                    animate-in fade-in slide-in-from-top-1 duration-150
+                    rounded-lg
+                    border border-slate-200
+                    shadow-lg
+                    p-1
+                    animate-in fade-in zoom-in-95 duration-100
                 ">
                     {COURIER_OPTIONS.map((opt, idx) => {
                         const isSelected = opt.value === value;
@@ -90,20 +90,19 @@ const CourierSelect: React.FC<CourierSelectProps> = ({ value, onChange, disabled
                                 type="button"
                                 onClick={() => { onChange(opt.value); setOpen(false); }}
                                 className={`
-                                    w-full flex items-center gap-2.5 px-3.5 py-2.5
-                                    text-[12px] font-bold text-left
-                                    transition-all duration-100 cursor-pointer border-none
+                                    w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md
+                                    text-[11.5px] text-left font-medium
+                                    transition-colors duration-100 cursor-pointer border-none
                                     ${isSelected
-                                        ? 'bg-[#009E49] text-white font-black'
-                                        : 'text-gray-700 hover:bg-[#009E49]/8 hover:text-[#009E49]'
+                                        ? 'bg-[#009E49] text-white font-semibold shadow-2xs'
+                                        : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
                                     }
-                                    ${idx !== 0 ? 'border-t border-gray-50' : ''}
                                 `}
                             >
-                                <span className="text-[13px]">{opt.emoji}</span>
+                                <span className="text-[12px]">{opt.emoji}</span>
                                 <span>{opt.label}</span>
                                 {isSelected && (
-                                    <CheckCircle2 className="w-3.5 h-3.5 ml-auto opacity-90" />
+                                    <CheckCircle2 className="w-3 h-3 ml-auto text-white" />
                                 )}
                             </button>
                         );
@@ -526,8 +525,8 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                     subtitle="Track customer orders, manage statuses, and dispatch parcels to couriers in real time."
                     action={
                         <Link href={route('admin.orders.create')}>
-                            <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#009E49] text-white text-xs font-bold shadow-md hover:bg-[#007F3B] transition-colors border-none cursor-pointer">
-                                <Plus className="w-4 h-4" />
+                            <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#009E49] text-white text-xs font-semibold shadow-xs hover:bg-[#007F3B] hover:shadow-sm active:scale-98 transition-all border-none cursor-pointer select-none">
+                                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                                 <span>Create Order</span>
                             </button>
                         </Link>
@@ -543,7 +542,7 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                             <Link
                                 key={card.key}
                                 href={route('admin.orders.index', { status: card.key })}
-                                className={`group flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border transition-all duration-200 cursor-pointer ${
+                                className={`group flex items-center justify-between p-3.5 sm:p-4 rounded-xl border transition-all duration-150 cursor-pointer ${
                                     isSelected
                                         ? ACTIVE_CARD
                                         : 'bg-white border-slate-200/80 hover:border-slate-300 hover:shadow-xs'
@@ -675,7 +674,9 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
 
                                             <td className="px-4 py-4">
                                                 <div className="text-[14px] font-black text-slate-800">৳{order.total}</div>
-                                                <StatusPill status={order.payment_status} />
+                                                <div className="mt-1">
+                                                    <StatusPill status={order.payment_status} />
+                                                </div>
                                             </td>
 
                                             <td className="px-4 py-4">
@@ -747,16 +748,16 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                                                             onClick={() => handleSendToCourier(order.id, getRowCourier(order.id))}
                                                             disabled={isSubmittingCourier === order.id}
                                                             className="
-                                                                h-9 px-4 rounded-xl
-                                                                bg-[#009E49] hover:bg-[#007F3B] active:bg-[#006432]
-                                                                text-white text-[12px] font-black
+                                                                h-8 px-3 rounded-lg
+                                                                bg-[#009E49] hover:bg-[#00873E] active:scale-98
+                                                                text-white text-[12px] font-semibold
                                                                 border-none
-                                                                shadow-[0_3px_12px_rgba(0,158,73,0.38)] hover:shadow-[0_5px_16px_rgba(0,158,73,0.52)]
+                                                                shadow-xs hover:shadow-sm
                                                                 transition-all duration-150
                                                                 flex items-center gap-1.5
                                                                 cursor-pointer
                                                                 disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none
-                                                                whitespace-nowrap
+                                                                whitespace-nowrap select-none
                                                             "
                                                             title={`Send to ${getRowCourier(order.id)} Courier`}
                                                         >
@@ -783,19 +784,19 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                                                                     courier: getRowCourier(order.id)
                                                                 })}
                                                                 className="
-                                                                    w-9 h-9 rounded-xl
-                                                                    bg-[#EEF2F6] hover:bg-[#E2E8F0]
-                                                                    border border-[#CBD5E1]/70
-                                                                    text-[#334155] hover:text-[#005E26]
+                                                                    w-8 h-8 rounded-lg
+                                                                    bg-slate-100 hover:bg-slate-200
+                                                                    border border-slate-200
+                                                                    text-slate-600 hover:text-[#009E49]
                                                                     flex items-center justify-center
                                                                     transition-all duration-150
                                                                     cursor-pointer
                                                                     shrink-0
-                                                                    shadow-xs
+                                                                    shadow-2xs
                                                                 "
                                                                 title={`${order.customer_name} এর কুরিয়ার সাকসেস রেট দেখুন`}
                                                             >
-                                                                <RotateCcw className="w-4 h-4 text-[#334155]" />
+                                                                <RotateCcw className="w-3.5 h-3.5" />
                                                             </button>
                                                         )}
                                                     </div>

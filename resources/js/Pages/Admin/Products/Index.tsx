@@ -53,8 +53,9 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                     subtitle={`${products.total} টি পণ্য আপনার স্টোরে আছে`}
                     action={
                         <Link href={route('admin.products.create')}>
-                            <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#009E49] text-white text-[14px] font-bold hover:bg-[#007F3B] transition-all shadow-[0_4px_14px_rgba(0,158,73,0.2)] border-none cursor-pointer">
-                                <Plus className="w-4 h-4" /> Add New Product
+                            <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#009E49] text-white text-xs font-semibold hover:bg-[#007F3B] transition-all shadow-xs hover:shadow-sm active:scale-98 border-none cursor-pointer select-none">
+                                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                                <span>Add New Product</span>
                             </button>
                         </Link>
                     }
