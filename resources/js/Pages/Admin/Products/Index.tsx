@@ -1,23 +1,84 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/layouts/AdminLayout';
-import { AdminCard, AdminPagination, StatusPill, PageHeader } from '@/components/admin/ui';
-import { Edit, Trash2, Plus, Search, Eye, Package } from 'lucide-react';
-import { toast } from 'sonner';
+import { AdminCard, AdminPagination, PageHeader } from '@/components/admin/ui';
+import {
+    Edit,
+    Trash2,
+    Plus,
+    Search,
+    Eye,
+    Package,
+    Flame,
+    Sparkles,
+    Loader2,
+    X,
+} from 'lucide-react';
+import { toast, Toaster } from 'sonner';
 
 interface IndexProps {
     products: { data: any[]; links: any[]; total: number; };
-    filters: { q?: string; status?: string; };
+    filters: { q?: string; status?: string; featured?: string; };
 }
 
 export const Index: React.FC<IndexProps> = ({ products, filters }) => {
     const [searchQuery, setSearchQuery] = useState(filters.q || '');
     const [statusFilter, setStatusFilter] = useState(filters.status || 'all');
+    const [featuredFilter, setFeaturedFilter] = useState(filters.featured || 'all');
+    const [isSearching, setIsSearching] = useState(false);
+    const [togglingId, setTogglingId] = useState<string | null>(null);
+    const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const applyFilters = (updatedParams = {}) => {
-        const params: any = { q: searchQuery, status: statusFilter === 'all' ? '' : statusFilter, ...updatedParams };
+        setIsSearching(true);
+        const params: any = {
+            q: searchQuery.trim(),
+            status: statusFilter === 'all' ? '' : statusFilter,
+            featured: featuredFilter === 'all' ? '' : featuredFilter,
+            ...updatedParams,
+        };
         Object.keys(params).forEach(k => { if (!params[k]) delete params[k]; });
-        router.get(route('admin.products.index'), params, { preserveState: true });
+        router.get(route('admin.products.index'), params, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+            onFinish: () => setIsSearching(false),
+        });
+    };
+
+    const handleSearchChange = (val: string) => {
+        setSearchQuery(val);
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+        searchTimeoutRef.current = setTimeout(() => {
+            applyFilters({ q: val.trim() });
+        }, 220);
+    };
+
+    const handleClearSearch = () => {
+        setSearchQuery('');
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current);
+        }
+        applyFilters({ q: '' });
+    };
+
+    const handleToggleFeatured = (productId: number, feature: 'is_best_selling' | 'is_new_arrival') => {
+        setTogglingId(`${productId}-${feature}`);
+        router.post(
+            route('admin.products.toggle-featured', { id: productId }),
+            { feature },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    const label = feature === 'is_best_selling' ? '🔥 সর্বাধিক বিক্রিত পণ্য' : '✨ নতুন পণ্য সমূহ';
+                    toast.success(`${label} স্ট্যাটাস সফলভাবে পরিবর্তন করা হয়েছে!`);
+                },
+                onError: () => toast.error('স্ট্যাটাস পরিবর্তন করতে ব্যর্থ হয়েছে।'),
+                onFinish: () => setTogglingId(null),
+            }
+        );
     };
 
     const handleDelete = (id: number) => {
@@ -29,14 +90,26 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
         }
     };
 
+    const handleToggleStatus = (productId: number) => {
+        router.post(
+            route('admin.products.toggle-status', { id: productId }),
+            {},
+            {
+                preserveScroll: true,
+                onSuccess: () => toast.success('স্ট্যাটাস সফলভাবে পরিবর্তন করা হয়েছে!'),
+                onError: () => toast.error('স্ট্যাটাস পরিবর্তন করতে ব্যর্থ হয়েছে।'),
+            }
+        );
+    };
+
     const statusBadge = (s: string) => {
         const map: Record<string, string> = {
-            active:   'bg-emerald-50 text-emerald-600 border border-emerald-100',
-            draft:    'bg-amber-50 text-amber-600 border border-amber-100',
-            archived: 'bg-gray-100 text-gray-500 border border-gray-200',
+            active:   'bg-emerald-50 text-emerald-700 border-emerald-200',
+            draft:    'bg-amber-50 text-amber-700 border-amber-200',
+            archived: 'bg-gray-100 text-gray-600 border-gray-200',
         };
         return (
-            <span className={`inline-flex items-center px-3 py-1 rounded-full text-[12px] font-bold ${map[s] || 'bg-gray-100 text-gray-500'}`}>
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${map[s] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>
                 {s.charAt(0).toUpperCase() + s.slice(1)}
             </span>
         );
@@ -44,7 +117,8 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
 
     return (
         <AdminLayout>
-            <Head title="Products" />
+            <Toaster position="top-center" richColors />
+            <Head title="Products Management | ChutirMart" />
             <div className="space-y-6">
 
                 {/* ── Header ── */}
@@ -53,31 +127,67 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                     subtitle={`${products.total} টি পণ্য আপনার স্টোরে আছে`}
                     action={
                         <Link href={route('admin.products.create')}>
-                            <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#009E49] text-white text-xs font-semibold hover:bg-[#007F3B] transition-all shadow-xs hover:shadow-sm active:scale-98 border-none cursor-pointer select-none">
-                                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                                <span>Add New Product</span>
+                            <button className="h-9 sm:h-10 px-3.5 sm:px-4 rounded-lg bg-[#009E49] hover:bg-[#007F3B] text-white text-xs sm:text-[13px] font-semibold flex items-center gap-1.5 transition-all shadow-xs border-none cursor-pointer">
+                                <Plus className="w-4 h-4" />
+                                <span>+ Add New Product</span>
                             </button>
                         </Link>
                     }
                 />
 
-                {/* ── Filters ── */}
+                {/* ── Filters Bar ── */}
                 <AdminCard className="p-4">
                     <div className="flex flex-col sm:flex-row gap-3">
                         <form onSubmit={e => { e.preventDefault(); applyFilters(); }} className="relative flex-1">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[#C0C6D8]" />
+                            <Search className={`absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 transition-colors ${
+                                isSearching || searchQuery ? 'text-[#009E49]' : 'text-slate-400'
+                            }`} />
                             <input
                                 type="text"
-                                placeholder="পণ্যের নাম দিয়ে খুঁজুন..."
+                                placeholder="পণ্যের নাম বা প্রোডাক্ট কোড দিয়ে খুঁজুন..."
                                 value={searchQuery}
-                                onChange={e => setSearchQuery(e.target.value)}
-                                className="w-full h-11 pl-11 pr-4 rounded-xl border border-[#EBEDF2] bg-[#F7F8FA] text-[14px] text-[#2D3048] placeholder-[#C0C6D8] focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all"
+                                onChange={e => handleSearchChange(e.target.value)}
+                                className="w-full h-10 pl-10 pr-20 rounded-lg border border-slate-200 bg-slate-50/70 text-[13px] sm:text-[13.5px] text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all"
                             />
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                                {isSearching && (
+                                    <Loader2 className="w-3.5 h-3.5 text-[#009E49] animate-spin" />
+                                )}
+                                {searchQuery && (
+                                    <button
+                                        type="button"
+                                        onClick={handleClearSearch}
+                                        className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 border-none bg-transparent cursor-pointer transition-colors"
+                                        title="Clear search"
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
+                                )}
+                            </div>
                         </form>
+
+                        {/* Featured Showcase Filter */}
+                        <select
+                            value={featuredFilter}
+                            onChange={e => {
+                                setFeaturedFilter(e.target.value);
+                                applyFilters({ featured: e.target.value === 'all' ? '' : e.target.value });
+                            }}
+                            className="h-10 px-3 rounded-lg border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all cursor-pointer min-w-[190px]"
+                        >
+                            <option value="all">হোমপেজ সেকশন: All</option>
+                            <option value="best_selling">🔥 সর্বাধিক বিক্রিত পণ্য</option>
+                            <option value="new_arrival">✨ নতুন পণ্য সমূহ</option>
+                        </select>
+
+                        {/* Status Filter */}
                         <select
                             value={statusFilter}
-                            onChange={e => { setStatusFilter(e.target.value); applyFilters({ status: e.target.value === 'all' ? '' : e.target.value }); }}
-                            className="h-11 px-4 rounded-xl border border-[#EBEDF2] bg-[#F7F8FA] text-[14px] text-[#2D3048] focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all cursor-pointer min-w-[160px]"
+                            onChange={e => {
+                                setStatusFilter(e.target.value);
+                                applyFilters({ status: e.target.value === 'all' ? '' : e.target.value });
+                            }}
+                            className="h-10 px-3 rounded-lg border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all cursor-pointer min-w-[140px]"
                         >
                             <option value="all">All Statuses</option>
                             <option value="active">Active</option>
@@ -87,89 +197,142 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                     </div>
                 </AdminCard>
 
-                {/* ── Table ── */}
+                {/* ── Products Table ── */}
                 <AdminCard className="overflow-hidden">
-                    <div className="flex items-center justify-between px-6 py-4 border-b border-[#EBEDF2]">
-                        <h3 className="text-[15px] font-black text-[#1A1A2E]">All Products</h3>
-                        <span className="text-[12px] text-[#9096B0] bg-[#F7F8FA] px-3 py-1 rounded-full font-semibold">{products.total} products</span>
+                    <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white">
+                        <h3 className="text-[15px] font-black text-slate-800">All Products</h3>
+                        <span className="text-[12px] text-slate-500 bg-slate-100 px-3 py-1 rounded-full font-bold">
+                            {products.total} products
+                        </span>
                     </div>
 
-                    <table className="w-full">
-                        <thead>
-                            <tr className="border-b border-[#EBEDF2] bg-[#F7F8FA]">
-                                <th className="text-left text-[11px] font-bold text-[#9096B0] uppercase tracking-wider px-6 py-3.5 w-16">IMG</th>
-                                <th className="text-left text-[11px] font-bold text-[#9096B0] uppercase tracking-wider px-4 py-3.5">Product</th>
-                                <th className="text-left text-[11px] font-bold text-[#9096B0] uppercase tracking-wider px-4 py-3.5">Code</th>
-                                <th className="text-left text-[11px] font-bold text-[#9096B0] uppercase tracking-wider px-4 py-3.5">Price</th>
-                                <th className="text-left text-[11px] font-bold text-[#9096B0] uppercase tracking-wider px-4 py-3.5">Stock</th>
-                                <th className="text-left text-[11px] font-bold text-[#9096B0] uppercase tracking-wider px-4 py-3.5">Status</th>
-                                <th className="text-right text-[11px] font-bold text-[#9096B0] uppercase tracking-wider px-6 py-3.5">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {products.data.length === 0 ? (
-                                <tr>
-                                    <td colSpan={7} className="text-center py-20 text-[#9096B0]">
-                                        <Package className="w-12 h-12 mx-auto mb-3 text-[#EBEDF2]" />
-                                        <p className="text-[15px] font-semibold">কোনো পণ্য পাওয়া যায়নি</p>
-                                        <p className="text-[13px] mt-1">নতুন পণ্য যোগ করুন</p>
-                                    </td>
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b border-slate-100 bg-slate-50/80">
+                                    <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-6 py-3.5 w-16">IMG</th>
+                                    <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Product</th>
+                                    <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Code</th>
+                                    <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Price</th>
+                                    <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Stock</th>
+                                    <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Status</th>
+                                    <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">হোমপেজ সেকশন (Showcase)</th>
+                                    <th className="text-right text-[11px] font-bold text-slate-400 uppercase tracking-wider px-6 py-3.5">Actions</th>
                                 </tr>
-                            ) : products.data.map(product => (
-                                <tr key={product.id} className="border-b border-[#F7F8FA] hover:bg-[#FAFBFC] transition-colors">
-                                    <td className="px-6 py-4">
-                                        <div className="w-12 h-12 rounded-md overflow-hidden shrink-0 border border-slate-200/80 bg-[#F7F8FA] flex items-center justify-center shadow-2xs">
-                                            <img
-                                                src={product.images?.[0]?.image_path || '/storage/defaults/default-product.svg'}
-                                                onError={e => {
-                                                    (e.target as HTMLImageElement).src = '/storage/defaults/default-product.svg';
-                                                }}
-                                                alt={product.name}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <p className="text-[14px] font-bold text-[#1A1A2E] max-w-[220px] truncate">{product.name}</p>
-                                        <p className="text-[12px] text-[#9096B0] mt-0.5">{product.brand?.name || '—'}</p>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <span className="text-[12px] font-mono font-bold text-[#6C6C9A] bg-[#F0EFFE] px-2.5 py-1 rounded-lg">{product.product_code || '—'}</span>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <span className="text-[14px] font-black text-[#1A1A2E]">৳{product.price}</span>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <span className={`text-[14px] font-bold ${product.stock_quantity <= 10 ? 'text-red-500' : 'text-emerald-600'}`}>
-                                            {product.stock_quantity}
-                                        </span>
-                                    </td>
-                                    <td className="px-4 py-4">{statusBadge(product.status)}</td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <Link href={route('product.show', { slug: product.slug })} target="_blank">
-                                                <button className="w-9 h-9 rounded-xl bg-[#EEF2FF] text-[#6C47FF] hover:bg-[#6C47FF] hover:text-white transition-all flex items-center justify-center border-none cursor-pointer" title="View">
-                                                    <Eye className="w-4 h-4" />
-                                                </button>
-                                            </Link>
-                                            <Link href={route('admin.products.edit', { id: product.id })}>
-                                                <button className="w-9 h-9 rounded-xl bg-[#E3FAF0] text-[#16A34A] hover:bg-[#16A34A] hover:text-white transition-all flex items-center justify-center border-none cursor-pointer" title="Edit">
-                                                    <Edit className="w-4 h-4" />
-                                                </button>
-                                            </Link>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                {products.data.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={8} className="text-center py-20 text-slate-400">
+                                            <Package className="w-12 h-12 mx-auto mb-3 text-slate-200" />
+                                            <p className="text-[15px] font-semibold text-slate-700">কোনো পণ্য পাওয়া যায়নি</p>
+                                            <p className="text-[13px] mt-1 text-slate-400">নতুন পণ্য যোগ করুন অথবা ফিল্টার পরিবর্তন করুন</p>
+                                        </td>
+                                    </tr>
+                                ) : products.data.map(product => (
+                                    <tr key={product.id} className="hover:bg-slate-50/60 transition-colors">
+                                        <td className="px-6 py-3.5">
+                                            <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-white flex items-center justify-center shadow-2xs">
+                                                <img
+                                                    src={product.images?.[0]?.image_path || '/storage/defaults/default-product.svg'}
+                                                    onError={e => {
+                                                        (e.target as HTMLImageElement).src = '/storage/defaults/default-product.svg';
+                                                    }}
+                                                    alt={product.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3.5">
+                                            <p className="text-[13.5px] font-bold text-slate-800 max-w-[220px] truncate">{product.name}</p>
+                                            <p className="text-[11.5px] text-slate-400 mt-0.5">{product.brand?.name || '—'}</p>
+                                        </td>
+                                        <td className="px-4 py-3.5">
+                                            <span className="text-[11.5px] font-mono font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200/60">{product.product_code || '—'}</span>
+                                        </td>
+                                        <td className="px-4 py-3.5">
+                                            <span className="text-[13.5px] font-black text-slate-800">৳{product.price}</span>
+                                        </td>
+                                        <td className="px-4 py-3.5">
+                                            <span className={`text-[12.5px] font-bold ${product.stock_quantity <= 5 ? 'text-rose-600' : 'text-emerald-700'}`}>
+                                                {product.stock_quantity}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3.5">
                                             <button
-                                                onClick={() => handleDelete(product.id)}
-                                                className="w-9 h-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center border-none cursor-pointer"
-                                                title="Delete"
+                                                type="button"
+                                                onClick={() => handleToggleStatus(product.id)}
+                                                className="border-none bg-transparent p-0 cursor-pointer hover:opacity-85 transition-opacity"
+                                                title={`Click to change status to ${product.status === 'active' ? 'Draft' : 'Active'}`}
                                             >
-                                                <Trash2 className="w-4 h-4" />
+                                                {statusBadge(product.status)}
                                             </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                        </td>
+
+                                        {/* Homepage Showcase Column */}
+                                        <td className="px-4 py-3.5">
+                                            <div className="flex flex-wrap items-center gap-1.5">
+                                                {/* Best Selling Toggle */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleToggleFeatured(product.id, 'is_best_selling')}
+                                                    disabled={togglingId === `${product.id}-is_best_selling`}
+                                                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold border transition-all cursor-pointer ${
+                                                        product.is_best_selling
+                                                            ? 'bg-orange-50 text-orange-700 border-orange-300 shadow-2xs'
+                                                            : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-orange-600 hover:border-orange-200 hover:bg-orange-50/50'
+                                                    }`}
+                                                    title={product.is_best_selling ? "Click to remove from '🔥 সর্বাধিক বিক্রিত পণ্য'" : "Click to add to '🔥 সর্বাধিক বিক্রিত পণ্য'"}
+                                                >
+                                                    <Flame className={`w-3.5 h-3.5 ${product.is_best_selling ? 'text-orange-500 fill-orange-500' : 'text-slate-400'}`} />
+                                                    <span>সর্বাধিক বিক্রিত</span>
+                                                </button>
+
+                                                {/* New Arrival Toggle */}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleToggleFeatured(product.id, 'is_new_arrival')}
+                                                    disabled={togglingId === `${product.id}-is_new_arrival`}
+                                                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold border transition-all cursor-pointer ${
+                                                        product.is_new_arrival
+                                                            ? 'bg-amber-50 text-amber-800 border-amber-300 shadow-2xs'
+                                                            : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-amber-600 hover:border-amber-200 hover:bg-amber-50/50'
+                                                    }`}
+                                                    title={product.is_new_arrival ? "Click to remove from '✨ নতুন পণ্য সমূহ'" : "Click to add to '✨ নতুন পণ্য সমূহ'"}
+                                                >
+                                                    <Sparkles className={`w-3.5 h-3.5 ${product.is_new_arrival ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`} />
+                                                    <span>নতুন পণ্য</span>
+                                                </button>
+                                            </div>
+                                        </td>
+
+                                        {/* Actions */}
+                                        <td className="px-6 py-3.5 text-right">
+                                            <div className="flex items-center justify-end gap-1.5">
+                                                <Link href={route('product.show', { slug: product.slug })} target="_blank">
+                                                    <button className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-[#009E49] transition-all flex items-center justify-center border-none cursor-pointer" title="View Storefront">
+                                                        <Eye className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </Link>
+                                                <Link href={route('admin.products.edit', { id: product.id })}>
+                                                    <button className="w-8 h-8 rounded-lg bg-emerald-50 text-[#009E49] hover:bg-[#009E49] hover:text-white transition-all flex items-center justify-center border-none cursor-pointer" title="Edit Product">
+                                                        <Edit className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </Link>
+                                                <button
+                                                    onClick={() => handleDelete(product.id)}
+                                                    className="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center border-none cursor-pointer"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
                     {/* Pagination */}
                     <AdminPagination links={products.links} />
@@ -178,5 +341,4 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
         </AdminLayout>
     );
 };
-
 export default Index;

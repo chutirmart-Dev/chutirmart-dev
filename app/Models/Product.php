@@ -17,7 +17,12 @@ class Product extends Model
         'name', 'slug', 'product_code', 'short_description', 'description',
         'price', 'compare_at_price', 'discount_type', 'discount_value',
         'cost_price', 'stock_quantity', 'low_stock_threshold', 'brand_id',
-        'youtube_url', 'meta_title', 'meta_description', 'status', 'total_sold',
+        'youtube_url', 'meta_title', 'meta_description', 'status', 'is_best_selling', 'is_new_arrival', 'total_sold',
+    ];
+
+    protected $casts = [
+        'is_best_selling' => 'boolean',
+        'is_new_arrival' => 'boolean',
     ];
 
     protected $appends = ['discounted_price', 'discount_percentage'];

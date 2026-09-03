@@ -3,6 +3,7 @@ import { Head, Link } from '@inertiajs/react';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { ProductCard } from '@/components/ProductCard';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { ProductCarouselSection } from '@/components/ProductCarouselSection';
 import { Star, MessageCircle, ShieldCheck, Truck, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -154,47 +155,27 @@ export const Home: React.FC<HomeProps> = ({
                 </Carousel>
             </section>
 
-            {/* Top Selling Products Grid */}
-            <section className="container py-6">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
-                        <span>🔥</span> সর্বাধিক বিক্রিত পণ্য
-                    </h2>
-                    <Link href={route('shop', { sort: 'best_selling' })} className="text-xs md:text-sm font-semibold text-primary hover:underline">
-                        সবগুলো দেখুন →
-                    </Link>
-                </div>
-                {topSelling.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-8">কোনো পণ্য পাওয়া যায়নি।</p>
-                ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {topSelling.map(product => (
-                            <ProductCard key={product.id} product={product} />
-                        ))}
-                    </div>
-                )}
-            </section>
+            {/* Top Selling Products Carousel */}
+            {topSelling && topSelling.length > 0 && (
+                <ProductCarouselSection
+                    title="সর্বাধিক বিক্রিত পণ্য"
+                    icon="🔥"
+                    viewAllHref={route('shop', { sort: 'best_selling' })}
+                    products={topSelling}
+                    autoPlayInterval={3800}
+                />
+            )}
 
-            {/* All Products Section */}
-            <section className="container py-6">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
-                        <span>✨</span> নতুন পণ্য সমূহ
-                    </h2>
-                    <Link href={route('shop')} className="text-xs md:text-sm font-semibold text-primary hover:underline">
-                        সবগুলো দেখুন →
-                    </Link>
-                </div>
-                {allProducts.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-8">কোনো পণ্য পাওয়া যায়নি।</p>
-                ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                        {allProducts.map(product => (
-                            <ProductCard key={product.id} product={product} />
-                        ))}
-                    </div>
-                )}
-            </section>
+            {/* New Arrival Products Carousel */}
+            {allProducts && allProducts.length > 0 && (
+                <ProductCarouselSection
+                    title="নতুন পণ্য সমূহ"
+                    icon="✨"
+                    viewAllHref={route('shop')}
+                    products={allProducts}
+                    autoPlayInterval={3400}
+                />
+            )}
 
             {/* Customer Reviews Section */}
             <section className="container py-8">

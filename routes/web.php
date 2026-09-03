@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminCourierController;
 use App\Http\Controllers\AdminCustomerController;
 use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\AdminProductController;
+use App\Http\Controllers\AdminSearchController;
 use App\Http\Controllers\AdminStoreController;
 use App\Http\Controllers\AdminTaxonomyController;
 use App\Http\Controllers\CheckoutController;
@@ -92,6 +93,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('admin.auth')->group(function () {
         // Dashboard Home
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/api/search', [AdminSearchController::class, 'search'])->name('api.search');
 
         // Products Management
         Route::get('/products', [AdminProductController::class, 'index'])->name('products.index');
@@ -100,6 +102,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/products/{id}/edit', [AdminProductController::class, 'edit'])->name('products.edit');
         Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('products.update');
         Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('products.destroy');
+        Route::post('/products/{id}/toggle-featured', [AdminProductController::class, 'toggleFeatured'])->name('products.toggle-featured');
+        Route::post('/products/{id}/toggle-status', [AdminProductController::class, 'toggleStatus'])->name('products.toggle-status');
 
         // Reviews approval
         Route::get('/reviews', [AdminProductController::class, 'reviews'])->name('reviews.index');

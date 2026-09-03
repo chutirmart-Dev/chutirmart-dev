@@ -24,6 +24,8 @@ export const Edit: React.FC<EditProps> = ({ product, brands, categories }) => {
         stock_quantity: product.stock_quantity,
         description: product.description || '',
         status: product.status,
+        is_best_selling: Boolean(product.is_best_selling),
+        is_new_arrival: Boolean(product.is_new_arrival),
         brand_id: product.brand_id || '',
         categories: product.categories.map((c: any) => c.id) as number[],
         main_image_id: (initialMainImage?.id || null) as number | null,
@@ -538,6 +540,74 @@ export const Edit: React.FC<EditProps> = ({ product, brands, categories }) => {
                                     ))}
                                 </AdminSelect>
                             </div>
+                        </div>
+                    </AdminCard>
+
+                    {/* Homepage Showcase (হোমপেজ সেকশন) */}
+                    <AdminCard className="p-6">
+                        <div className="mb-4">
+                            <h3 className="text-[14px] font-black text-[#1A1A2E]">Homepage Showcase</h3>
+                            <p className="text-[11px] text-[#9096B0] mt-0.5">হোমপেজে প্রদর্শনের সেকশন সিলেক্ট করুন</p>
+                        </div>
+
+                        <div className="space-y-3">
+                            <label className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                                data.is_best_selling
+                                    ? 'bg-orange-50/70 border-orange-200'
+                                    : 'bg-slate-50/60 border-slate-200/80 hover:bg-slate-50'
+                            }`}>
+                                <input
+                                    type="checkbox"
+                                    checked={data.is_best_selling}
+                                    onChange={e => {
+                                        const checked = e.target.checked;
+                                        setData(prev => ({
+                                            ...prev,
+                                            is_best_selling: checked,
+                                            is_new_arrival: checked ? false : prev.is_new_arrival,
+                                            status: checked && prev.status === 'draft' ? 'active' : prev.status,
+                                        }));
+                                    }}
+                                    className="mt-0.5 w-4 h-4 rounded text-orange-600 focus:ring-orange-500 cursor-pointer"
+                                />
+                                <div className="text-xs">
+                                    <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                                        <span>🔥</span> সর্বাধিক বিক্রিত পণ্য
+                                    </div>
+                                    <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                                        হোমপেজের "🔥 সর্বাধিক বিক্রিত পণ্য" সেকশনে সবার আগে দেখাবে
+                                    </p>
+                                </div>
+                            </label>
+
+                            <label className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                                data.is_new_arrival
+                                    ? 'bg-amber-50/70 border-amber-200'
+                                    : 'bg-slate-50/60 border-slate-200/80 hover:bg-slate-50'
+                            }`}>
+                                <input
+                                    type="checkbox"
+                                    checked={data.is_new_arrival}
+                                    onChange={e => {
+                                        const checked = e.target.checked;
+                                        setData(prev => ({
+                                            ...prev,
+                                            is_new_arrival: checked,
+                                            is_best_selling: checked ? false : prev.is_best_selling,
+                                            status: checked && prev.status === 'draft' ? 'active' : prev.status,
+                                        }));
+                                    }}
+                                    className="mt-0.5 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 cursor-pointer"
+                                />
+                                <div className="text-xs">
+                                    <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                                        <span>✨</span> নতুন পণ্য সমূহ
+                                    </div>
+                                    <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                                        হোমপেজের "✨ নতুন পণ্য সমূহ" সেকশনে সবার আগে দেখাবে
+                                    </p>
+                                </div>
+                            </label>
                         </div>
                     </AdminCard>
 

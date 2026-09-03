@@ -9,6 +9,7 @@ import {
     PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
+import { AdminGlobalSearch } from '@/components/admin/AdminGlobalSearch';
 
 interface AdminLayoutProps {
     children: React.ReactNode;
@@ -575,15 +576,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                 {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
                             </button>
 
-                            {/* Search Pill - Left Aligned */}
-                            <div className="relative w-full min-w-0">
-                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Search orders, products, customers..."
-                                    className="w-full h-10 pl-10 pr-4 rounded-full border border-slate-200 bg-slate-50/70 text-[13px] text-slate-700 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all"
-                                />
-                            </div>
+                            {/* Omnisearch: Orders, Products, Customers, Navigation */}
+                            <AdminGlobalSearch />
                         </div>
 
                         {/* Right: Actions */}

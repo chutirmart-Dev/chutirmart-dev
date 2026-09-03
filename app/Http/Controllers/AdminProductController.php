@@ -29,6 +29,14 @@ class AdminProductController extends Controller
             $query->where('status', $request->input('status'));
         }
 
+        if ($request->filled('featured')) {
+            if ($request->input('featured') === 'best_selling') {
+                $query->where('is_best_selling', true);
+            } elseif ($request->input('featured') === 'new_arrival') {
+                $query->where('is_new_arrival', true);
+            }
+        }
+
         $products = $query->with(['brand', 'categories', 'images' => fn ($q) => $q->where('is_main', true)])
             ->orderBy('created_at', 'desc')
             ->paginate(10)
@@ -36,7 +44,7 @@ class AdminProductController extends Controller
 
         return Inertia::render('Admin/Products/Index', [
             'products' => $products,
-            'filters' => $request->only(['q', 'status']),
+            'filters' => $request->only(['q', 'status', 'featured']),
         ]);
     }
 
@@ -64,6 +72,8 @@ class AdminProductController extends Controller
             'status' => 'required|string|in:active,draft,archived',
             'brand_id' => 'nullable|exists:brands,id',
             'categories' => 'required|array|min:1',
+            'is_best_selling' => 'nullable|boolean',
+            'is_new_arrival' => 'nullable|boolean',
             'main_image' => 'nullable|string',
             'gallery_images' => 'nullable|array',
             'gallery_images.*' => 'string',
@@ -75,6 +85,17 @@ class AdminProductController extends Controller
         return DB::transaction(function () use ($request) {
             $productCode = 'PRD-'.strtoupper(Str::random(6));
 
+            $isBestSelling = $request->boolean('is_best_selling');
+            $isNewArrival = $request->boolean('is_new_arrival');
+            if ($isBestSelling && $isNewArrival) {
+                $isNewArrival = false;
+            }
+
+            $status = $request->status;
+            if (($isBestSelling || $isNewArrival) && $status === 'draft') {
+                $status = 'active';
+            }
+
             $product = Product::create([
                 'name' => $request->name,
                 'slug' => Str::slug($request->name).'-'.rand(100, 999),
@@ -85,7 +106,9 @@ class AdminProductController extends Controller
                 'discount_value' => $request->discount_value,
                 'stock_quantity' => $request->stock_quantity,
                 'description' => $request->description,
-                'status' => $request->status,
+                'status' => $status,
+                'is_best_selling' => $isBestSelling,
+                'is_new_arrival' => $isNewArrival,
                 'brand_id' => $request->brand_id,
                 'youtube_url' => $request->youtube_url,
             ]);
@@ -172,6 +195,8 @@ class AdminProductController extends Controller
             'status' => 'required|string|in:active,draft,archived',
             'brand_id' => 'nullable|exists:brands,id',
             'categories' => 'required|array|min:1',
+            'is_best_selling' => 'nullable|boolean',
+            'is_new_arrival' => 'nullable|boolean',
             'youtube_url' => 'nullable|url',
             'main_image_id' => 'nullable|integer',
             'new_main_image' => 'nullable|string',
@@ -182,6 +207,17 @@ class AdminProductController extends Controller
         ]);
 
         return DB::transaction(function () use ($request, $product) {
+            $isBestSelling = $request->boolean('is_best_selling');
+            $isNewArrival = $request->boolean('is_new_arrival');
+            if ($isBestSelling && $isNewArrival) {
+                $isNewArrival = false;
+            }
+
+            $status = $request->status;
+            if (($isBestSelling || $isNewArrival) && $status === 'draft') {
+                $status = 'active';
+            }
+
             $product->update([
                 'name' => $request->name,
                 'price' => $request->price,
@@ -190,7 +226,9 @@ class AdminProductController extends Controller
                 'discount_value' => $request->discount_value,
                 'stock_quantity' => $request->stock_quantity,
                 'description' => $request->description,
-                'status' => $request->status,
+                'status' => $status,
+                'is_best_selling' => $isBestSelling,
+                'is_new_arrival' => $isNewArrival,
                 'brand_id' => $request->brand_id,
                 'youtube_url' => $request->youtube_url,
             ]);
@@ -310,5 +348,53 @@ class AdminProductController extends Controller
         ]);
 
         return back()->with('success', 'রিভিউ স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে।');
+    }
+
+    public function toggleFeatured(Request $request, string $id)
+    {
+        $request->validate([
+            'feature' => 'required|string|in:is_best_selling,is_new_arrival',
+        ]);
+
+        $product = Product::findOrFail($id);
+        $feature = $request->input('feature');
+        $otherFeature = $feature === 'is_best_selling' ? 'is_new_arrival' : 'is_best_selling';
+        $product->$feature = ! $product->$feature;
+
+        // If enabled, strictly deactivate the other showcase feature so products never appear in two sections
+        if ($product->$feature) {
+            $product->$otherFeature = false;
+        }
+
+        // Auto-activate if showcased from draft
+        if ($product->$feature && $product->status === 'draft') {
+            $product->status = 'active';
+        }
+
+        $product->save();
+
+        $label = $feature === 'is_best_selling' ? '🔥 সর্বাধিক বিক্রিত পণ্য' : '✨ নতুন পণ্য সমূহ';
+        $state = $product->$feature ? 'যুক্ত করা হয়েছে' : 'সরিয়ে ফেলা হয়েছে';
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'product' => $product,
+                'message' => "{$product->name} কে {$label} সেকশনে {$state}।",
+            ]);
+        }
+
+        return back()->with('success', "{$product->name} কে {$label} সেকশনে {$state}।");
+    }
+
+    public function toggleStatus(string $id)
+    {
+        $product = Product::findOrFail($id);
+        $product->status = $product->status === 'active' ? 'draft' : 'active';
+        $product->save();
+
+        $statusLabel = $product->status === 'active' ? 'Active (লাইভ)' : 'Draft (ড্রাফট)';
+
+        return back()->with('success', "{$product->name} এর স্ট্যাটাস {$statusLabel} করা হয়েছে।");
     }
 }

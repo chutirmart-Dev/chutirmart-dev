@@ -23,11 +23,15 @@ class AdminOrderController extends Controller
         }
 
         if ($request->filled('q')) {
-            $search = $request->input('q');
-            $query->where(function ($q) use ($search) {
-                $q->where('order_number', 'like', "%{$search}%")
-                    ->orWhere('customer_name', 'like', "%{$search}%")
-                    ->orWhere('mobile', 'like', "%{$search}%");
+            $rawSearch = trim((string) $request->input('q'));
+            $cleanSearch = ltrim($rawSearch, '#');
+
+            $query->where(function ($q) use ($rawSearch, $cleanSearch) {
+                $q->where('order_number', 'like', "%{$cleanSearch}%")
+                    ->orWhere('customer_name', 'like', "%{$rawSearch}%")
+                    ->orWhere('mobile', 'like', "%{$cleanSearch}%")
+                    ->orWhere('courier_tracking_code', 'like', "%{$cleanSearch}%")
+                    ->orWhere('consignment_id', 'like', "%{$cleanSearch}%");
             });
         }
 

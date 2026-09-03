@@ -30,17 +30,48 @@ class HomeController extends Controller
             ->orderBy('sort_order')
             ->get(['id', 'name', 'slug', 'icon']);
 
-        $topSelling = Product::where('status', 'active')
-            ->orderBy('total_sold', 'desc')
-            ->take(8)
-            ->with(['images' => fn ($q) => $q->where('is_main', true)])
-            ->get();
+        // 1. Best Selling Products (🔥 সর্বাধিক বিক্রিত পণ্য)
+        $hasCustomBestSelling = Product::where('status', 'active')->where('is_best_selling', true)->exists();
 
-        $allProducts = Product::where('status', 'active')
-            ->orderBy('created_at', 'desc')
-            ->take(8)
-            ->with(['images' => fn ($q) => $q->where('is_main', true)])
-            ->get();
+        if ($hasCustomBestSelling) {
+            // Strictly show ONLY products admin selected for Best Selling
+            $topSelling = Product::where('status', 'active')
+                ->where('is_best_selling', true)
+                ->latest('id')
+                ->with(['images' => fn ($q) => $q->where('is_main', true)])
+                ->get();
+        } else {
+            // Fallback only if admin has not selected any Best Selling products
+            $topSelling = Product::where('status', 'active')
+                ->where('is_new_arrival', false)
+                ->orderBy('total_sold', 'desc')
+                ->latest('id')
+                ->take(8)
+                ->with(['images' => fn ($q) => $q->where('is_main', true)])
+                ->get();
+        }
+
+        // 2. New Arrival Products (✨ নতুন পণ্য সমূহ)
+        $hasCustomNewArrivals = Product::where('status', 'active')->where('is_new_arrival', true)->exists();
+
+        if ($hasCustomNewArrivals) {
+            // Strictly show ONLY products admin selected for New Arrivals
+            $allProducts = Product::where('status', 'active')
+                ->where('is_new_arrival', true)
+                ->latest('id')
+                ->with(['images' => fn ($q) => $q->where('is_main', true)])
+                ->get();
+        } else {
+            // Fallback only if admin has not selected any New Arrival products
+            $topSellingIds = $topSelling->pluck('id')->toArray();
+            $allProducts = Product::where('status', 'active')
+                ->where('is_best_selling', false)
+                ->when(! empty($topSellingIds), fn ($q) => $q->whereNotIn('id', $topSellingIds))
+                ->latest('id')
+                ->take(8)
+                ->with(['images' => fn ($q) => $q->where('is_main', true)])
+                ->get();
+        }
 
         $reviews = Review::where('status', 'approved')
             ->orderBy('created_at', 'desc')
