@@ -53,6 +53,8 @@ class AdminStoreController extends Controller
             // Integrations & Pixels
             'facebook_pixel_id' => 'nullable|string',
             'facebook_access_token' => 'nullable|string',
+            'facebook_test_event_code' => 'nullable|string',
+            'gtm_container_id' => 'nullable|string',
             'sms_api_key' => 'nullable|string',
             'sms_sender_id' => 'nullable|string',
 

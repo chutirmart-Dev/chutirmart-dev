@@ -16,6 +16,7 @@ interface SearchableSelectProps {
     className?: string;
     error?: boolean | string;
     required?: boolean;
+    onDisabledClick?: () => void;
 }
 
 export const SearchableSelect: React.FC<SearchableSelectProps> = ({
@@ -28,6 +29,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     className = '',
     error,
     required = false,
+    onDisabledClick,
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
@@ -74,6 +76,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                 onClick={() => {
                     if (!disabled) {
                         setIsOpen(!isOpen);
+                    } else if (onDisabledClick) {
+                        onDisabledClick();
                     }
                 }}
                 className={`w-full h-12 px-4 rounded-xl border flex items-center justify-between gap-2 transition-all cursor-pointer select-none bg-white ${
@@ -94,7 +98,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
                             placeholder={searchPlaceholder}
-                            className="w-full bg-transparent border-none p-0 text-sm text-gray-800 placeholder-gray-400 focus:outline-none font-bangla"
+                            className="w-full bg-transparent border-none p-0 text-[15px] text-gray-900 placeholder:text-gray-500 focus:outline-none font-bangla"
                             onKeyDown={e => {
                                 if (e.key === 'Escape') {
                                     setIsOpen(false);
@@ -113,16 +117,16 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                         )}
                     </div>
                 ) : (
-                    <span className={`text-sm truncate font-bangla ${selectedOption ? 'text-gray-900 font-medium' : 'text-gray-400'}`}>
+                    <span className={`text-[15px] truncate font-bangla ${selectedOption ? 'text-gray-900 font-semibold' : 'text-gray-600 font-normal'}`}>
                         {selectedOption ? selectedOption.label : placeholder}
                     </span>
                 )}
 
-                <div className="text-gray-400 shrink-0">
+                <div className="text-gray-500 shrink-0">
                     {isOpen ? (
-                        <ChevronUp className="w-4 h-4 text-[#009E49]" />
+                        <ChevronUp className="w-4.5 h-4.5 text-[#009E49]" />
                     ) : (
-                        <ChevronDown className="w-4 h-4 text-gray-400" />
+                        <ChevronDown className="w-4.5 h-4.5 text-gray-500" />
                     )}
                 </div>
             </div>
@@ -140,7 +144,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                                 <div
                                     key={idx}
                                     onClick={() => handleSelect(opt.value)}
-                                    className={`px-4 py-2.5 text-sm cursor-pointer transition-colors flex items-center justify-between font-bangla ${
+                                    className={`px-4 py-2.5 text-[15px] cursor-pointer transition-colors flex items-center justify-between font-bangla ${
                                         isSelected
                                             ? 'bg-emerald-50 text-[#009E49] font-bold'
                                             : 'text-gray-700 hover:bg-emerald-50/60 hover:text-[#009E49]'

@@ -30,7 +30,7 @@ class StoreSetting extends Model
      */
     public static function getAllCached(): array
     {
-        return Cache::remember('store_settings_all', 3600, function () {
+        $raw = Cache::remember('store_settings_all', 3600, function () {
             $settings = self::all();
             $result = [];
 
@@ -42,16 +42,20 @@ class StoreSetting extends Model
                     default => $setting->value,
                 };
 
-                // Normalize logo and favicon URLs for live hosting
-                if (in_array($setting->key, ['site_logo', 'site_logo_mobile', 'favicon']) && is_string($val)) {
-                    $val = self::normalizeUrl($val);
-                }
-
                 $result[$setting->key] = $val;
             }
 
             return $result;
         });
+
+        // Resolve logo and favicon dynamically per request (never locks to a specific host/domain)
+        foreach (['site_logo', 'site_logo_mobile', 'favicon'] as $mediaKey) {
+            if (! empty($raw[$mediaKey]) && is_string($raw[$mediaKey])) {
+                $raw[$mediaKey] = self::normalizeUrl($raw[$mediaKey]);
+            }
+        }
+
+        return $raw;
     }
 
     public static function getValue(string $key, $default = null)

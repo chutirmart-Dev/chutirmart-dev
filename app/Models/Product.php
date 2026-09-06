@@ -17,12 +17,13 @@ class Product extends Model
         'name', 'slug', 'product_code', 'short_description', 'description',
         'price', 'compare_at_price', 'discount_type', 'discount_value',
         'cost_price', 'stock_quantity', 'low_stock_threshold', 'brand_id',
-        'youtube_url', 'meta_title', 'meta_description', 'status', 'is_best_selling', 'is_new_arrival', 'total_sold',
+        'youtube_url', 'meta_title', 'meta_description', 'status', 'is_best_selling', 'is_new_arrival', 'is_featured', 'total_sold',
     ];
 
     protected $casts = [
         'is_best_selling' => 'boolean',
         'is_new_arrival' => 'boolean',
+        'is_featured' => 'boolean',
     ];
 
     protected $appends = ['discounted_price', 'discount_percentage'];
@@ -55,6 +56,40 @@ class Product extends Model
     public function variants(): HasMany
     {
         return $this->hasMany(ProductVariant::class);
+    }
+
+    /**
+     * New dynamic variation system: multi-attribute combinations.
+     */
+    public function variations(): HasMany
+    {
+        return $this->hasMany(ProductVariation::class);
+    }
+
+    /**
+     * All attribute options assigned to this product (product_attribute_options pivot).
+     */
+    public function attributeOptions(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            AttributeValue::class,
+            'product_attribute_options',
+            'product_id',
+            'option_id'
+        )->withPivot('attribute_id')->with('attribute');
+    }
+
+    /**
+     * All attributes assigned to this product (derived from attributeOptions).
+     */
+    public function assignedAttributes(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Attribute::class,
+            'product_attribute_options',
+            'product_id',
+            'attribute_id'
+        )->distinct();
     }
 
     public function reviews(): HasMany

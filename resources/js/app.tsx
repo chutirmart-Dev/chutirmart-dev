@@ -1,13 +1,19 @@
 import '../css/app.css';
 import './bootstrap';
 
-import { createInertiaApp } from '@inertiajs/react';
+import { createInertiaApp, router } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 
 import { CartProvider } from './context/CartContext';
+import { trackPageView } from './lib/gtm';
 
 const appName = import.meta.env.VITE_APP_NAME || 'ChutirMart';
+
+// Track virtual page views across Inertia SPA transitions
+router.on('navigate', () => {
+    trackPageView(window.location.pathname, document.title);
+});
 
 createInertiaApp({
     title: (title) => `${title} - ${appName}`,

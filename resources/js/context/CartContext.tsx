@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { trackAddToCart } from '@/lib/gtm';
 
 export interface CartItem {
     id: number;
@@ -8,8 +9,13 @@ export interface CartItem {
     quantity: number;
     price: number;
     variant_info?: {
-        attribute: string;
-        value: string;
+        // New dynamic variation system
+        id?: number;
+        label?: string;
+        options?: Record<number, number>;
+        // Old format (backward compat)
+        attribute?: string;
+        value?: string;
         color_hex?: string;
     } | null;
 }
@@ -61,13 +67,27 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const addToCart = (product: any, quantity: number, variant: any = null, openDrawer: boolean = true) => {
-        const existingIndex = cartItems.findIndex(item => 
-            item.product_id === product.id && 
-            (!variant || (item.variant_info && item.variant_info.value === variant.value))
+        const existingIndex = cartItems.findIndex(item =>
+            item.product_id === product.id &&
+            (
+                // No variant selected — match items with no variant
+                (!variant && !item.variant_info) ||
+                // New system: match by variation id
+                (variant?.id !== undefined && item.variant_info?.id === variant.id) ||
+                // Old system: match by value string
+                (variant?.value !== undefined && item.variant_info?.value === variant.value)
+            )
         );
 
-        const price = product.discounted_price || product.price;
-        const image = product.images?.[0]?.image_path || '/storage/defaults/default-product.svg';
+        // Calculate price: variation effective_price / price takes precedence
+        let resolvedPrice = product.discounted_price || product.price;
+        if (variant?.effective_price !== undefined && variant?.effective_price !== null) {
+            resolvedPrice = variant.effective_price;
+        } else if (variant?.price !== undefined && variant?.price !== null) {
+            resolvedPrice = variant.price;
+        }
+
+        const image = variant?.image || variant?.image_path || product.images?.[0]?.image_path || '/storage/defaults/default-product.svg';
 
         let newCart = [...cartItems];
 
@@ -80,12 +100,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 name: product.name,
                 image: image,
                 quantity: quantity,
-                price: parseFloat(price),
+                price: parseFloat(resolvedPrice),
                 variant_info: variant
             });
         }
 
         saveCart(newCart);
+
+        // Dispatch GTM & Meta AddToCart event
+        trackAddToCart(product, quantity, variant);
+
         if (openDrawer) {
             setIsCartOpen(true);
         }

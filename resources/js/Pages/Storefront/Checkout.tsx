@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Trash2, Plus, Minus, CreditCard, Truck, ShoppingBag, ChevronDown } from 'lucide-react';
+import { Trash2, Plus, Minus, CreditCard, Truck, ShoppingBag, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { useCart } from '@/context/CartContext';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { trackInitiateCheckout } from '@/lib/gtm';
 
 interface CheckoutProps {
     districts: Array<{ id: number; name: string; delivery_charge: number | null }>;
@@ -19,6 +20,9 @@ interface CheckoutProps {
 }
 
 export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhaka, defaultOutsideDhaka }) => {
+    const { auth } = usePage().props as any;
+    const authUser = auth?.user;
+
     const { 
         cartItems, 
         cartCount, 
@@ -33,6 +37,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
     } = useCart();
 
     const [thanas, setThanas] = useState<Array<{ id: number; name: string }>>([]);
+    const [isLoadingThanas, setIsLoadingThanas] = useState(false);
     const [couponCode, setCouponCode] = useState('');
     const [couponError, setCouponError] = useState('');
     const [couponSuccess, setCouponSuccess] = useState('');
@@ -41,12 +46,15 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
 
     useEffect(() => {
         setIsCartOpen(false);
+        if (cartItems.length > 0) {
+            trackInitiateCheckout(cartItems, cartSubtotal);
+        }
     }, []);
 
     const { data, setData, post, processing, errors } = useForm({
-        customer_name: '',
-        mobile: '',
-        email: '',
+        customer_name: authUser?.name || '',
+        mobile: authUser?.phone || '',
+        email: authUser?.email || '',
         district: '',
         thana: '',
         address: '',
@@ -55,6 +63,14 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
         special_notes: '',
         agree: false,
     });
+
+    useEffect(() => {
+        if (authUser) {
+            if (!data.customer_name && authUser.name) setData('customer_name', authUser.name);
+            if (!data.mobile && authUser.phone) setData('mobile', authUser.phone);
+            if (!data.email && authUser.email) setData('email', authUser.email);
+        }
+    }, [authUser]);
 
     // Populate items in form data whenever cartItems changes
     useEffect(() => {
@@ -82,11 +98,14 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
             }
 
             // Fetch Thanas via AJAX
+            setIsLoadingThanas(true);
             try {
                 const response = await axios.get(route('api.thanas', { district_id: selected.id }));
                 setThanas(response.data);
             } catch (e) {
                 console.error("Failed to load thanas", e);
+            } finally {
+                setIsLoadingThanas(false);
             }
         }
     };
@@ -171,9 +190,15 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
             <Head title="চেকআউট" />
 
             <div className="container py-6">
-                <h1 className="text-xl md:text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2 font-bangla">
-                    <span>🛒</span> চেকআউট
-                </h1>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+                    <h1 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2 font-bangla">
+                        <span>🛒</span> চেকআউট
+                    </h1>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#009E49] text-xs font-bold w-fit shadow-2xs font-bangla">
+                        <CheckCircle2 className="w-4 h-4 text-[#009E49]" />
+                        <span>অ্যাকাউন্ট ছাড়াই সরাসরি অর্ডার কনফার্ম করুন</span>
+                    </div>
+                </div>
 
                 <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
                     
@@ -202,7 +227,9 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                             <div className="min-w-0">
                                                 <h4 className="text-xs sm:text-sm font-bold text-gray-800 line-clamp-1 leading-snug">{item.name}</h4>
                                                 {item.variant_info && (
-                                                    <span className="text-[11px] text-gray-500 font-medium block mt-0.5">ভ্যারিয়েন্ট: {item.variant_info.value}</span>
+                                                    <span className="text-[11px] text-[#009E49] font-semibold block mt-0.5">
+                                                        {item.variant_info.label || item.variant_info.value || 'Variant selected'}
+                                                    </span>
                                                 )}
                                                 <span className="text-xs text-gray-500 font-semibold block sm:hidden mt-1 font-latin">৳{item.price} × {item.quantity}</span>
                                             </div>
@@ -266,7 +293,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                             placeholder="আপনার নাম *" 
                                             value={data.customer_name} 
                                             onChange={e => setData('customer_name', e.target.value)} 
-                                            className={`w-full h-12 px-4 rounded-xl border ${errors.customer_name ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all font-bangla`}
+                                            className={`w-full h-12 px-4 rounded-xl border ${errors.customer_name ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 transition-all font-bangla`}
                                             required
                                         />
                                         {errors.customer_name && <p className="text-red-500 text-xs mt-1 font-bangla">{errors.customer_name}</p>}
@@ -274,8 +301,8 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
 
                                     {/* Mobile Input with 88 Prefix */}
                                     <div>
-                                        <div className={`flex rounded-xl border ${errors.mobile ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} overflow-hidden h-12 focus-within:border-[#009E49] focus-within:ring-2 focus-within:ring-[#009E49]/10 transition-all`}>
-                                            <div className="px-4 bg-gray-50/80 border-r border-gray-200 flex items-center justify-center text-sm font-bold text-gray-700 font-latin select-none">
+                                        <div className={`flex rounded-xl border ${errors.mobile ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} overflow-hidden h-12 focus-within:border-[#009E49] focus-within:ring-2 focus-within:ring-[#009E49]/15 transition-all`}>
+                                            <div className="px-4 bg-gray-50/80 border-r border-gray-300 flex items-center justify-center text-[15px] font-bold text-gray-700 font-latin select-none">
                                                 88
                                             </div>
                                             <input 
@@ -283,7 +310,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                                 placeholder="আপনার মোবাইল নম্বর *" 
                                                 value={data.mobile} 
                                                 onChange={e => setData('mobile', e.target.value)} 
-                                                className="flex-1 px-4 h-full border-none bg-transparent text-sm text-gray-800 placeholder-gray-400 focus:outline-none font-bangla"
+                                                className="flex-1 px-4 h-full border-none bg-transparent text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal focus:outline-none font-bangla"
                                                 type="tel"
                                                 required
                                             />
@@ -299,7 +326,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                         placeholder="জেলা, থানা, বাড়ি/ফ্ল্যাট নম্বর, রোড, এলাকা *" 
                                         value={data.address} 
                                         onChange={e => setData('address', e.target.value)} 
-                                        className={`w-full h-12 px-4 rounded-xl border ${errors.address ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all font-bangla`}
+                                        className={`w-full h-12 px-4 rounded-xl border ${errors.address ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 transition-all font-bangla`}
                                         required
                                     />
                                     {errors.address && <p className="text-red-500 text-xs mt-1 font-bangla">{errors.address}</p>}
@@ -326,9 +353,20 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                             options={thanas.map(t => ({ value: t.name, label: t.name }))}
                                             value={data.thana}
                                             onChange={(val) => setData('thana', val)}
-                                            placeholder="থানা সিলেক্ট করুন (ঐচ্ছিক)"
+                                            placeholder={
+                                                isLoadingThanas 
+                                                    ? "থানা লোড হচ্ছে..." 
+                                                    : data.district 
+                                                        ? "থানা সিলেক্ট করুন (ঐচ্ছিক)" 
+                                                        : "থানা সিলেক্ট করুন (প্রথমে জেলা নির্বাচন করুন)"
+                                            }
                                             searchPlaceholder="Type to search..."
-                                            disabled={!data.district}
+                                            disabled={!data.district || isLoadingThanas}
+                                            onDisabledClick={() => {
+                                                if (!data.district) {
+                                                    toast.info('অনুগ্রহ করে প্রথমে আপনার জেলা নির্বাচন করুন।');
+                                                }
+                                            }}
                                         />
                                     </div>
                                 </div>
@@ -393,9 +431,9 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                             placeholder="কুপন কোড লিখুন" 
                                             value={couponCode}
                                             onChange={e => setCouponCode(e.target.value)}
-                                            className="h-11 text-sm border-gray-300 rounded-xl focus-visible:ring-[#009E49] font-bangla"
+                                            className="h-11 text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal border-gray-300 rounded-xl focus-visible:ring-[#009E49]/15 focus-visible:border-[#009E49] font-bangla"
                                         />
-                                        <Button type="button" onClick={handleApplyCoupon} disabled={isValidatingCoupon} className="bg-[#009E49] hover:bg-[#007F3B] text-white font-bold h-11 px-5 border-none rounded-xl font-bangla shrink-0">
+                                        <Button type="button" onClick={handleApplyCoupon} disabled={isValidatingCoupon} className="bg-[#009E49] hover:bg-[#007F3B] text-white font-bold h-11 px-5 border-none rounded-xl font-bangla shrink-0 cursor-pointer">
                                             প্রয়োগ করুন
                                         </Button>
                                     </div>
@@ -428,14 +466,19 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                             </div>
 
                             {/* Special notes */}
-                            <div className="space-y-1.5 pt-2">
-                                <Label htmlFor="special_notes" className="text-xs font-bold text-gray-600 font-bangla">অতিরিক্ত নির্দেশনা বা নোট (ঐচ্ছিক)</Label>
+                            <div className="space-y-2 pt-2">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1 h-4 bg-[#009E49] rounded-full" />
+                                    <Label htmlFor="special_notes" className="text-xs sm:text-sm font-bold text-gray-900 font-bangla">
+                                        বিশেষ নির্দেশনা <span className="text-xs font-normal text-gray-500">(ঐচ্ছিক)</span>
+                                    </Label>
+                                </div>
                                 <Textarea 
                                     id="special_notes" 
                                     placeholder="ডেলিভারির জন্য কোনো বিশেষ নির্দেশনা থাকলে লিখুন..." 
                                     value={data.special_notes} 
                                     onChange={e => setData('special_notes', e.target.value)} 
-                                    className="min-h-[70px] text-sm border-gray-300 rounded-xl font-bangla"
+                                    className="min-h-[75px] text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal border-gray-300 rounded-xl focus-visible:ring-[#009E49]/15 focus-visible:border-[#009E49] font-bangla"
                                 />
                             </div>
 
@@ -445,9 +488,9 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                     id="agree" 
                                     checked={data.agree}
                                     onCheckedChange={checked => setData('agree', !!checked)}
-                                    className="border-gray-300 accent-[#009E49] w-4.5 h-4.5 mt-0.5"
+                                    className="border-gray-400 data-[state=checked]:bg-[#009E49] data-[state=checked]:border-[#009E49] w-4.5 h-4.5 mt-0.5 rounded cursor-pointer"
                                 />
-                                <Label htmlFor="agree" className="text-xs text-gray-600 leading-normal cursor-pointer font-medium font-bangla">
+                                <Label htmlFor="agree" className="text-xs sm:text-[13px] text-gray-700 leading-normal cursor-pointer font-medium font-bangla">
                                     আমি টার্মস & কন্ডিশনস, প্রাইভেসি পলিসি এবং রিফান্ড পলিসি পড়েছি এবং সম্মত আছি।
                                 </Label>
                             </div>

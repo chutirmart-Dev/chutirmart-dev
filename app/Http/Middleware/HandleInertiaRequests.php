@@ -57,6 +57,8 @@ class HandleInertiaRequests extends Middleware
                 'payment_cod_enabled' => $settings['payment_cod_enabled'] ?? 'true',
                 'terms_conditions' => $settings['terms_conditions'] ?? null,
                 'refund_policy' => $settings['refund_policy'] ?? null,
+                'gtm_container_id' => config('services.gtm.container_id') ?: ($settings['gtm_container_id'] ?? null),
+                'facebook_pixel_id' => config('services.meta.pixel_id') ?: ($settings['facebook_pixel_id'] ?? null),
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),

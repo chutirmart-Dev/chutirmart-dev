@@ -8,9 +8,11 @@ use App\Models\District;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductVariation;
 use App\Models\StoreSetting;
 use App\Models\Thana;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
@@ -29,13 +31,22 @@ class CheckoutController extends Controller
 
     public function getThanas(Request $request)
     {
-        $request->validate([
-            'district_id' => 'required|exists:districts,id',
-        ]);
+        $query = Thana::query();
 
-        $thanas = Thana::where('district_id', $request->district_id)
-            ->orderBy('name')
-            ->get(['id', 'name']);
+        if ($request->filled('district_id')) {
+            $query->where('district_id', $request->district_id);
+        } elseif ($request->filled('district_name')) {
+            $district = District::where('name', $request->district_name)->first();
+            if ($district) {
+                $query->where('district_id', $district->id);
+            } else {
+                return response()->json([]);
+            }
+        } else {
+            return response()->json([]);
+        }
+
+        $thanas = $query->orderBy('name')->get(['id', 'name']);
 
         return response()->json($thanas);
     }
@@ -99,16 +110,38 @@ class CheckoutController extends Controller
 
         foreach ($request->items as $item) {
             $product = Product::find($item['product_id']);
-            if (! $product || $product->stock_quantity < $item['quantity']) {
-                $pName = $product ? $product->name : 'নির্বাচিত পণ্য';
-                $available = $product ? $product->stock_quantity : 0;
-
+            if (! $product) {
                 return back()->withErrors([
-                    'items' => "{$pName} পর্যাপ্ত স্টকে নেই! সর্বোচ্চ উপলব্ধ স্টক: {$available}",
+                    'items' => 'নির্বাচিত পণ্য খুঁজে পাওয়া যায়নি!',
                 ]);
             }
 
-            $price = (float) $product->discounted_price;
+            $variation = null;
+            if (! empty($item['variant_info']['id'])) {
+                $variation = ProductVariation::where('product_id', $product->id)
+                    ->where('id', $item['variant_info']['id'])
+                    ->first();
+            }
+
+            // Check stock: if variation exists check variation stock, else check product stock
+            if ($variation) {
+                if ($variation->stock_quantity < $item['quantity'] || $variation->stock_status === 'out_of_stock') {
+                    $vLabel = $item['variant_info']['label'] ?? 'ভ্যারিয়েন্ট';
+
+                    return back()->withErrors([
+                        'items' => "{$product->name} ({$vLabel}) পর্যাপ্ত স্টকে নেই! সর্বোচ্চ উপলব্ধ স্টক: {$variation->stock_quantity}",
+                    ]);
+                }
+                $price = (float) $variation->effective_price;
+            } else {
+                if ($product->stock_quantity < $item['quantity']) {
+                    return back()->withErrors([
+                        'items' => "{$product->name} পর্যাপ্ত স্টকে নেই! সর্বোচ্চ উপলব্ধ স্টক: {$product->stock_quantity}",
+                    ]);
+                }
+                $price = (float) $product->discounted_price;
+            }
+
             $itemTotal = $price * $item['quantity'];
             $subtotal += $itemTotal;
 
@@ -120,6 +153,7 @@ class CheckoutController extends Controller
                 'unit_price' => $price,
                 'total_price' => $itemTotal,
                 'product_ref' => $product,
+                'variation_ref' => $variation,
             ];
         }
 
@@ -169,6 +203,7 @@ class CheckoutController extends Controller
                 $order = Order::create([
                     'order_number' => $orderNumber,
                     'customer_id' => $customer->id,
+                    'user_id' => Auth::id(),
                     'customer_name' => $request->customer_name,
                     'mobile' => $request->mobile,
                     'district' => $request->district,
@@ -203,6 +238,15 @@ class CheckoutController extends Controller
                     $product = $itemData['product_ref'];
                     $product->decrement('stock_quantity', $itemData['quantity']);
                     $product->increment('total_sold', $itemData['quantity']);
+
+                    // If variation exists, also deduct variation stock
+                    if (! empty($itemData['variation_ref'])) {
+                        $variation = $itemData['variation_ref'];
+                        $variation->decrement('stock_quantity', $itemData['quantity']);
+                        if ($variation->fresh()->stock_quantity <= 0) {
+                            $variation->update(['stock_status' => 'out_of_stock']);
+                        }
+                    }
                 }
             });
 

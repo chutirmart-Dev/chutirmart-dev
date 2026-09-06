@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
+import { trackViewContent } from '@/lib/gtm';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { ProductCard } from '@/components/ProductCard';
 import { Button } from '@/components/ui/button';
@@ -11,35 +12,117 @@ import { toast } from 'sonner';
 
 interface ProductSingleProps {
     product: any;
+    attributeGroups: any[];
+    variations: any[];
     relatedProducts: any[];
 }
 
-export const ProductSingle: React.FC<ProductSingleProps> = ({ product, relatedProducts }) => {
+export const ProductSingle: React.FC<ProductSingleProps> = ({ product, attributeGroups, variations, relatedProducts }) => {
     const { addToCart, setIsCartOpen } = useCart();
     const [selectedImage, setSelectedImage] = useState(product.images?.[0]?.image_path || '/storage/defaults/default-product.svg');
     const [quantity, setQuantity] = useState(1);
-    const [selectedVariant, setSelectedVariant] = useState<any>(null);
+    const [selectedOptions, setSelectedOptions] = useState<Record<number, number>>(() => {
+        const initial: Record<number, number> = {};
+        if (attributeGroups && attributeGroups.length > 0) {
+            attributeGroups.forEach(g => {
+                if (g.options && g.options.length > 0) {
+                    initial[g.id] = g.options[0].id;
+                }
+            });
+        }
+        return initial;
+    }); // {attrId: optionId}
     const [activeTab, setActiveTab] = useState<'details' | 'video' | 'reviews'>('details');
 
-    const currentPrice = product.discounted_price || product.price;
-    const originalPrice = product.compare_at_price;
+    // Find matching variation for the current selection
+    const selectedOptionIds = Object.values(selectedOptions).sort();
+    const hasAllAttributesSelected = attributeGroups.length > 0 && attributeGroups.every(g => selectedOptions[g.id]);
+    const matchedVariation = hasAllAttributesSelected
+        ? variations.find(v => {
+            const vOptionIds = [...v.option_ids].sort();
+            return (
+                vOptionIds.length === selectedOptionIds.length &&
+                vOptionIds.every((id: number, i: number) => id === selectedOptionIds[i])
+            );
+        }) ?? null
+        : null;
+
+    const currentPrice = matchedVariation?.effective_price ?? (product.discounted_price || product.price);
+    const originalPrice = matchedVariation?.price ?? product.compare_at_price;
+    const currentStock = matchedVariation ? matchedVariation.stock_quantity : product.stock_quantity;
+    const isOutOfStock = matchedVariation ? matchedVariation.stock_status === 'out_of_stock' : product.stock_quantity <= 0;
+
+    const selectedVariant = matchedVariation
+        ? {
+            id: matchedVariation.id,
+            label: selectedOptionIds
+                .map((id: number) => {
+                    for (const g of attributeGroups) {
+                        const opt = g.options.find((o: any) => o.id === id);
+                        if (opt) return `${g.name}: ${opt.value}`;
+                    }
+                    return null;
+                })
+                .filter(Boolean)
+                .join(', '),
+            options: selectedOptions,
+            price: matchedVariation.price,
+            effective_price: matchedVariation.effective_price,
+            image: matchedVariation.image_path || matchedVariation.image,
+            sku: matchedVariation.sku,
+        }
+        : null;
+
+    useEffect(() => {
+        const varImg = matchedVariation?.image_path || (matchedVariation as any)?.image;
+        if (varImg) {
+            setSelectedImage(varImg);
+        }
+    }, [matchedVariation?.id]);
+
+    useEffect(() => {
+        if (product && product.id) {
+            trackViewContent(product);
+        }
+    }, [product?.id]);
+
     const whatsAppNumber = "8801700000000"; // default fallback or from settings
     const callNumber = "01700-000000";
 
     const handleQuantityChange = (type: 'inc' | 'dec') => {
         if (type === 'dec' && quantity > 1) {
             setQuantity(quantity - 1);
-        } else if (type === 'inc' && quantity < product.stock_quantity) {
+        } else if (type === 'inc' && quantity < currentStock) {
             setQuantity(quantity + 1);
         }
     };
 
+    const handleSelectOption = (attrId: number, optionId: number) => {
+        setSelectedOptions(prev => ({ ...prev, [attrId]: optionId }));
+    };
+
     const handleAddToCart = () => {
+        if (attributeGroups.length > 0 && !hasAllAttributesSelected) {
+            toast.error('দয়া করে সব ভ্যারিয়েন্ট অপশন নির্বাচন করুন');
+            return;
+        }
+        if (isOutOfStock) {
+            toast.error('দুঃখিত, এই পণ্যটি স্টক আউট');
+            return;
+        }
         addToCart(product, quantity, selectedVariant, true);
         toast.success('পণ্যটি কার্টে যোগ করা হয়েছে! 🛒');
     };
 
     const handleBuyNow = () => {
+        if (attributeGroups.length > 0 && !hasAllAttributesSelected) {
+            toast.error('দয়া করে সব ভ্যারিয়েন্ট অপশন নির্বাচন করুন');
+            return;
+        }
+        if (isOutOfStock) {
+            toast.error('দুঃখিত, এই পণ্যটি স্টক আউট');
+            return;
+        }
         setIsCartOpen(false);
         addToCart(product, quantity, selectedVariant, false);
         router.visit(route('checkout'));
@@ -145,6 +228,65 @@ export const ProductSingle: React.FC<ProductSingleProps> = ({ product, relatedPr
                             </p>
                         )}
 
+                        {/* Attribute Selector — Dynamic Options */}
+                        {attributeGroups && attributeGroups.length > 0 && (
+                            <div className="space-y-3">
+                                {attributeGroups.map(group => (
+                                    <div key={group.id}>
+                                        <div className="text-xs font-black text-gray-700 mb-1.5">
+                                            {group.name}:{' '}
+                                            {selectedOptions[group.id] && (
+                                                <span className="font-semibold text-[#009E49]">
+                                                    {group.options.find((o: any) => o.id === selectedOptions[group.id])?.value}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {group.options.map((option: any) => {
+                                                const isSelected = selectedOptions[group.id] === option.id;
+                                                return (
+                                                    <button
+                                                        key={option.id}
+                                                        type="button"
+                                                        onClick={() => handleSelectOption(group.id, option.id)}
+                                                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-bold cursor-pointer transition-all ${
+                                                            isSelected
+                                                                ? 'bg-[#009E49] text-white border-[#009E49] shadow-sm'
+                                                                : 'bg-white text-gray-700 border-gray-200 hover:border-[#009E49]/50'
+                                                        }`}
+                                                    >
+                                                        {group.type === 'color' && option.color_hex && (
+                                                            <span
+                                                                style={{ backgroundColor: option.color_hex }}
+                                                                className={`w-3.5 h-3.5 rounded-full border ${
+                                                                    isSelected ? 'border-white/50' : 'border-black/10'
+                                                                }`}
+                                                            />
+                                                        )}
+                                                        {option.value}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {/* Variation mismatch warning */}
+                                {hasAllAttributesSelected && !matchedVariation && (
+                                    <p className="text-xs text-orange-500 bg-orange-50 px-3 py-2 rounded-lg border border-orange-200">
+                                        ⚠️ এই combination-এ পণ্যটি পাওয়া যাচ্ছে না।
+                                    </p>
+                                )}
+
+                                {/* Out of stock warning for matched variation */}
+                                {matchedVariation && isOutOfStock && (
+                                    <p className="text-xs text-red-600 bg-red-50 px-3 py-2 rounded-lg border border-red-200">
+                                        ❌ এই ভ্যারিয়েশনে স্টক নেই।
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
                         {/* Quantity Stepper */}
                         <div className="space-y-2">
                             <span className="text-xs font-bold text-gray-500 block">পরিমাণ</span>
@@ -165,26 +307,32 @@ export const ProductSingle: React.FC<ProductSingleProps> = ({ product, relatedPr
                                     </button>
                                 </div>
                                 <span className="text-xs text-gray-400">
-                                    {product.stock_quantity > 0 ? `স্টক আছে: ${product.stock_quantity} টি` : 'স্টক শেষ'}
+                                    {isOutOfStock ? (
+                                        <span className="text-red-500 font-bold">স্টক শেষ</span>
+                                    ) : (
+                                        `স্টক আছে: ${currentStock} টি`
+                                    )}
                                 </span>
                             </div>
                         </div>
 
                         {/* Action Buttons */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-                            <Button 
+                            <Button
                                 onClick={handleAddToCart}
-                                className="bg-primary hover:bg-primary/95 text-white h-14 text-base font-bold rounded-xl flex items-center justify-center gap-2 border-none"
+                                disabled={isOutOfStock}
+                                className="bg-primary hover:bg-primary/95 disabled:opacity-60 disabled:cursor-not-allowed text-white h-14 text-base font-bold rounded-xl flex items-center justify-center gap-2 border-none"
                             >
                                 <ShoppingCart className="w-5 h-5" />
-                                কার্টে যোগ করুন
+                                {isOutOfStock ? 'স্টক শেষ' : 'কার্টে যোগ করুন'}
                             </Button>
-                            
-                            <Button 
+
+                            <Button
                                 onClick={handleBuyNow}
-                                className="bg-[#E2231A] hover:bg-[#c61e16] text-white h-14 text-base font-bold rounded-xl flex items-center justify-center gap-2 border-none"
+                                disabled={isOutOfStock}
+                                className="bg-[#E2231A] hover:bg-[#c61e16] disabled:opacity-60 disabled:cursor-not-allowed text-white h-14 text-base font-bold rounded-xl flex items-center justify-center gap-2 border-none"
                             >
-                                এখনই অর্ডার করুন 🛍️
+                                {isOutOfStock ? 'পণ্য নেই' : 'এখনই অর্ডার করুন 🛍️'}
                             </Button>
                         </div>
 
@@ -326,7 +474,7 @@ export const ProductSingle: React.FC<ProductSingleProps> = ({ product, relatedPr
                         <h2 className="text-base md:text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
                             <span>🔗</span> মিলসম্পন্ন অন্যান্য পণ্য
                         </h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
                             {relatedProducts.map(prod => (
                                 <ProductCard key={prod.id} product={prod} />
                             ))}

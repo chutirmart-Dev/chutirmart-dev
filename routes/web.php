@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminAttributeController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminCourierController;
 use App\Http\Controllers\AdminCustomerController;
@@ -8,7 +9,9 @@ use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminSearchController;
 use App\Http\Controllers\AdminStoreController;
 use App\Http\Controllers\AdminTaxonomyController;
+use App\Http\Controllers\AdminVariationController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CustomerDashboardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
@@ -119,9 +122,26 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/tags', [AdminTaxonomyController::class, 'tags'])->name('tags.index');
         Route::post('/tags', [AdminTaxonomyController::class, 'storeTag'])->name('tags.store');
 
-        Route::get('/attributes', [AdminTaxonomyController::class, 'attributes'])->name('attributes.index');
-        Route::post('/attributes', [AdminTaxonomyController::class, 'storeAttribute'])->name('attributes.store');
-        Route::post('/attributes/value', [AdminTaxonomyController::class, 'storeAttributeValue'])->name('attributes.value.store');
+        // Attributes Management (full CRUD)
+        Route::get('/attributes', [AdminAttributeController::class, 'index'])->name('attributes.index');
+        Route::post('/attributes', [AdminAttributeController::class, 'store'])->name('attributes.store');
+        Route::put('/attributes/{id}', [AdminAttributeController::class, 'update'])->name('attributes.update');
+        Route::delete('/attributes/{id}', [AdminAttributeController::class, 'destroy'])->name('attributes.destroy');
+        Route::post('/attributes/{id}/toggle-status', [AdminAttributeController::class, 'toggleStatus'])->name('attributes.toggle-status');
+        Route::post('/attributes/reorder', [AdminAttributeController::class, 'reorder'])->name('attributes.reorder');
+
+        // Attribute Options (nested under attribute)
+        Route::post('/attributes/{attributeId}/options', [AdminAttributeController::class, 'storeOption'])->name('attributes.options.store');
+        Route::put('/attributes/{attributeId}/options/{optionId}', [AdminAttributeController::class, 'updateOption'])->name('attributes.options.update');
+        Route::delete('/attributes/{attributeId}/options/{optionId}', [AdminAttributeController::class, 'destroyOption'])->name('attributes.options.destroy');
+        Route::post('/attributes/{attributeId}/options/{optionId}/toggle-status', [AdminAttributeController::class, 'toggleOptionStatus'])->name('attributes.options.toggle-status');
+        Route::post('/attributes/{attributeId}/options/reorder', [AdminAttributeController::class, 'reorderOptions'])->name('attributes.options.reorder');
+
+        // Product Variations (nested under products)
+        Route::post('/products/{id}/variations/generate', [AdminVariationController::class, 'generate'])->name('products.variations.generate');
+        Route::post('/products/{id}/variations/bulk-update', [AdminVariationController::class, 'bulkUpdate'])->name('products.variations.bulk-update');
+        Route::put('/products/{id}/variations/{vid}', [AdminVariationController::class, 'update'])->name('products.variations.update');
+        Route::delete('/products/{id}/variations/{vid}', [AdminVariationController::class, 'destroy'])->name('products.variations.destroy');
 
         // Orders Management
         Route::get('/orders/create', [AdminOrderController::class, 'create'])->name('orders.create');
@@ -172,6 +192,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 */
 
 Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [CustomerDashboardController::class, 'index'])->name('dashboard');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

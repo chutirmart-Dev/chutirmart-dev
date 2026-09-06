@@ -36,18 +36,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <Link 
             href={route('product.show', { slug: product.slug })}
             prefetch
-            className="group flex flex-col h-full bg-white rounded-2xl overflow-hidden border border-[#E3E0D8] hover:border-gray-300 hover:shadow-[0_8px_30px_rgba(0,158,73,0.05)] transition-all duration-300"
+            className="group flex flex-col h-full bg-white rounded-lg overflow-hidden border border-[#E3E0D8] shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0px_18px_50px_-10px_rgba(0,0,0,0.2)] hover:-translate-y-1.5 transition-all duration-300"
         >
             {/* Image box */}
             <div className="relative aspect-square overflow-hidden bg-[#FAFDFB] w-full shrink-0">
                 {/* Save % badge at top-right */}
                 {discountPercentage > 0 ? (
-                    <div className="absolute top-2.5 right-2.5 z-10 bg-[#009E49] text-white font-bold text-[9px] px-2 py-0.5 rounded-md leading-relaxed select-none">
+                    <div className="absolute top-2.5 right-2.5 z-10 bg-[#009E49] text-white font-bold text-[9px] px-2 py-0.5 rounded leading-relaxed select-none">
                         Save {discountPercentage}%
                     </div>
                 ) : (
                     isNew && (
-                        <div className="absolute top-2.5 right-2.5 z-10 bg-[#E2231A] text-white font-bold text-[9px] px-2 py-0.5 rounded-md leading-relaxed select-none">
+                        <div className="absolute top-2.5 right-2.5 z-10 bg-[#E2231A] text-white font-bold text-[9px] px-2 py-0.5 rounded leading-relaxed select-none">
                             NEW
                         </div>
                     )
@@ -65,25 +65,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </div>
 
             {/* Product Details */}
-            <div className="p-3 md:p-4 flex flex-col flex-grow justify-between border-t border-[#FAFDFB]">
-                <div className="h-10 md:h-12 overflow-hidden flex items-start">
-                    <h3 className="text-xs md:text-sm font-semibold text-gray-800 line-clamp-2 leading-tight md:leading-normal group-hover:text-[#009E49] transition-colors duration-200">
+            <div className="p-2 sm:p-2.5 md:p-3 flex flex-col flex-grow justify-between border-t border-gray-100">
+                {/* Product Name and Price grouped together tightly */}
+                <div>
+                    <h3 className="text-[12.5px] sm:text-[13.5px] md:text-sm font-bold text-gray-900 line-clamp-2 leading-snug group-hover:text-[#009E49] transition-colors duration-200">
                         {product.name}
                     </h3>
-                </div>
-                
-                <div className="mt-3">
-                    <div className="flex items-baseline gap-2">
-                        <span className="text-sm md:text-base font-black text-[#E2231A]">৳{currentPrice}</span>
+                    
+                    <div className="mt-1 sm:mt-1.5 flex items-baseline gap-1.5 sm:gap-2">
+                        <span className="text-[14px] sm:text-base md:text-lg font-black text-[#E2231A]">৳{currentPrice}</span>
                         {originalPrice && parseFloat(originalPrice) > parseFloat(currentPrice) && (
-                            <span className="text-[10px] md:text-xs text-gray-400 line-through">৳{originalPrice}</span>
+                            <span className="text-[11px] sm:text-xs text-gray-400 line-through">৳{originalPrice}</span>
                         )}
                     </div>
+                </div>
 
-                    {/* Inline Quantity Selector or Add To Cart Button */}
+                {/* Inline Quantity Selector or Add To Cart Button */}
+                <div className="mt-2 sm:mt-2.5">
                     {isInCart ? (
                         <div 
-                            className="w-full mt-3 flex items-center justify-between border border-[#E2231A] rounded-lg overflow-hidden h-9 md:h-11 select-none bg-white shadow-sm"
+                            className="w-full flex items-center justify-between border border-[#E2231A] rounded-md overflow-hidden h-10 sm:h-11 select-none bg-white shadow-xs"
                             onClick={e => {
                                 e.preventDefault();
                                 e.stopPropagation();
@@ -91,16 +92,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         >
                             <button
                                 onClick={() => updateQuantity(cartItemIndex, currentQuantity - 1)}
-                                className="w-8 md:w-10 h-full bg-[#E2231A] text-white flex items-center justify-center font-bold text-sm md:text-lg hover:bg-[#c61e16] border-none cursor-pointer transition-colors"
+                                className="w-9 sm:w-11 h-full bg-[#E2231A] text-white flex items-center justify-center font-bold text-base hover:bg-[#c61e16] border-none cursor-pointer transition-colors"
                             >
                                 -
                             </button>
-                            <span className="flex-1 text-center text-[10px] md:text-xs font-black text-gray-800">
+                            <span className="flex-1 text-center text-xs sm:text-sm font-black text-gray-900">
                                 {currentQuantity}
                             </span>
                             <button
                                 onClick={() => updateQuantity(cartItemIndex, currentQuantity + 1)}
-                                className="w-8 md:w-10 h-full bg-[#E2231A] text-white flex items-center justify-center font-bold text-sm md:text-lg hover:bg-[#c61e16] border-none cursor-pointer transition-colors"
+                                className="w-9 sm:w-11 h-full bg-[#E2231A] text-white flex items-center justify-center font-bold text-base hover:bg-[#c61e16] border-none cursor-pointer transition-colors"
                             >
                                 +
                             </button>
@@ -109,10 +110,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         <Button 
                             onClick={handleAdd}
                             variant="outline" 
-                            className="w-full mt-3 border-[#E2231A] text-[#E2231A] hover:bg-[#E2231A] hover:text-white rounded-lg h-9 md:h-11 font-bold text-[10px] md:text-xs flex items-center justify-center gap-1 md:gap-1.5 transition-all duration-300 bg-white cursor-pointer shadow-sm"
+                            className="w-full border border-[#E2231A] text-[#E2231A] hover:bg-[#E2231A] hover:text-white rounded-md h-10 sm:h-11 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-98 bg-white cursor-pointer shadow-xs"
                         >
-                            <ShoppingCart className="w-3.5 h-3.5 md:w-4 h-4" />
-                            Add To Cart
+                            <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 stroke-[2.2]" />
+                            <span className="leading-none">Add To Cart</span>
                         </Button>
                     )}
                 </div>

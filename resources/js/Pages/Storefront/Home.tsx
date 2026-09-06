@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, Link } from '@inertiajs/react';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { ProductCard } from '@/components/ProductCard';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { ProductCarouselSection } from '@/components/ProductCarouselSection';
 import { Star, MessageCircle, ShieldCheck, Truck, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ interface HomeProps {
     categories: any[];
     topSelling: any[];
     allProducts: any[];
+    justForYou?: any[];
     reviews: any[];
     urgencyBanner: {
         text: string;
@@ -30,6 +31,7 @@ export const Home: React.FC<HomeProps> = ({
     categories,
     topSelling,
     allProducts,
+    justForYou,
     reviews,
     urgencyBanner,
     whatsappNumber,
@@ -42,24 +44,73 @@ export const Home: React.FC<HomeProps> = ({
 
     const activeSideBanner = sideBanner || (banners && banners.length > 1 ? banners[1] : null);
 
+    // Carousel API state & Smooth Autoplay
+    const [sliderApi, setSliderApi] = useState<CarouselApi>();
+    const [currentSlide, setCurrentSlide] = useState(0);
+    const [slideCount, setSlideCount] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+
+    useEffect(() => {
+        if (!sliderApi) return;
+
+        setSlideCount(sliderApi.scrollSnapList().length);
+        setCurrentSlide(sliderApi.selectedScrollSnap());
+
+        const onSelect = () => {
+            setCurrentSlide(sliderApi.selectedScrollSnap());
+        };
+
+        sliderApi.on('select', onSelect);
+        sliderApi.on('reInit', () => {
+            setSlideCount(sliderApi.scrollSnapList().length);
+            setCurrentSlide(sliderApi.selectedScrollSnap());
+        });
+
+        return () => {
+            sliderApi.off('select', onSelect);
+        };
+    }, [sliderApi]);
+
+    // Smooth automatic sliding every 4.5s with pause on user hover
+    useEffect(() => {
+        if (!sliderApi || isHovered || activeSliders.length <= 1) return;
+
+        const timer = setInterval(() => {
+            sliderApi.scrollNext();
+        }, 4500);
+
+        return () => clearInterval(timer);
+    }, [sliderApi, isHovered, activeSliders.length]);
+
     return (
         <StorefrontLayout>
             <Head title="বাংলাদেশের সেরা অনলাইন শপ" />
 
-            {/* Hero Banner Section */}
-            <section className="container py-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Hero Banner Section with Optimized Responsive Height */}
+            <section className="container py-4 sm:py-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
                     {/* Left: Larger Carousel Banner */}
-                    <div className="md:col-span-2 relative overflow-hidden bg-gray-100 rounded-2xl border border-[#E3E0D8]">
-                        <Carousel opts={{ loop: true }} className="w-full">
-                            <CarouselContent>
+                    <div 
+                        className="md:col-span-2 relative overflow-hidden bg-gray-100 rounded-2xl border border-[#E3E0D8] shadow-xs group"
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={() => setIsHovered(false)}
+                    >
+                        <Carousel 
+                            setApi={setSliderApi}
+                            opts={{ 
+                                loop: true, 
+                                duration: 40 
+                            }} 
+                            className="w-full"
+                        >
+                            <CarouselContent wrapperClassName="w-full h-full overflow-hidden" className="-ml-0">
                                 {activeSliders.length > 0 ? activeSliders.map((banner, index) => (
-                                    <CarouselItem key={index}>
-                                        <div className="relative h-[200px] sm:h-[300px] md:h-[380px] w-full">
+                                    <CarouselItem key={index} className="pl-0 basis-full min-w-0 shrink-0 grow-0">
+                                        <div className="relative h-[175px] sm:h-[250px] md:h-[300px] lg:h-[350px] w-full overflow-hidden">
                                             <img 
                                                 src={banner.image_path || '/storage/defaults/default-banner.svg'} 
                                                 alt={banner.title || 'Banner'} 
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.01]"
                                                 loading={index === 0 ? 'eager' : 'lazy'}
                                                 fetchPriority={index === 0 ? 'high' : 'auto'}
                                                 onError={e => {
@@ -67,13 +118,13 @@ export const Home: React.FC<HomeProps> = ({
                                                 }}
                                             />
                                             {banner.link_url && (
-                                                <Link href={banner.link_url} className="absolute inset-0" />
+                                                <Link href={banner.link_url} className="absolute inset-0 z-10" />
                                             )}
                                         </div>
                                     </CarouselItem>
                                 )) : (
-                                    <CarouselItem>
-                                        <div className="relative h-[200px] sm:h-[300px] md:h-[380px] w-full bg-gray-300 flex items-center justify-center">
+                                    <CarouselItem className="pl-0 basis-full min-w-0 shrink-0 grow-0">
+                                        <div className="relative h-[175px] sm:h-[250px] md:h-[300px] lg:h-[350px] w-full bg-gray-300 flex items-center justify-center overflow-hidden">
                                             <img src="/storage/defaults/default-banner.svg" className="w-full h-full object-cover absolute" alt="Default Banner" />
                                             <div className="relative z-10 text-center text-white bg-black/30 p-6 rounded-xl">
                                                 <h1 className="text-2xl md:text-3xl font-extrabold font-bangla">ছুটির মার্ট ই-কমার্স</h1>
@@ -83,28 +134,51 @@ export const Home: React.FC<HomeProps> = ({
                                     </CarouselItem>
                                 )}
                             </CarouselContent>
-                            <CarouselPrevious className="left-4 hidden md:inline-flex" />
-                            <CarouselNext className="right-4 hidden md:inline-flex" />
+                            
+                            {/* Smooth Navigation Controls */}
+                            {activeSliders.length > 1 && (
+                                <>
+                                    <CarouselPrevious className="left-3 sm:left-4 z-20 w-8 h-8 sm:w-9 sm:h-9 bg-white/85 hover:bg-white text-gray-800 border border-black/5 shadow-md backdrop-blur-xs transition-all hover:scale-105 active:scale-95 hidden md:inline-flex" />
+                                    <CarouselNext className="right-3 sm:right-4 z-20 w-8 h-8 sm:w-9 sm:h-9 bg-white/85 hover:bg-white text-gray-800 border border-black/5 shadow-md backdrop-blur-xs transition-all hover:scale-105 active:scale-95 hidden md:inline-flex" />
+
+                                    {/* Smooth Slider Pagination Dots */}
+                                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/30 backdrop-blur-md">
+                                        {Array.from({ length: slideCount }).map((_, dotIdx) => (
+                                            <button
+                                                key={dotIdx}
+                                                type="button"
+                                                onClick={() => sliderApi?.scrollTo(dotIdx)}
+                                                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer border-none p-0 ${
+                                                    currentSlide === dotIdx
+                                                        ? 'w-5 sm:w-6 bg-white shadow-xs'
+                                                        : 'w-1.5 bg-white/50 hover:bg-white/80'
+                                                }`}
+                                                aria-label={`Go to slide ${dotIdx + 1}`}
+                                            />
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                         </Carousel>
                     </div>
 
-                    {/* Right: Smaller Side Promotion Banner */}
-                    <div className="hidden md:block relative h-[200px] sm:h-[300px] md:h-[380px] rounded-2xl overflow-hidden border border-[#E3E0D8] shadow-sm bg-gray-100">
+                    {/* Right: Smaller Side Promotion Banner with Matching Height & Hover Effect */}
+                    <div className="hidden md:block relative h-[175px] sm:h-[250px] md:h-[300px] lg:h-[350px] rounded-2xl overflow-hidden border border-[#E3E0D8] shadow-xs bg-gray-100 group">
                         {activeSideBanner ? (
                             <>
                                 <img 
                                     src={activeSideBanner.image_path || '/storage/defaults/default-banner.svg'} 
                                     alt={activeSideBanner.title || "Promotion Banner"} 
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                                     loading="lazy"
                                     onError={e => {
                                         (e.target as HTMLImageElement).src = '/storage/defaults/default-banner.svg';
                                     }}
                                 />
                                 {activeSideBanner.link_url ? (
-                                    <Link href={activeSideBanner.link_url} className="absolute inset-0" />
+                                    <Link href={activeSideBanner.link_url} className="absolute inset-0 z-10" />
                                 ) : (
-                                    <Link href={route('shop')} className="absolute inset-0" />
+                                    <Link href={route('shop')} className="absolute inset-0 z-10" />
                                 )}
                             </>
                         ) : (
@@ -120,28 +194,42 @@ export const Home: React.FC<HomeProps> = ({
 
             {/* Featured Categories Row */}
             <section className="container py-8 select-none">
-                <div className="text-center mb-8 relative">
-                    <h2 className="text-lg md:text-xl font-bold text-gray-800 tracking-wide uppercase">ক্যাটাগরি সমূহ</h2>
-                    <div className="w-12 h-1 bg-[#E2231A] mx-auto mt-2 rounded-full" />
+                {/* Reference Image Styled Header */}
+                <div className="relative border-b border-gray-200/90 pb-3 mb-6 flex items-center justify-between">
+                    <div className="relative">
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-black text-gray-900 flex items-center gap-2 tracking-tight">
+                            <span>🛍️</span>
+                            <span>ক্যাটাগরি সমূহ</span>
+                        </h2>
+                        {/* Brand Color Underline Accent (Matching Reference Image) */}
+                        <div className="absolute -bottom-3 left-0 h-[3.5px] w-14 sm:w-16 bg-[#009E49] rounded-full" />
+                    </div>
+                    <Link 
+                        href={route('shop')}
+                        className="text-xs sm:text-sm font-extrabold text-[#009E49] hover:text-[#008038] tracking-wider uppercase flex items-center gap-1.5 transition-colors group"
+                    >
+                        <span>সবগুলো দেখুন</span>
+                        <span className="text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
+                    </Link>
                 </div>
 
-                <Carousel opts={{ align: 'start', loop: false }} className="w-full relative px-6 md:px-0">
-                    <CarouselContent className="-ml-3 md:ml-0 flex justify-start md:justify-between w-full">
+                <Carousel opts={{ align: 'start', loop: categories.length > 5 }} className="w-full relative px-6 md:px-0">
+                    <CarouselContent className="-ml-2 sm:-ml-3 md:-ml-4 flex items-center">
                         {categories.map(cat => (
-                            <CarouselItem key={cat.id} className="pl-3 md:pl-0 basis-1/3 sm:basis-1/4 md:basis-auto shrink-0 grow-0">
+                            <CarouselItem key={cat.id} className="pl-2 sm:pl-3 md:pl-4 basis-1/3 sm:basis-1/4 md:basis-1/5 lg:basis-1/6 xl:basis-[11.1%] shrink-0">
                                 <Link 
                                     href={route('shop', { category: cat.slug })}
                                     className="flex flex-col items-center justify-center group"
                                 >
                                     {/* White Rounded Square Card for Icon */}
-                                    <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-2xl border border-gray-150 shadow-[0_4px_16px_rgba(0,0,0,0.02)] flex items-center justify-center hover:shadow-[0_8px_30px_rgba(0,158,73,0.08)] hover:border-[#009E49]/30 transition-all duration-300 transform group-hover:scale-105">
+                                    <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-2xl border border-gray-150 shadow-[0_4px_16px_rgba(0,0,0,0.03)] flex items-center justify-center hover:shadow-[0_8px_30px_rgba(0,158,73,0.12)] hover:border-[#009E49]/40 transition-all duration-300 transform group-hover:scale-105">
                                         <span className="text-3xl md:text-4xl transform group-hover:rotate-12 transition-transform duration-300">
                                             {cat.icon || '📦'}
                                         </span>
                                     </div>
                                     
                                     {/* Category Name Centered BELOW the Card */}
-                                    <span className="text-[11px] md:text-xs font-semibold text-gray-700 text-center line-clamp-1 mt-3 group-hover:text-[#009E49] transition-colors">
+                                    <span className="text-[11px] md:text-xs font-bold text-gray-700 text-center line-clamp-1 mt-2.5 group-hover:text-[#009E49] transition-colors">
                                         {cat.name}
                                     </span>
                                 </Link>
@@ -149,9 +237,9 @@ export const Home: React.FC<HomeProps> = ({
                         ))}
                     </CarouselContent>
                     
-                    {/* Orange/Red Circular Navigation Buttons */}
-                    <CarouselPrevious className="-left-1.5 md:-left-4 z-20 bg-[#E2231A] hover:bg-[#c61e16] text-white border-none shadow-md w-9 h-9 rounded-full cursor-pointer hover:scale-105 transition-all flex items-center justify-center top-10 md:top-12 bottom-auto my-0 -translate-y-1/2" />
-                    <CarouselNext className="-right-1.5 md:-right-4 z-20 bg-[#E2231A] hover:bg-[#c61e16] text-white border-none shadow-md w-9 h-9 rounded-full cursor-pointer hover:scale-105 transition-all flex items-center justify-center top-10 md:top-12 bottom-auto my-0 -translate-y-1/2" />
+                    {/* Branding Green Circular Navigation Buttons */}
+                    <CarouselPrevious className="-left-1.5 md:-left-3 lg:-left-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-md w-8 h-8 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all flex items-center justify-center top-20 md:top-[88px] bottom-auto my-0 -translate-y-1/2" />
+                    <CarouselNext className="-right-1.5 md:-right-3 lg:-right-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-md w-8 h-8 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all flex items-center justify-center top-20 md:top-[88px] bottom-auto my-0 -translate-y-1/2" />
                 </Carousel>
             </section>
 
@@ -177,20 +265,71 @@ export const Home: React.FC<HomeProps> = ({
                 />
             )}
 
+            {/* Multi-Row Product Grid: Just For You / আপনার জন্য পণ্য */}
+            {justForYou && justForYou.length > 0 && (
+                <section className="container py-8">
+                    {/* Header matching Reference Image 2 */}
+                    <div className="relative border-b border-gray-200/90 pb-3 mb-6 flex items-center justify-between">
+                        <div className="relative">
+                            <h2 className="text-lg sm:text-xl md:text-2xl font-black text-gray-900 flex items-center gap-2 tracking-tight">
+                                <span>⚡</span>
+                                <span>Just For You (আপনার জন্য পণ্য)</span>
+                            </h2>
+                            {/* Brand Color Underline Accent */}
+                            <div className="absolute -bottom-3 left-0 h-[3.5px] w-14 sm:w-16 bg-[#009E49] rounded-full" />
+                        </div>
+                        <Link
+                            href={route('shop')}
+                            className="text-xs sm:text-sm font-extrabold text-[#009E49] hover:text-[#008038] tracking-wider uppercase flex items-center gap-1.5 transition-colors group"
+                        >
+                            <span>VIEW ALL PRODUCTS</span>
+                            <span className="text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
+                        </Link>
+                    </div>
+
+                    {/* Multi-row 5-column Responsive Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-5">
+                        {justForYou.map(product => (
+                            <div key={product.id} className="h-full">
+                                <ProductCard product={product} />
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* View All CTA Button */}
+                    <div className="text-center mt-10">
+                        <Link
+                            href={route('shop')}
+                            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-[#009E49] font-extrabold text-sm sm:text-base rounded-2xl border-2 border-[#009E49] hover:bg-[#009E49] hover:text-white shadow-xs hover:shadow-md transition-all duration-300 group cursor-pointer"
+                        >
+                            <span>সবগুলো পণ্য দেখুন (View All Products)</span>
+                            <span className="text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
+                        </Link>
+                    </div>
+                </section>
+            )}
+
             {/* Customer Reviews Section */}
             <section className="container py-8">
-                <h2 className="text-lg md:text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                    <span>💬</span> গ্রাহকদের মতামত ও রিভিউ
-                </h2>
+                {/* Header matching Reference Image */}
+                <div className="relative border-b border-gray-200/90 pb-3 mb-6 flex items-center justify-between">
+                    <div className="relative">
+                        <h2 className="text-lg sm:text-xl md:text-2xl font-black text-gray-900 flex items-center gap-2 tracking-tight">
+                            <span>💬</span>
+                            <span>গ্রাহকদের মতামত ও রিভিউ</span>
+                        </h2>
+                        <div className="absolute -bottom-3 left-0 h-[3.5px] w-14 sm:w-16 bg-[#009E49] rounded-full" />
+                    </div>
+                </div>
                 {reviews.length === 0 ? (
                     <p className="text-sm text-gray-500 text-center py-8">কোনো রিভিউ নেই।</p>
                 ) : (
                     <Carousel opts={{ align: 'start', loop: true }} className="w-full">
-                        <CarouselContent>
+                        <CarouselContent className="-ml-3 md:-ml-4">
                             {reviews.map(review => (
-                                <CarouselItem key={review.id} className="sm:basis-1/2 lg:basis-1/3">
-                                    <div className="p-1">
-                                        <div className="bg-white border border-[#E3E0D8] rounded-2xl p-5 shadow-sm space-y-3 min-h-[160px]">
+                                <CarouselItem key={review.id} className="pl-3 md:pl-4 sm:basis-1/2 lg:basis-1/3 flex">
+                                    <div className="py-1 w-full flex">
+                                        <div className="bg-white border border-[#E3E0D8] rounded-2xl p-5 md:p-6 shadow-sm hover:shadow-md transition-shadow space-y-3 w-full flex flex-col justify-between">
                                             <div className="flex justify-between items-center">
                                                 <div>
                                                     <h4 className="text-sm font-bold text-gray-800">{review.customer_name}</h4>
@@ -222,27 +361,27 @@ export const Home: React.FC<HomeProps> = ({
 
             {/* Trust Badges */}
             <section className="container py-8 border-t border-gray-200/50 mt-10">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-                    <div className="flex flex-col items-center p-4 bg-white border border-[#E3E0D8] rounded-2xl">
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-8 text-center">
+                    <div className="flex flex-col items-center p-5 md:p-6 bg-white border border-[#E3E0D8] rounded-2xl shadow-xs hover:shadow-md hover:border-[#009E49]/30 transition-all duration-300">
+                        <div className="w-13 h-13 bg-primary/10 rounded-full flex items-center justify-center mb-3.5">
                             <ShieldCheck className="w-6 h-6 text-primary" />
                         </div>
-                        <h4 className="font-bold text-gray-800 text-sm">১০০% আসল প্রোডাক্ট</h4>
-                        <p className="text-xs text-gray-500 mt-1">সবচেয়ে সেরা ও গুণগত মানসম্পন্ন পণ্য সরবরাহের নিশ্চয়তা</p>
+                        <h4 className="font-bold text-gray-900 text-sm md:text-base">১০০% আসল প্রোডাক্ট</h4>
+                        <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">সবচেয়ে সেরা ও গুণগত মানসম্পন্ন পণ্য সরবরাহের নিশ্চয়তা</p>
                     </div>
-                    <div className="flex flex-col items-center p-4 bg-white border border-[#E3E0D8] rounded-2xl">
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                    <div className="flex flex-col items-center p-5 md:p-6 bg-white border border-[#E3E0D8] rounded-2xl shadow-xs hover:shadow-md hover:border-[#009E49]/30 transition-all duration-300">
+                        <div className="w-13 h-13 bg-primary/10 rounded-full flex items-center justify-center mb-3.5">
                             <Truck className="w-6 h-6 text-primary" />
                         </div>
-                        <h4 className="font-bold text-gray-800 text-sm">ক্যাশ অন ডেলিভারি</h4>
-                        <p className="text-xs text-gray-500 mt-1">সারা বাংলাদেশে ২৪-৭২ ঘন্টায় দ্রুত ক্যাশ অন ডেলিভারি সুবিধা</p>
+                        <h4 className="font-bold text-gray-900 text-sm md:text-base">ক্যাশ অন ডেলিভারি</h4>
+                        <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">সারা বাংলাদেশে ২৪-৭২ ঘন্টায় দ্রুত ক্যাশ অন ডেলিভারি সুবিধা</p>
                     </div>
-                    <div className="flex flex-col items-center p-4 bg-white border border-[#E3E0D8] rounded-2xl">
-                        <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-3">
+                    <div className="flex flex-col items-center p-5 md:p-6 bg-white border border-[#E3E0D8] rounded-2xl shadow-xs hover:shadow-md hover:border-[#009E49]/30 transition-all duration-300">
+                        <div className="w-13 h-13 bg-primary/10 rounded-full flex items-center justify-center mb-3.5">
                             <MessageCircle className="w-6 h-6 text-primary" />
                         </div>
-                        <h4 className="font-bold text-gray-800 text-sm">২৪/৭ কাস্টমার সাপোর্ট</h4>
-                        <p className="text-xs text-gray-500 mt-1">যেকোনো প্রশ্ন বা অর্ডারের জন্য সরাসরি আমাদের কল করুন</p>
+                        <h4 className="font-bold text-gray-900 text-sm md:text-base">২৪/৭ কাস্টমার সাপোর্ট</h4>
+                        <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">যেকোনো প্রশ্ন বা অর্ডারের জন্য সরাসরি আমাদের কল করুন</p>
                     </div>
                 </div>
             </section>

@@ -34,19 +34,17 @@ class HomeController extends Controller
         $hasCustomBestSelling = Product::where('status', 'active')->where('is_best_selling', true)->exists();
 
         if ($hasCustomBestSelling) {
-            // Strictly show ONLY products admin selected for Best Selling
             $topSelling = Product::where('status', 'active')
                 ->where('is_best_selling', true)
                 ->latest('id')
+                ->take(12)
                 ->with(['images' => fn ($q) => $q->where('is_main', true)])
                 ->get();
         } else {
-            // Fallback only if admin has not selected any Best Selling products
             $topSelling = Product::where('status', 'active')
-                ->where('is_new_arrival', false)
                 ->orderBy('total_sold', 'desc')
                 ->latest('id')
-                ->take(8)
+                ->take(12)
                 ->with(['images' => fn ($q) => $q->where('is_main', true)])
                 ->get();
         }
@@ -55,20 +53,48 @@ class HomeController extends Controller
         $hasCustomNewArrivals = Product::where('status', 'active')->where('is_new_arrival', true)->exists();
 
         if ($hasCustomNewArrivals) {
-            // Strictly show ONLY products admin selected for New Arrivals
             $allProducts = Product::where('status', 'active')
                 ->where('is_new_arrival', true)
                 ->latest('id')
+                ->take(12)
                 ->with(['images' => fn ($q) => $q->where('is_main', true)])
                 ->get();
         } else {
-            // Fallback only if admin has not selected any New Arrival products
             $topSellingIds = $topSelling->pluck('id')->toArray();
             $allProducts = Product::where('status', 'active')
-                ->where('is_best_selling', false)
                 ->when(! empty($topSellingIds), fn ($q) => $q->whereNotIn('id', $topSellingIds))
                 ->latest('id')
-                ->take(8)
+                ->take(12)
+                ->with(['images' => fn ($q) => $q->where('is_main', true)])
+                ->get();
+        }
+
+        // 3. Just For You Multi-Row Grid Products (⚡ আপনার জন্য নির্বাচিত পণ্য)
+        $hasCustomJustForYou = Product::where('status', 'active')->where('is_featured', true)->exists();
+
+        if ($hasCustomJustForYou) {
+            $justForYou = Product::where('status', 'active')
+                ->where('is_featured', true)
+                ->latest('id')
+                ->take(15)
+                ->with(['images' => fn ($q) => $q->where('is_main', true)])
+                ->get();
+
+            // If admin selected fewer than 15, fill remaining slots with latest active products
+            if ($justForYou->count() < 15) {
+                $featuredIds = $justForYou->pluck('id')->toArray();
+                $extraProducts = Product::where('status', 'active')
+                    ->whereNotIn('id', $featuredIds)
+                    ->latest('id')
+                    ->take(15 - $justForYou->count())
+                    ->with(['images' => fn ($q) => $q->where('is_main', true)])
+                    ->get();
+                $justForYou = $justForYou->concat($extraProducts);
+            }
+        } else {
+            $justForYou = Product::where('status', 'active')
+                ->latest('id')
+                ->take(15)
                 ->with(['images' => fn ($q) => $q->where('is_main', true)])
                 ->get();
         }
@@ -92,6 +118,7 @@ class HomeController extends Controller
             'categories' => $categories,
             'topSelling' => $topSelling,
             'allProducts' => $allProducts,
+            'justForYou' => $justForYou,
             'reviews' => $reviews,
             'urgencyBanner' => [
                 'text' => StoreSetting::getValue('urgency_banner_text', 'সীমিত স্টক! এখনই অর্ডার করুন!'),

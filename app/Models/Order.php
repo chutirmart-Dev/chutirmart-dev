@@ -20,6 +20,7 @@ class Order extends Model
         'thana',
         'address',
         'customer_id',
+        'user_id',
         'subtotal',
         'delivery_charge',
         'coupon_discount',
@@ -38,6 +39,9 @@ class Order extends Model
         'special_notes',
         'internal_notes',
         'ip_address',
+        'meta_purchase_event_id',
+        'meta_purchase_sent',
+        'meta_purchase_sent_at',
     ];
 
     protected $casts = [
@@ -47,11 +51,18 @@ class Order extends Model
         'delivery_charge' => 'float',
         'coupon_discount' => 'float',
         'total' => 'float',
+        'meta_purchase_sent' => 'boolean',
+        'meta_purchase_sent_at' => 'datetime',
     ];
 
     protected $appends = [
         'tracking_url',
     ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function customer(): BelongsTo
     {

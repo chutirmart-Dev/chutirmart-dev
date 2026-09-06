@@ -4,14 +4,17 @@ import AdminLayout from '@/layouts/AdminLayout';
 import { AdminCard, CardHead, PageHeader, SaveBtn, AdminInput, AdminTextarea, AdminSelect, FieldLabel } from '@/components/admin/ui';
 import { UploadCloud, X, Save, ArrowLeft, Images } from 'lucide-react';
 import { toast } from 'sonner';
+import { VariationsSection } from '@/components/admin/VariationsSection';
 
 interface CreateProps {
     brands: any[];
     categories: any[];
+    attributes: any[];
 }
 
-export const Create: React.FC<CreateProps> = ({ brands, categories }) => {
-    const { data, setData, post, processing, errors } = useForm({
+export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }) => {
+    const [selectedAttributeOptions, setSelectedAttributeOptions] = useState<Record<number, number[]>>({});
+    const { data, setData, post, processing, errors, transform } = useForm({
         name: '',
         price: '',
         compare_at_price: '',
@@ -22,11 +25,13 @@ export const Create: React.FC<CreateProps> = ({ brands, categories }) => {
         status: 'active',
         is_best_selling: false,
         is_new_arrival: false,
+        is_featured: false,
         brand_id: '',
         categories: [] as number[],
         main_image: '', // single base64 string
         gallery_images: [] as string[], // array of base64 strings
         youtube_url: '',
+        selected_attribute_options: [] as {attribute_id: number; option_ids: number[]}[],
     });
 
     const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,6 +117,16 @@ export const Create: React.FC<CreateProps> = ({ brands, categories }) => {
             toast.error('Please select at least 1 category.');
             return;
         }
+
+        // Convert selected options to array format for backend
+        const attributeOptionsArray = Object.entries(selectedAttributeOptions)
+            .filter(([_, ids]) => ids.length > 0)
+            .map(([attrId, optionIds]) => ({ attribute_id: Number(attrId), option_ids: optionIds }));
+        
+        transform((formData) => ({
+            ...formData,
+            selected_attribute_options: attributeOptionsArray,
+        }));
 
         post(route('admin.products.store'), {
             onSuccess: () => toast.success('Product added successfully! 🎉'),
@@ -509,6 +524,34 @@ export const Create: React.FC<CreateProps> = ({ brands, categories }) => {
                                     </p>
                                 </div>
                             </label>
+
+                            <label className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none ${
+                                data.is_featured
+                                    ? 'bg-emerald-50/70 border-emerald-200'
+                                    : 'bg-slate-50/60 border-slate-200/80 hover:bg-slate-50'
+                            }`}>
+                                <input
+                                    type="checkbox"
+                                    checked={data.is_featured}
+                                    onChange={e => {
+                                        const checked = e.target.checked;
+                                        setData(prev => ({
+                                            ...prev,
+                                            is_featured: checked,
+                                            status: checked && prev.status === 'draft' ? 'active' : prev.status,
+                                        }));
+                                    }}
+                                    className="mt-0.5 w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                                />
+                                <div className="text-xs">
+                                    <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                                        <span>⚡</span> Just For You (আপনার জন্য পণ্য)
+                                    </div>
+                                    <p className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                                        হোমপেজের "⚡ Just For You" সেকশনে সবার আগে দেখাবে
+                                    </p>
+                                </div>
+                            </label>
                         </div>
                     </AdminCard>
 
@@ -541,6 +584,18 @@ export const Create: React.FC<CreateProps> = ({ brands, categories }) => {
                         <Save className="w-5 h-5" />
                         {processing ? 'Saving...' : 'Save Product'}
                     </SaveBtn>
+                </div>
+
+                {/* Full-width: Variations Section */}
+                <div className="col-span-1 lg:col-span-12 mt-2">
+                    <h3 className="text-[15px] font-black text-[#1A1A2E] mb-3">⚡ Product Attributes & Variations</h3>
+                    <VariationsSection
+                        productId={null}
+                        attributes={attributes}
+                        initialSelectedOptions={selectedAttributeOptions}
+                        initialVariations={[]}
+                        onSelectionChange={setSelectedAttributeOptions}
+                    />
                 </div>
 
             </form>

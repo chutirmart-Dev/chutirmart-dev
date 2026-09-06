@@ -276,9 +276,9 @@ export const Banners: React.FC<BannersProps> = ({ banners }) => {
                                     {sliderBanners.length}টি সক্রিয়
                                 </span>
                             </div>
-                            <p className="text-xs font-mono font-black text-gray-800">1200 × 500 px</p>
-                            <p className="text-[11px] text-gray-500 mt-0.5">Ratio: 12:5 · JPG/PNG/WebP · Max 2MB</p>
-                            <p className="text-[11px] text-gray-600 font-medium mt-1">Homepage এর বাম পাশে carousel slider হিসেবে পর্যায়ক্রমে দেখাবে।</p>
+                            <p className="text-xs font-mono font-black text-gray-800">1200 × 450 px</p>
+                            <p className="text-[11px] text-gray-500 mt-0.5">Ratio: 8:3 (2.67:1) · JPG/PNG/WebP · Max 2MB</p>
+                            <p className="text-[11px] text-gray-600 font-medium mt-1">Homepage এর বাম পাশে carousel slider হিসেবে পর্যায়ক্রমে দেখাবে (মোবাইল ও ডেস্কে পারফেক্ট ফিট)।</p>
                         </div>
 
                         <div
@@ -288,7 +288,7 @@ export const Banners: React.FC<BannersProps> = ({ banners }) => {
                             }`}
                         >
                             <div className="flex items-center justify-between mb-1">
-                                <p className="font-bold text-blue-700 text-xs">🟦 Side Banner (ডান পাশের ছবি)</p>
+                                <p className="font-bold text-blue-700 text-xs">🟦 Side Banner (ডান পাশের অফার)</p>
                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                                     sideBanners.length > 0 ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
                                 }`}>
@@ -296,8 +296,8 @@ export const Banners: React.FC<BannersProps> = ({ banners }) => {
                                 </span>
                             </div>
                             <p className="text-xs font-mono font-black text-gray-800">600 × 500 px</p>
-                            <p className="text-[11px] text-gray-500 mt-0.5">Ratio: 6:5 · JPG/PNG/WebP · Max 1MB</p>
-                            <p className="text-[11px] text-gray-600 font-medium mt-1">Homepage এর ডান পাশে static promotion ছবি হিসেবে স্থায়ীভাবে দেখাবে।</p>
+                            <p className="text-[11px] text-gray-500 mt-0.5">Ratio: 6:5 (1.2:1) · JPG/PNG/WebP · Max 1MB</p>
+                            <p className="text-[11px] text-gray-600 font-medium mt-1">Homepage এর ডান পাশে static promotion হিসেবে থাকবে (স্লাইডারের সমান উচ্চতায় ফিট)।</p>
                         </div>
                     </div>
                 </div>
@@ -476,7 +476,7 @@ export const Banners: React.FC<BannersProps> = ({ banners }) => {
                                     >
                                         <Sliders className="w-5 h-5 mb-1 text-[#009E49]" />
                                         <span className="text-[12px] font-black">Main Slider</span>
-                                        <span className="text-[9px] text-gray-500 font-mono mt-0.5">1200×500 px</span>
+                                        <span className="text-[9px] text-gray-500 font-mono mt-0.5">1200×450 px</span>
                                     </button>
 
                                     <button
@@ -517,8 +517,8 @@ export const Banners: React.FC<BannersProps> = ({ banners }) => {
                                 <FieldLabel required>ব্যানার ছবি</FieldLabel>
                                 <p className="text-[10px] text-[#9096B0] mb-1.5 font-mono">
                                     {data.position === 'side'
-                                        ? '📐 সাইড ব্যানারের জন্য প্রস্তাবিত: 600 × 500 px'
-                                        : '📐 মেইন স্লাইডারের জন্য প্রস্তাবিত: 1200 × 500 px'}
+                                        ? '📐 সাইড ব্যানার পারফেক্ট সাইজ: 600 × 500 px (রেশিও ৬:৫)'
+                                        : '📐 মেইন স্লাইডার পারফেক্ট সাইজ: 1200 × 450 px (রেশিও ৮:৩)'}
                                 </p>
                                 {previewImage ? (
                                     <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-[#E8E7FF] bg-[#F8F7FF]">

@@ -28,7 +28,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
@@ -42,7 +42,40 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $loginInput = trim((string) $this->input('email'));
+        $isEmail = filter_var($loginInput, FILTER_VALIDATE_EMAIL);
+        $field = $isEmail ? 'email' : 'phone';
+
+        $credentials = [
+            $field => $loginInput,
+            'password' => $this->input('password'),
+        ];
+
+        $authenticated = Auth::attempt($credentials, $this->boolean('remember'));
+
+        // If not authenticated and field is a phone number, test common phone variations (+880, 880, 01)
+        if (! $authenticated && ! $isEmail) {
+            $altCandidates = [];
+            if (str_starts_with($loginInput, '+880')) {
+                $altCandidates[] = '0'.substr($loginInput, 4);
+                $altCandidates[] = substr($loginInput, 3);
+            } elseif (str_starts_with($loginInput, '880')) {
+                $altCandidates[] = '0'.substr($loginInput, 3);
+                $altCandidates[] = '+'.$loginInput;
+            } elseif (str_starts_with($loginInput, '01')) {
+                $altCandidates[] = '+88'.$loginInput;
+                $altCandidates[] = '88'.$loginInput;
+            }
+
+            foreach ($altCandidates as $altPhone) {
+                if (Auth::attempt(['phone' => $altPhone, 'password' => $this->input('password')], $this->boolean('remember'))) {
+                    $authenticated = true;
+                    break;
+                }
+            }
+        }
+
+        if (! $authenticated) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
@@ -81,6 +114,6 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        return Str::transliterate(Str::lower(trim((string) $this->input('email'))).'|'.$this->ip());
     }
 }

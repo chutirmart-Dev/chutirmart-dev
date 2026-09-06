@@ -104,8 +104,8 @@ export const CartSheet: React.FC = () => {
                                     <div className="flex-1 min-w-0">
                                         <h4 className="text-sm font-semibold text-gray-800 line-clamp-1 leading-snug">{item.name}</h4>
                                         {item.variant_info && (
-                                            <p className="text-xs text-gray-400 mt-0.5">
-                                                Color/Size: {item.variant_info.value}
+                                            <p className="text-xs text-[#009E49] font-medium mt-0.5">
+                                                {item.variant_info.label || item.variant_info.value || 'Variant selected'}
                                             </p>
                                         )}
                                         <div className="flex items-center gap-3 mt-2">

@@ -33,13 +33,20 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'phone' => 'nullable|string|max:25|unique:'.User::class.',phone|required_without:email',
+            'email' => 'nullable|string|lowercase|email|max:255|unique:'.User::class.',email|required_without:phone',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'phone.required_without' => 'Please provide a mobile number or an email address.',
+            'email.required_without' => 'Please provide an email address or a mobile number.',
+            'phone.unique' => 'This mobile number is already registered.',
+            'email.unique' => 'This email address is already registered.',
         ]);
 
         $user = User::create([
             'name' => $request->name,
-            'email' => $request->email,
+            'phone' => $request->filled('phone') ? trim((string) $request->phone) : null,
+            'email' => $request->filled('email') ? trim((string) $request->email) : null,
             'password' => Hash::make($request->password),
         ]);
 

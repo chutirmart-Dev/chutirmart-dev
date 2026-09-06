@@ -19,7 +19,29 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     const { auth, store_settings, flash } = usePage().props as any;
     const { url } = usePage();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+
+    /* ── Initial Expanded Menu Helper (Synchronous on mount) ── */
+    const getInitialExpandedMenu = (currentUrl?: string): string | null => {
+        const rawUrl = currentUrl || (typeof window !== 'undefined' ? (window.location.pathname + window.location.search) : '');
+        const [pathPart] = rawUrl.split('?');
+        const adminIndex = pathPart.indexOf('/admin');
+        let rel = adminIndex !== -1 ? pathPart.slice(adminIndex + 6) : pathPart;
+        rel = rel.replace(/\/$/, '');
+        if (!rel || rel === '') rel = '/';
+
+        if (['/settings', '/banners', '/landing-pages'].some(p => rel === p || rel.startsWith(p + '/'))) {
+            return 'store';
+        }
+        if (['/products', '/categories', '/brands', '/tags', '/attributes', '/reviews'].some(p => rel === p || rel.startsWith(p + '/'))) {
+            return 'products';
+        }
+        if (rel === '/orders' || rel.startsWith('/orders/')) {
+            return 'orders';
+        }
+        return null;
+    };
+
+    const [expandedMenu, setExpandedMenu] = useState<string | null>(() => getInitialExpandedMenu(url));
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
 
     useEffect(() => {
@@ -49,53 +71,65 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
         });
     };
 
-    /* ── Derive admin base path from Ziggy so subdirectory installs work ── */
-    const getAdminBase = (): string => {
-        if (typeof window === 'undefined') return '/admin';
-        try {
-            const full = route('admin.dashboard');
-            const pathname = new URL(full, window.location.origin).pathname;
-            // route('admin.dashboard') may end with /dashboard or just /admin
-            return pathname.replace(/\/dashboard$/, '').replace(/\/$/, '') || '/admin';
-        } catch {
-            return '/admin';
-        }
-    };
+    interface NavSubItem {
+        label: string;
+        key: string;
+        route: string;
+    }
 
-    /* ── Relative path helper (strips admin base) ─────────────────────── */
-    const getRelativePath = (): string => {
-        const raw = typeof window !== 'undefined' ? window.location.pathname : '';
-        const base = getAdminBase();
-        const rel = raw.startsWith(base) ? raw.slice(base.length).replace(/\/$/, '') : raw;
-        return rel || '/';
+    interface NavItem {
+        label: string;
+        icon: React.ComponentType<{ className?: string }>;
+        key: string;
+        route?: string;
+        defaultRoute?: string;
+        submenu?: NavSubItem[];
+    }
+
+    interface NavSection {
+        group: string;
+        items: NavItem[];
+    }
+
+    /* ── Normalized Relative Path & Query Helper ─────────────────────── */
+    const getNormalizedPath = (): { path: string; params: URLSearchParams } => {
+        const rawUrl = url || (typeof window !== 'undefined' ? (window.location.pathname + window.location.search) : '');
+        const [pathPart, queryPart] = rawUrl.split('?');
+        const params = new URLSearchParams(queryPart || (typeof window !== 'undefined' ? window.location.search : ''));
+
+        // Strip admin base (works whether running on domain.com/admin or localhost/chutirmart/public/admin)
+        const adminIndex = pathPart.indexOf('/admin');
+        let rel = adminIndex !== -1 ? pathPart.slice(adminIndex + 6) : pathPart;
+        rel = rel.replace(/\/$/, '');
+        if (!rel || rel === '') {
+            rel = '/';
+        }
+        return { path: rel, params };
     };
 
     /* ── Precise Single-Active Item Helper ──────────────────────────────── */
-    const isUrlMatch = (itemKey?: string, _itemRoute?: string) => {
-        const rel = getRelativePath();
+    const isUrlMatch = (itemKey?: string) => {
+        const { path } = getNormalizedPath();
 
         switch (itemKey) {
             case 'dashboard':
-                return rel === '/' || rel === '' || rel === '/dashboard';
+                return path === '/' || path === '/dashboard';
             case 'products':
                 return ['/products', '/categories', '/brands', '/tags', '/attributes', '/reviews']
-                    .some(p => rel === p || rel.startsWith(p + '/'));
+                    .some(p => path === p || path.startsWith(p + '/'));
             case 'orders':
-                return rel === '/orders' || rel.startsWith('/orders/');
+                return path === '/orders' || path.startsWith('/orders/');
             case 'customers':
-                return rel === '/customers' || rel.startsWith('/customers/');
+                return path === '/customers' || path.startsWith('/customers/');
             case 'messages':
-                return rel === '/messages' || rel.startsWith('/messages/');
+                return path === '/messages' || path.startsWith('/messages/');
             case 'store':
-                // Only /banners and /landing-pages — /settings is handled by standalone 'settings' item
-                return ['/banners', '/landing-pages']
-                    .some(p => rel === p || rel.startsWith(p + '/'));
+                return ['/settings', '/banners', '/landing-pages']
+                    .some(p => path === p || path.startsWith(p + '/'));
             case 'integrations':
-                return rel === '/integrations' || rel.startsWith('/integrations/');
+                return path === '/integrations' || path.startsWith('/integrations/');
             case 'help':
-                return rel === '/help' || rel.startsWith('/help/');
-            case 'settings':
-                return rel === '/settings';
+                return path === '/help' || path.startsWith('/help/');
             default:
                 return false;
         }
@@ -103,57 +137,71 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
     /* ── Helper for Submenu Item Active State ── */
     const isSubmenuActive = (parentKey: string, subKey: string) => {
-        const rel = getRelativePath();
+        const { path, params } = getNormalizedPath();
+        const statusParam = params.get('status');
 
         if (parentKey === 'products') {
-            if (subKey === 'all') return rel === '/products';
-            if (subKey === 'create') return rel === '/products/create';
-            if (subKey === 'categories') return rel === '/categories' || rel.startsWith('/categories/');
-            if (subKey === 'brands') return rel === '/brands' || rel.startsWith('/brands/');
-            if (subKey === 'tags') return rel === '/tags' || rel.startsWith('/tags/');
-            if (subKey === 'attributes') return rel === '/attributes' || rel.startsWith('/attributes/');
-            if (subKey === 'reviews') return rel === '/reviews' || rel.startsWith('/reviews/');
+            if (subKey === 'all') return path === '/products' || (path.startsWith('/products/') && path !== '/products/create');
+            if (subKey === 'create') return path === '/products/create';
+            if (subKey === 'categories') return path === '/categories' || path.startsWith('/categories/');
+            if (subKey === 'brands') return path === '/brands' || path.startsWith('/brands/');
+            if (subKey === 'tags') return path === '/tags' || path.startsWith('/tags/');
+            if (subKey === 'attributes') return path === '/attributes' || path.startsWith('/attributes/');
+            if (subKey === 'reviews') return path === '/reviews' || path.startsWith('/reviews/');
         }
 
         if (parentKey === 'orders') {
-            // status is a path param: /orders/all, /orders/processing, /orders/on_hold etc.
-            if (subKey === 'all') return rel === '/orders' || rel === '/orders/all';
-            if (subKey === 'processing') return rel === '/orders/processing';
-            if (subKey === 'on_hold') return rel === '/orders/on_hold';
-            if (subKey === 'complete') return rel === '/orders/complete';
-            if (subKey === 'cancelled') return rel === '/orders/cancelled';
+            if (subKey === 'all') {
+                return (path === '/orders' || path === '/orders/all') && (!statusParam || statusParam === 'all');
+            }
+            if (subKey === 'processing') return path === '/orders/processing' || statusParam === 'processing';
+            if (subKey === 'on_hold') return path === '/orders/on_hold' || statusParam === 'on_hold';
+            if (subKey === 'complete') return path === '/orders/complete' || statusParam === 'complete';
+            if (subKey === 'cancelled') return path === '/orders/cancelled' || statusParam === 'cancelled';
         }
 
         if (parentKey === 'store') {
-            if (subKey === 'settings') return rel === '/settings';
-            if (subKey === 'banners') return rel === '/banners' || rel.startsWith('/banners/');
-            if (subKey === 'landing_pages') return rel === '/landing-pages' || rel.startsWith('/landing-pages/');
+            if (subKey === 'settings') return path === '/settings' || path.startsWith('/settings/');
+            if (subKey === 'banners') return path === '/banners' || path.startsWith('/banners/');
+            if (subKey === 'landing_pages') return path === '/landing-pages' || path.startsWith('/landing-pages/');
         }
 
         return false;
     };
 
     useEffect(() => {
-        const rel = getRelativePath();
+        setIsSidebarOpen(false);
+        const { path } = getNormalizedPath();
 
         if (['/products', '/categories', '/brands', '/tags', '/attributes', '/reviews']
-                .some(p => rel === p || rel.startsWith(p + '/'))) {
+                .some(p => path === p || path.startsWith(p + '/'))) {
             setExpandedMenu('products');
-        } else if (rel === '/orders' || rel.startsWith('/orders/')) {
+        } else if (path === '/orders' || path.startsWith('/orders/')) {
             setExpandedMenu('orders');
         } else if (['/settings', '/banners', '/landing-pages']
-                .some(p => rel === p || rel.startsWith(p + '/'))) {
+                .some(p => path === p || path.startsWith(p + '/'))) {
             setExpandedMenu('store');
         }
     }, [url]);
 
     const handleLogout = () => router.post(route('admin.logout'));
+
     const toggleSubmenu = (menu: string) => {
         setExpandedMenu(prev => prev === menu ? null : menu);
     };
 
+    const handleParentClick = (item: NavItem) => {
+        const isActive = isUrlMatch(item.key);
+        if (!isActive && item.defaultRoute) {
+            setExpandedMenu(item.key);
+            router.visit(item.defaultRoute);
+        } else {
+            toggleSubmenu(item.key);
+        }
+    };
+
     /* ── Navigation groups ─────────────────────────────────────────────── */
-    const navSections = [
+    const navSections: NavSection[] = [
         {
             group: 'MAIN MENU',
             items: [
@@ -167,6 +215,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     label: 'Products',
                     icon: Package,
                     key: 'products',
+                    defaultRoute: route('admin.products.index'),
                     submenu: [
                         { label: 'All Products', key: 'all',        route: route('admin.products.index') },
                         { label: 'Add Product',  key: 'create',     route: route('admin.products.create') },
@@ -181,6 +230,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     label: 'Orders',
                     icon: ShoppingBag,
                     key: 'orders',
+                    defaultRoute: route('admin.orders.index', { status: 'all' }),
                     submenu: [
                         { label: 'All Orders',  key: 'all',        route: route('admin.orders.index', { status: 'all' }) },
                         { label: 'Processing',  key: 'processing', route: route('admin.orders.index', { status: 'processing' }) },
@@ -210,6 +260,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     label: 'Store Settings',
                     icon: Store,
                     key: 'store',
+                    defaultRoute: route('admin.settings.index'),
                     submenu: [
                         { label: 'General Settings', key: 'settings',      route: route('admin.settings.index') },
                         { label: 'Home Banners',     key: 'banners',       route: route('admin.banners.index') },
@@ -227,12 +278,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     icon: HelpCircle,
                     key: 'help',
                     route: route('admin.help.index'),
-                },
-                {
-                    label: 'Settings',
-                    icon: Settings,
-                    key: 'settings',
-                    route: route('admin.settings.index'),
                 },
             ],
         },
@@ -321,10 +366,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                     {section.group}
                                 </p>
                             )}
-                            <div className={isCollapsed ? 'flex flex-col items-center gap-2' : 'space-y-0.5'}>
+                            <div className={isCollapsed ? 'flex flex-col items-center gap-2' : 'space-y-1'}>
                                 {section.items.map((item, idx) => {
                                     const IconComponent = item.icon;
-                                    const isActive = isUrlMatch(item.key, item.route);
+                                    const isActive = isUrlMatch(item.key);
+                                    const isExpanded = expandedMenu === item.key;
+                                    const isHighlighted = isActive || isExpanded;
 
                                     // ── Collapsed Mini Mode (Icons with Flyout Menus & Tooltips) ──
                                     if (isCollapsed) {
@@ -332,12 +379,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                             <div key={idx} className="relative group flex items-center justify-center w-full">
                                                 {item.submenu ? (
                                                     <button
-                                                        onClick={() => toggleSubmenu(item.key!)}
-                                                        className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-150 cursor-pointer ${
-                                                            isActive
-                                                                ? 'bg-[#009E49] text-white shadow-2xs'
-                                                                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/90'
+                                                        onClick={() => handleParentClick(item)}
+                                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer border-none ${
+                                                            isHighlighted
+                                                                ? 'bg-[#009E49] text-white shadow-xs'
+                                                                : 'text-slate-500 hover:text-[#009E49] hover:bg-emerald-50/80 bg-transparent'
                                                         }`}
+                                                        title={item.label}
                                                     >
                                                         <IconComponent className="w-4 h-4 stroke-[2]" />
                                                     </button>
@@ -345,11 +393,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                                     <Link
                                                         href={item.route!}
                                                         prefetch
-                                                        className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-150 ${
+                                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 ${
                                                             isActive
-                                                                ? 'bg-[#009E49] text-white shadow-2xs'
-                                                                : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100/90'
+                                                                ? 'bg-[#009E49] text-white shadow-xs'
+                                                                : 'text-slate-500 hover:text-[#009E49] hover:bg-emerald-50/80'
                                                         }`}
+                                                        title={item.label}
                                                     >
                                                         <IconComponent className="w-4 h-4 stroke-[2]" />
                                                     </Link>
@@ -357,30 +406,35 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
                                                 {/* Flyout Submenu Popover on Hover (Collapsed Mode) */}
                                                 {item.submenu ? (
-                                                    <div className="absolute left-full top-0 ml-2 py-2 px-1.5 bg-white border border-slate-200/90 rounded-xl shadow-lg min-w-[180px] invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-150 z-50 text-left pointer-events-auto">
+                                                    <div className="absolute left-full top-0 ml-2 py-2 px-1.5 bg-white border border-slate-200/90 rounded-xl shadow-lg min-w-[185px] invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 text-left pointer-events-auto">
                                                         <div className="px-2.5 pb-1.5 border-b border-slate-100 mb-1 flex items-center justify-between">
                                                             <p className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">
                                                                 {item.label}
                                                             </p>
-                                                            {isActive && (
+                                                            {isHighlighted && (
                                                                 <span className="w-1.5 h-1.5 rounded-full bg-[#009E49]" />
                                                             )}
                                                         </div>
                                                         <div className="space-y-0.5">
-                                                            {item.submenu.map((sub: any, subIdx: number) => {
+                                                            {item.submenu.map((sub, subIdx) => {
                                                                 const isSubActive = isSubmenuActive(item.key, sub.key);
                                                                 return (
                                                                     <Link
                                                                         key={subIdx}
                                                                         href={sub.route}
                                                                         prefetch
-                                                                        className={`flex items-center px-2.5 py-1.5 rounded-md text-[12px] font-medium transition-colors ${
+                                                                        className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[12px] font-medium transition-all duration-200 ${
                                                                             isSubActive
-                                                                                ? 'bg-[#009E49] text-white font-semibold shadow-2xs'
-                                                                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                                                                                ? 'bg-[#009E49] text-white font-bold shadow-xs'
+                                                                                : 'text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/80'
                                                                         }`}
                                                                     >
-                                                                        {sub.label}
+                                                                        <span
+                                                                            className={`w-1.5 h-1.5 rounded-full ${
+                                                                                isSubActive ? 'bg-white' : 'bg-slate-300'
+                                                                            }`}
+                                                                        />
+                                                                        <span>{sub.label}</span>
                                                                     </Link>
                                                                 );
                                                             })}
@@ -398,80 +452,105 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
                                     // ── Full Expanded Mode ──
                                     if (item.submenu) {
-                                        const isExpanded = expandedMenu === item.key;
-
                                         return (
                                             <div key={idx} className="space-y-0.5">
-                                                <button
-                                                    onClick={() => toggleSubmenu(item.key!)}
-                                                    className={`group w-full flex items-center justify-between px-3 py-2 rounded-lg text-[13px] font-medium cursor-pointer
-                                                        transition-colors duration-150 ease-in-out ${
-                                                        isActive
-                                                            ? 'bg-emerald-50/80 text-[#009E49] font-semibold'
-                                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                                                <div
+                                                    onClick={() => handleParentClick(item)}
+                                                    className={`group w-full flex items-center justify-between px-3 py-2 rounded-xl text-[13px] cursor-pointer select-none
+                                                        transition-all duration-200 ease-out border ${
+                                                        isHighlighted
+                                                            ? 'bg-emerald-50 text-[#009E49] font-bold border-emerald-200/80 shadow-2xs'
+                                                            : 'text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/50 hover:border-emerald-100/70 border-transparent hover:translate-x-0.5 font-medium'
                                                     }`}
                                                 >
                                                     <div className="flex items-center gap-2.5">
-                                                        <IconComponent className={`w-4 h-4 shrink-0 transition-colors duration-150 ${isActive ? 'text-[#009E49]' : 'text-slate-400 group-hover:text-slate-600'}`} />
-                                                        <span>{item.label}</span>
+                                                        <IconComponent
+                                                            className={`w-4 h-4 shrink-0 transition-colors duration-200 ${
+                                                                isHighlighted ? 'text-[#009E49]' : 'text-slate-400 group-hover:text-[#009E49]'
+                                                            }`}
+                                                        />
+                                                        <span className="tracking-tight">{item.label}</span>
                                                     </div>
-                                                    <ChevronRight
-                                                        className={`w-3.5 h-3.5 shrink-0
-                                                            transition-transform duration-200
-                                                            ${isExpanded ? 'rotate-90' : 'rotate-0'}
-                                                            ${isActive ? 'text-[#009E49]' : 'text-slate-300 group-hover:text-slate-500'}`}
-                                                    />
-                                                </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            toggleSubmenu(item.key);
+                                                        }}
+                                                        className={`p-1 rounded-md transition-colors duration-200 cursor-pointer border-none bg-transparent ${
+                                                            isHighlighted
+                                                                ? 'text-[#009E49] hover:bg-emerald-100/60'
+                                                                : 'text-slate-400 hover:bg-slate-200/60 group-hover:text-[#009E49]'
+                                                        }`}
+                                                        title={isExpanded ? 'Collapse menu' : 'Expand menu'}
+                                                    >
+                                                        <ChevronRight
+                                                            className={`w-3.5 h-3.5 shrink-0 transition-transform duration-300 ease-out ${
+                                                                isExpanded ? 'rotate-90' : 'rotate-0'
+                                                            }`}
+                                                        />
+                                                    </button>
+                                                </div>
 
+                                                {/* Smooth CSS Grid Accordion */}
                                                 <div
-                                                    style={{
-                                                        maxHeight: isExpanded ? '320px' : '0px',
-                                                        opacity: isExpanded ? 1 : 0,
-                                                        transition: isExpanded
-                                                            ? 'max-height 240ms cubic-bezier(0.4,0,0.2,1), opacity 150ms ease-in'
-                                                            : 'max-height 180ms cubic-bezier(0.4,0,1,1), opacity 100ms ease-out',
-                                                        overflow: 'hidden',
-                                                    }}
+                                                    className={`grid transition-all duration-300 ease-in-out ${
+                                                        isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'
+                                                    }`}
                                                 >
-                                                    <div className="ml-3.5 pl-3 border-l border-slate-200/90 space-y-0.5 py-1 my-0.5">
-                                                        {item.submenu.map((sub: any, subIdx: number) => {
-                                                            const isSubActive = isSubmenuActive(item.key, sub.key);
-                                                            return (
-                                                                <Link
-                                                                    key={subIdx}
-                                                                    href={sub.route}
-                                                                    prefetch
-                                                                    className={`flex items-center px-2.5 py-1.5 rounded-md text-[12.5px] font-medium
-                                                                        transition-colors duration-150 ${
-                                                                        isSubActive
-                                                                            ? 'bg-[#009E49] text-white font-semibold shadow-2xs'
-                                                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
-                                                                    }`}
-                                                                >
-                                                                    {sub.label}
-                                                                </Link>
-                                                            );
-                                                        })}
+                                                    <div className="overflow-hidden">
+                                                        <div className="ml-3.5 pl-3 border-l-2 border-emerald-100/90 space-y-1 py-1 my-0.5">
+                                                            {item.submenu.map((sub, subIdx) => {
+                                                                const isSubActive = isSubmenuActive(item.key, sub.key);
+                                                                return (
+                                                                    <Link
+                                                                        key={subIdx}
+                                                                        href={sub.route}
+                                                                        prefetch
+                                                                        className={`group/sub flex items-center px-2.5 py-1.5 rounded-lg text-[12.5px] select-none
+                                                                            transition-all duration-200 ease-out ${
+                                                                            isSubActive
+                                                                                ? 'bg-[#009E49] text-white font-bold shadow-xs translate-x-1'
+                                                                                : 'text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/80 hover:translate-x-1 font-medium'
+                                                                        }`}
+                                                                    >
+                                                                        <span
+                                                                            className={`w-1.5 h-1.5 rounded-full mr-2 shrink-0 transition-all duration-200 ${
+                                                                                isSubActive
+                                                                                    ? 'bg-white scale-110 shadow-xs'
+                                                                                    : 'bg-slate-300 group-hover/sub:bg-[#009E49] group-hover/sub:scale-110'
+                                                                            }`}
+                                                                        />
+                                                                        <span>{sub.label}</span>
+                                                                    </Link>
+                                                                );
+                                                            })}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         );
                                     }
 
+                                    // ── Full Expanded Single Item ──
                                     return (
                                         <Link
                                             key={idx}
                                             href={item.route!}
                                             prefetch
-                                            className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium
-                                                transition-colors duration-150 ease-in-out ${
+                                            className={`group flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] select-none
+                                                transition-all duration-200 ease-out border ${
                                                 isActive
-                                                    ? 'bg-[#009E49] text-white font-semibold shadow-2xs'
-                                                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
+                                                    ? 'bg-[#009E49] text-white font-bold shadow-xs border-[#009E49]'
+                                                    : 'text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/60 hover:border-emerald-100/70 border-transparent hover:translate-x-0.5 font-medium'
                                             }`}
                                         >
-                                            <IconComponent className={`w-4 h-4 shrink-0 transition-colors duration-150 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-600'}`} />
-                                            <span>{item.label}</span>
+                                            <IconComponent
+                                                className={`w-4 h-4 shrink-0 transition-colors duration-200 ${
+                                                    isActive ? 'text-white' : 'text-slate-400 group-hover:text-[#009E49]'
+                                                }`}
+                                            />
+                                            <span className="tracking-tight">{item.label}</span>
                                         </Link>
                                     );
                                 })}
@@ -586,12 +665,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                             <Link
                                 href={route('home')}
                                 target="_blank"
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-1.5 rounded-full border border-[#009E49]/30 bg-[#E1F7EE]/70 text-[#009E49] text-[12px] sm:text-[12.5px] font-bold hover:bg-[#009E49] hover:text-white transition-all shadow-2xs shrink-0"
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-full border border-[#009E49]/30 bg-[#E1F7EE]/70 text-[#009E49] text-[12px] sm:text-[12.5px] font-bold hover:bg-[#009E49] hover:text-white transition-all shadow-2xs shrink-0"
                                 title="Visit Live Storefront"
                             >
                                 <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#009E49] shrink-0" />
-                                <span className="inline">Store</span>
-                                <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                                <span className="hidden xs:inline sm:inline">Store</span>
+                                <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 hidden xs:inline" />
                             </Link>
 
                             {/* Notification Bell */}
@@ -656,10 +735,73 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 </header>
 
                 {/* ── Page Content (Full Width Left-aligned with consistent padding) ── */}
-                <main className="p-4 sm:p-6 md:p-8 flex-grow w-full max-w-full overflow-x-hidden">
+                <main className="p-4 pb-24 sm:p-6 sm:pb-8 md:p-8 flex-grow w-full max-w-full overflow-x-hidden">
                     {children}
                 </main>
             </div>
+
+            {/* ── Mobile App Bottom Navigation Bar (Native App Feel) ── */}
+            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-1 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] flex items-center justify-around">
+                <Link
+                    href={route('admin.dashboard')}
+                    className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors no-underline ${
+                        isUrlMatch('dashboard')
+                            ? 'text-[#009E49] font-bold'
+                            : 'text-slate-500 hover:text-slate-800 font-medium'
+                    }`}
+                >
+                    <LayoutGrid className="w-5 h-5 mb-0.5" />
+                    <span className="text-[10.5px]">Dashboard</span>
+                </Link>
+
+                <Link
+                    href={route('admin.orders.index')}
+                    className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors no-underline relative ${
+                        isUrlMatch('orders')
+                            ? 'text-[#009E49] font-bold'
+                            : 'text-slate-500 hover:text-slate-800 font-medium'
+                    }`}
+                >
+                    <ShoppingBag className="w-5 h-5 mb-0.5" />
+                    <span className="text-[10.5px]">Orders</span>
+                    {isUrlMatch('orders') && (
+                        <span className="absolute top-1 right-2 w-1.5 h-1.5 rounded-full bg-[#009E49]" />
+                    )}
+                </Link>
+
+                <Link
+                    href={route('admin.products.index')}
+                    className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors no-underline ${
+                        isUrlMatch('products')
+                            ? 'text-[#009E49] font-bold'
+                            : 'text-slate-500 hover:text-slate-800 font-medium'
+                    }`}
+                >
+                    <Package className="w-5 h-5 mb-0.5" />
+                    <span className="text-[10.5px]">Products</span>
+                </Link>
+
+                <Link
+                    href={route('admin.settings.index')}
+                    className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-colors no-underline ${
+                        isUrlMatch('settings')
+                            ? 'text-[#009E49] font-bold'
+                            : 'text-slate-500 hover:text-slate-800 font-medium'
+                    }`}
+                >
+                    <Settings className="w-5 h-5 mb-0.5" />
+                    <span className="text-[10.5px]">Settings</span>
+                </Link>
+
+                <button
+                    type="button"
+                    onClick={() => setIsSidebarOpen(true)}
+                    className="flex flex-col items-center justify-center py-1 px-2.5 rounded-xl text-slate-500 hover:text-slate-800 font-medium border-none bg-transparent cursor-pointer"
+                >
+                    <Menu className="w-5 h-5 mb-0.5" />
+                    <span className="text-[10.5px]">Menu</span>
+                </button>
+            </nav>
 
             <Toaster position="top-right" richColors />
         </div>

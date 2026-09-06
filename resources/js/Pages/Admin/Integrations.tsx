@@ -46,9 +46,11 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
         site_logo_mobile: settings.site_logo_mobile || '',
         copyright_text: settings.copyright_text || '© 2026 ChutirMart. সর্বস্বত্ব সংরক্ষিত।',
         
-        // Meta & SMS
+        // Meta & Tracking & SMS
         facebook_pixel_id: settings.facebook_pixel_id || '',
         facebook_access_token: settings.facebook_access_token || '',
+        facebook_test_event_code: settings.facebook_test_event_code || '',
+        gtm_container_id: settings.gtm_container_id || '',
         sms_api_key: settings.sms_api_key || '',
         sms_sender_id: settings.sms_sender_id || '',
 
@@ -570,6 +572,24 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
                                 value={data.facebook_access_token} 
                                 onChange={e => setData('facebook_access_token', e.target.value)} 
                             />
+                        </div>
+                        <div>
+                            <FieldLabel>Meta Test Event Code (Optional for Staging)</FieldLabel>
+                            <AdminInput 
+                                placeholder="e.g. TEST12345" 
+                                value={data.facebook_test_event_code} 
+                                onChange={e => setData('facebook_test_event_code', e.target.value)} 
+                            />
+                            <p className="text-[10px] text-gray-400 mt-1">Leave empty in production so events register as live conversions.</p>
+                        </div>
+                        <div>
+                            <FieldLabel>Google Tag Manager (GTM) Container ID</FieldLabel>
+                            <AdminInput 
+                                placeholder="e.g. GTM-XXXXXXX" 
+                                value={data.gtm_container_id} 
+                                onChange={e => setData('gtm_container_id', e.target.value)} 
+                            />
+                            <p className="text-[10px] text-gray-400 mt-1">Loads GTM container across storefront pages automatically.</p>
                         </div>
                     </div>
                 </AdminCard>

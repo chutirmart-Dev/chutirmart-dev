@@ -57,7 +57,7 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#F5F3EE]">
+        <div className="flex flex-col min-h-screen bg-[#F5F3EE] overflow-x-clip">
             {/* Header */}
             <Header />
 
@@ -77,18 +77,19 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
 
             {/* ── FLOATING WIDGETS ────────────────────────────────────── */}
 
-            {/* 1. Floating Cart Sidebar Button (Right Edge) */}
+            {/* 1. Floating Cart Sidebar Button (Right Edge) - Active on Mobile & Desktop */}
             <div 
                 onClick={() => setIsCartOpen(true)}
-                className="fixed right-0 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-center bg-white shadow-[-4px_4px_20px_rgba(0,158,73,0.15)] rounded-l-2xl border border-r-0 border-[#009E49]/20 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-4px]"
+                className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center bg-white shadow-[-4px_4px_20px_rgba(0,0,0,0.18)] rounded-l-md sm:rounded-l-lg border border-r-0 border-gray-200 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-4px] active:scale-95"
+                title="View Cart"
             >
                 {/* Top: Red background with bag icon & count */}
-                <div className="w-16 py-3 bg-[#E2231A] text-white flex flex-col items-center justify-center gap-1">
-                    <ShoppingBag className="w-5 h-5" />
-                    <span className="text-[10px] font-black tracking-wide leading-none">{cartCount} Items</span>
+                <div className="w-14 sm:w-16 py-2.5 sm:py-3 bg-[#E2231A] text-white flex flex-col items-center justify-center gap-0.5 sm:gap-1">
+                    <ShoppingBag className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+                    <span className="text-[9px] sm:text-[10px] font-black tracking-wide leading-none">{cartCount} Items</span>
                 </div>
                 {/* Bottom: White background with subtotal */}
-                <div className="w-16 py-2 flex items-center justify-center bg-white text-[#E2231A] text-[11px] font-black">
+                <div className="w-14 sm:w-16 py-1.5 sm:py-2 flex items-center justify-center bg-white text-[#E2231A] text-[10px] sm:text-[11px] font-black">
                     ৳{cartSubtotal}
                 </div>
             </div>

@@ -11,15 +11,26 @@ class AttributeValue extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['attribute_id', 'value', 'color_hex', 'sort_order'];
+    protected $fillable = [
+        'attribute_id', 'value', 'slug', 'color_hex', 'status', 'image_path', 'sort_order',
+    ];
 
     public function attribute(): BelongsTo
     {
         return $this->belongsTo(Attribute::class);
     }
 
+    /** Legacy: linked product variants (old system). */
     public function variants(): HasMany
     {
         return $this->hasMany(ProductVariant::class);
+    }
+
+    /**
+     * Scope: only active options.
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
     }
 }

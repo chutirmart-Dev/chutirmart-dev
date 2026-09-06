@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
+import { trackViewContent } from '@/lib/gtm';
 import { 
     ShoppingCart, Phone, MessageCircle, Truck, ShieldCheck, 
     RotateCcw, CheckCircle2, Star, Plus, Minus, ArrowDown, 
@@ -38,6 +39,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 }) => {
     const product = landingPage.product || {};
     const orderFormRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (product && product.id) {
+            trackViewContent(product);
+        }
+    }, [product?.id]);
 
     const [quantity, setQuantity] = useState(1);
     const [selectedVariant, setSelectedVariant] = useState<any>(product.variants?.[0] || null);
@@ -428,7 +435,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                                                             </h3>
 
                                                             <div>
-                                                                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                                                                <label className="block text-xs font-bold text-gray-700 mb-1.5 font-bangla">
                                                                     আপনার পুরো নাম <span className="text-red-500">*</span>
                                                                 </label>
                                                                 <input
@@ -437,13 +444,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                                                                     value={data.customer_name}
                                                                     onChange={e => setData('customer_name', e.target.value)}
                                                                     required
-                                                                    className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-gray-50/50 text-sm focus:bg-white focus:border-[#009E49] focus:outline-none focus:ring-2 focus:ring-[#009E49]/20 transition-all"
+                                                                    className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-[15px] font-medium text-gray-900 placeholder:text-gray-600 focus:border-[#009E49] focus:outline-none focus:ring-2 focus:ring-[#009E49]/15 transition-all font-bangla"
                                                                 />
-                                                                {errors.customer_name && <p className="text-xs text-red-500 mt-1">{errors.customer_name}</p>}
+                                                                {errors.customer_name && <p className="text-xs text-red-500 mt-1 font-bangla">{errors.customer_name}</p>}
                                                             </div>
 
                                                             <div>
-                                                                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                                                                <label className="block text-xs font-bold text-gray-700 mb-1.5 font-bangla">
                                                                     মোবাইল নম্বর <span className="text-red-500">*</span>
                                                                 </label>
                                                                 <input
@@ -452,31 +459,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                                                                     value={data.mobile}
                                                                     onChange={e => setData('mobile', e.target.value)}
                                                                     required
-                                                                    className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-gray-50/50 text-sm font-mono focus:bg-white focus:border-[#009E49] focus:outline-none focus:ring-2 focus:ring-[#009E49]/20 transition-all"
+                                                                    className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-[15px] font-medium text-gray-900 placeholder:text-gray-600 focus:border-[#009E49] focus:outline-none focus:ring-2 focus:ring-[#009E49]/15 transition-all font-bangla"
                                                                 />
-                                                                {errors.mobile && <p className="text-xs text-red-500 mt-1">{errors.mobile}</p>}
+                                                                {errors.mobile && <p className="text-xs text-red-500 mt-1 font-bangla">{errors.mobile}</p>}
                                                             </div>
 
                                                             <div>
-                                                                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                                                                <label className="block text-xs font-bold text-gray-700 mb-1.5 font-bangla">
                                                                     জেলা নির্বাচন করুন <span className="text-red-500">*</span>
                                                                 </label>
                                                                 <select
                                                                     value={data.district}
                                                                     onChange={e => handleDistrictChange(e.target.value)}
                                                                     required
-                                                                    className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-gray-50/50 text-sm focus:bg-white focus:border-[#009E49] focus:outline-none focus:ring-2 focus:ring-[#009E49]/20 transition-all"
+                                                                    className="w-full h-12 px-4 rounded-xl border border-gray-300 bg-white text-[15px] font-medium text-gray-900 focus:border-[#009E49] focus:outline-none focus:ring-2 focus:ring-[#009E49]/15 transition-all font-bangla"
                                                                 >
-                                                                    <option value="">জেলা সিলেক্ট করুন</option>
+                                                                    <option value="" className="text-gray-600">জেলা সিলেক্ট করুন</option>
                                                                     {districts.map(d => (
                                                                         <option key={d.id} value={d.name}>{d.name}</option>
                                                                     ))}
                                                                 </select>
-                                                                {errors.district && <p className="text-xs text-red-500 mt-1">{errors.district}</p>}
+                                                                {errors.district && <p className="text-xs text-red-500 mt-1 font-bangla">{errors.district}</p>}
                                                             </div>
 
                                                             <div>
-                                                                <label className="block text-xs font-bold text-gray-700 mb-1.5">
+                                                                <label className="block text-xs font-bold text-gray-700 mb-1.5 font-bangla">
                                                                     সম্পূর্ণ ডেলিভারি ঠিকানা <span className="text-red-500">*</span>
                                                                 </label>
                                                                 <textarea
@@ -485,9 +492,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                                                                     onChange={e => setData('address', e.target.value)}
                                                                     rows={3}
                                                                     required
-                                                                    className="w-full p-3.5 rounded-xl border border-gray-300 bg-gray-50/50 text-sm focus:bg-white focus:border-[#009E49] focus:outline-none focus:ring-2 focus:ring-[#009E49]/20 transition-all"
+                                                                    className="w-full p-3.5 rounded-xl border border-gray-300 bg-white text-[15px] font-medium text-gray-900 placeholder:text-gray-600 focus:border-[#009E49] focus:outline-none focus:ring-2 focus:ring-[#009E49]/15 transition-all font-bangla"
                                                                 />
-                                                                {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
+                                                                {errors.address && <p className="text-xs text-red-500 mt-1 font-bangla">{errors.address}</p>}
                                                             </div>
                                                         </div>
 

@@ -235,7 +235,7 @@ export const Show: React.FC<ShowProps> = ({ order, couriers = [] }) => {
                                                                 )}
                                                                 {item.variant_info && (
                                                                     <span className="text-[10px] font-bold text-[#009E49] bg-[#E6F5EC] px-2 py-0.5 rounded">
-                                                                        Variant: {item.variant_info.value || item.variant_info.name}
+                                                                        {item.variant_info.label || item.variant_info.value || item.variant_info.name || 'Variant'}
                                                                     </span>
                                                                 )}
                                                             </div>

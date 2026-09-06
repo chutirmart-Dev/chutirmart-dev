@@ -1,27 +1,72 @@
+####################################
+# PHP / Laravel
+####################################
 *.log
-.DS_Store
 .env
 .env.backup
 .env.production
+.env.*.local
+/auth.json
 .phpactor.json
 .phpunit.result.cache
-/.codex
-/.cursor/
-/.idea
-/.nova
 /.phpunit.cache
-/.vscode
-/.zed
-/auth.json
+Homestead.json
+Homestead.yaml
+_ide_helper.php
+_ide_helper_models.php
+.phpstorm.meta.php
+
+####################################
+# Composer & Node
+####################################
+/vendor
 /node_modules
+
+####################################
+# Laravel Framework Generated Files
+####################################
+/public/hot
 /public/build
 /public/fonts-manifest.dev.json
-/public/hot
 /public/storage
 /storage/*.key
 /storage/pail
-/vendor
-_ide_helper.php
-Homestead.json
-Homestead.yaml
+
+####################################
+# IDE / Editor Files
+####################################
+.DS_Store
 Thumbs.db
+.editorconfig
+/.idea
+/.vscode
+/.zed
+/.nova
+/.cursor/
+/.codex
+
+####################################
+# AI Agent / Dev Tool Configs
+####################################
+/.agents
+/.claude
+/.mcp.json
+/boost.json
+
+####################################
+# Deployment Artifacts (local only)
+####################################
+/deploy
+
+####################################
+# Design & Planning Docs (local only)
+####################################
+/design inspiration
+/DESIGN.md
+/PRD.md
+/PRD (2).md
+
+####################################
+# SQL Backup Files (local only)
+####################################
+*.sql

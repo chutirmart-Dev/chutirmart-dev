@@ -192,9 +192,25 @@ class MediaService
             return self::getFallbackUrl($fallbackType);
         }
 
-        // Verify physical file exists on disk; if missing, return graceful fallback
+        // Verify physical file exists on disk; if missing, check other common extensions
         if (! Storage::disk('public')->exists($clean)) {
-            return self::getFallbackUrl($fallbackType);
+            $pathInfo = pathinfo($clean);
+            $dir = (isset($pathInfo['dirname']) && $pathInfo['dirname'] !== '.' && $pathInfo['dirname'] !== '') ? $pathInfo['dirname'].'/' : '';
+            $filename = $pathInfo['filename'] ?? '';
+            $found = null;
+            foreach (['webp', 'jpg', 'jpeg', 'png', 'svg', 'ico'] as $altExt) {
+                $altCandidate = $dir.$filename.'.'.$altExt;
+                if (Storage::disk('public')->exists($altCandidate)) {
+                    $found = $altCandidate;
+                    break;
+                }
+            }
+
+            if ($found) {
+                $clean = $found;
+            } else {
+                return self::getFallbackUrl($fallbackType);
+            }
         }
 
         return asset('storage/'.$clean);
@@ -230,11 +246,13 @@ class MediaService
      */
     public static function getFallbackUrl(string $type = 'product'): string
     {
-        return match ($type) {
-            'banner' => asset('storage/defaults/default-banner.svg'),
-            'logo' => asset('storage/defaults/default-logo.svg'),
-            'avatar' => asset('storage/defaults/default-avatar.svg'),
-            default => asset('storage/defaults/default-product.svg'),
+        $relPath = match ($type) {
+            'banner' => 'defaults/default-banner.svg',
+            'logo' => 'defaults/default-logo.svg',
+            'avatar' => 'defaults/default-avatar.svg',
+            default => 'defaults/default-product.svg',
         };
+
+        return asset('storage/'.$relPath);
     }
 }

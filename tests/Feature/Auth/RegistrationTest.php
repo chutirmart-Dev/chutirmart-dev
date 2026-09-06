@@ -28,4 +28,40 @@ class RegistrationTest extends TestCase
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
     }
+
+    public function test_new_users_can_register_with_phone_number(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Phone User',
+            'phone' => '01711223344',
+            'email' => 'phoneuser@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $this->assertDatabaseHas('users', [
+            'name' => 'Phone User',
+            'phone' => '01711223344',
+        ]);
+        $response->assertRedirect(route('dashboard', absolute: false));
+    }
+
+    public function test_new_users_can_register_with_phone_only(): void
+    {
+        $response = $this->post('/register', [
+            'name' => 'Mobile Only User',
+            'phone' => '01899887766',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $this->assertDatabaseHas('users', [
+            'name' => 'Mobile Only User',
+            'phone' => '01899887766',
+            'email' => null,
+        ]);
+        $response->assertRedirect(route('dashboard', absolute: false));
+    }
 }

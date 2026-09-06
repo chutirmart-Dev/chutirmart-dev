@@ -274,14 +274,14 @@ import { Link } from '@inertiajs/react';
 export const AdminPagination: React.FC<{ links: any[] }> = ({ links }) => {
     if (links.length <= 3) return null;
     return (
-        <div className="flex justify-center items-center gap-1.5 px-6 py-4 border-t border-[#EBEDF2]">
+        <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-1.5 px-3 sm:px-6 py-3 sm:py-4 border-t border-[#EBEDF2]">
             {links.map((link, idx) => {
                 if (link.url === null) return null;
                 return (
                     <Link
                         key={idx}
                         href={link.url}
-                        className={`px-3.5 py-2 rounded-lg text-[13px] font-bold transition-all ${link.active ? 'bg-[#009E49] text-white shadow-[0_2px_8px_rgba(0,158,73,0.2)]' : 'bg-[#F7F8FA] text-[#555E7A] hover:bg-[#009E49] hover:text-white border border-[#EBEDF2]'}`}
+                        className={`px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg text-[12px] sm:text-[13px] font-bold transition-all ${link.active ? 'bg-[#009E49] text-white shadow-[0_2px_8px_rgba(0,158,73,0.2)]' : 'bg-[#F7F8FA] text-[#555E7A] hover:bg-[#009E49] hover:text-white border border-[#EBEDF2]'}`}
                         dangerouslySetInnerHTML={{ __html: link.label }}
                     />
                 );

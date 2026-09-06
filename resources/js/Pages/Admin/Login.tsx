@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import { 
     Mail, Lock, Eye, EyeOff, CheckCircle2, ArrowRight, ShieldCheck, 
     Sparkles, TrendingUp, CreditCard, ShoppingBag, Package, Truck, 
-    Star, AlertTriangle, ChevronLeft, ChevronRight, Users, Award
+    Star, AlertTriangle, ChevronLeft, ChevronRight, Users, Award, ArrowLeft
 } from 'lucide-react';
 
 export const Login: React.FC = () => {
@@ -82,31 +82,37 @@ export const Login: React.FC = () => {
 
                     {/* 1. Header: Brand Logo & Navigation Controls */}
                     <div className="relative z-10 flex items-center justify-between">
-                        {store_settings?.site_logo ? (
-                            <div className="bg-white px-3.5 py-2 rounded-2xl shadow-sm border border-white/20 flex items-center">
-                                <img 
-                                    src={store_settings.site_logo} 
-                                    alt={store_settings?.site_name || "ChutirMart"} 
-                                    className="h-8 w-auto object-contain" 
-                                    onError={e => {
-                                        (e.target as HTMLImageElement).style.display = 'none';
-                                    }}
-                                />
-                            </div>
-                        ) : (
-                            <div className="bg-white px-4 py-2 rounded-2xl shadow-md flex items-center gap-2">
-                                <div className="w-7 h-7 rounded-xl bg-[#009E49] flex items-center justify-center text-white shadow-xs">
-                                    <ShoppingBag className="w-4 h-4" />
+                        <Link 
+                            href={route('home')}
+                            className="group inline-flex items-center gap-2.5 transition-all hover:scale-102 cursor-pointer no-underline select-none"
+                            title="ছুটির মার্ট স্টোর ভিজিট করুন (Visit Store)"
+                        >
+                            {store_settings?.site_logo ? (
+                                <div className="bg-white px-3.5 py-2 rounded-2xl shadow-sm border border-white/20 flex items-center">
+                                    <img 
+                                        src={store_settings.site_logo} 
+                                        alt={store_settings?.site_name || "ChutirMart"} 
+                                        className="h-8 w-auto object-contain" 
+                                        onError={e => {
+                                            (e.target as HTMLImageElement).style.display = 'none';
+                                        }}
+                                    />
                                 </div>
-                                <div className="flex items-center text-xl font-black font-bangla tracking-tight">
-                                    <span className="text-[#009E49]">ছুটির</span>
-                                    <span className="text-[#E2231A] ml-0.5">মার্ট</span>
+                            ) : (
+                                <div className="bg-white px-4 py-2 rounded-2xl shadow-md flex items-center gap-2">
+                                    <div className="w-7 h-7 rounded-xl bg-[#009E49] flex items-center justify-center text-white shadow-xs">
+                                        <ShoppingBag className="w-4 h-4" />
+                                    </div>
+                                    <div className="flex items-center text-xl font-black font-bangla tracking-tight">
+                                        <span className="text-[#009E49]">ছুটির</span>
+                                        <span className="text-[#E2231A] ml-0.5">মার্ট</span>
+                                    </div>
+                                    <span className="text-[10px] font-bold text-slate-400 font-latin border-l border-slate-200 pl-2 uppercase tracking-wider">
+                                        Admin
+                                    </span>
                                 </div>
-                                <span className="text-[10px] font-bold text-slate-400 font-latin border-l border-slate-200 pl-2 uppercase tracking-wider">
-                                    Admin
-                                </span>
-                            </div>
-                        )}
+                            )}
+                        </Link>
 
                         {/* Navigation Arrows */}
                         <div className="flex items-center gap-1.5 bg-black/20 backdrop-blur-md rounded-xl p-1 border border-white/10">
@@ -633,6 +639,17 @@ export const Login: React.FC = () => {
                             </button>
 
                         </form>
+
+                        {/* Back to Store Link */}
+                        <div className="text-center pt-2">
+                            <Link 
+                                href={route('home')} 
+                                className="inline-flex items-center gap-2 text-xs font-bold text-slate-600 hover:text-[#009E49] bg-slate-50 hover:bg-emerald-50/60 px-4 py-2 rounded-xl border border-slate-200 hover:border-emerald-200 transition-all shadow-2xs font-bangla no-underline"
+                            >
+                                <ArrowLeft className="w-3.5 h-3.5 text-[#009E49]" />
+                                <span>স্টোরে ফিরে যান (Visit Storefront)</span>
+                            </Link>
+                        </div>
 
                     </div>
 

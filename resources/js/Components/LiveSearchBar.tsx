@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { router } from '@inertiajs/react';
 import axios from 'axios';
+import { trackSearch } from '@/lib/gtm';
 import { Search, X, Loader2, TrendingUp, Clock, ArrowRight, Tag, ShoppingBag, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 
 interface SuggestedProduct {
@@ -40,6 +41,7 @@ interface LiveSearchBarProps {
 }
 
 const POPULAR_SEARCH_TERMS = [
+    'Search in ChutirMart...',
     'Smart Watch',
     'Mini Fan',
     'Water Spray Gun',
@@ -241,6 +243,7 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
     const executeSearch = (searchTerm: string) => {
         const clean = searchTerm.trim();
         if (!clean) return;
+        trackSearch(clean);
         saveRecentSearch(clean);
         setIsOpen(false);
         if (onCloseMobile) onCloseMobile();
@@ -406,8 +409,8 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
             {/* Input Form Bar - Styled to exact user screenshot with branding green */}
             <form 
                 onSubmit={handleSubmit} 
-                className={`relative flex items-center w-full bg-white border-2 border-[#009E49] rounded-xl p-1 shadow-xs transition-all duration-200 focus-within:ring-2 focus-within:ring-[#009E49]/25 ${
-                    mobileMode ? 'h-10' : 'h-11'
+                className={`relative flex items-center w-full bg-white border-2 border-[#009E49] rounded-lg p-1 shadow-xs transition-all duration-200 focus-within:ring-2 focus-within:ring-[#009E49]/20 ${
+                    mobileMode ? 'h-11' : 'h-[50px]'
                 }`}
             >
                 <input
@@ -425,13 +428,13 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
                     placeholder={placeholders[placeholderIndex]}
                     autoComplete="off"
                     spellCheck={false}
-                    className={`flex-1 min-w-0 bg-transparent px-3 text-gray-800 placeholder-gray-400 outline-none border-none focus:outline-none focus:ring-0 ${
-                        mobileMode ? 'text-xs' : 'text-sm'
+                    className={`flex-1 min-w-0 bg-transparent px-3 text-gray-900 placeholder:text-gray-400 outline-none border-none focus:outline-none focus:ring-0 ${
+                        mobileMode ? 'text-xs' : 'text-[15px]'
                     } ${inputClassName}`}
                 />
 
                 {/* Right Action Buttons */}
-                <div className="flex items-center gap-1.5 shrink-0 pl-1">
+                <div className="flex items-center gap-1.5 shrink-0 pl-1 h-full">
                     {/* Clear Button */}
                     {query && (
                         <button
@@ -441,16 +444,16 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
                                 setSelectedIndex(-1);
                                 inputRef.current?.focus();
                             }}
-                            className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
                             title="Clear search"
                         >
-                            <X className="w-3.5 h-3.5" />
+                            <X className="w-4 h-4" />
                         </button>
                     )}
 
                     {/* Loading Indicator */}
                     {isLoading && (
-                        <div className="px-1">
+                        <div className="px-1.5">
                             <Loader2 className="w-4 h-4 animate-spin text-[#009E49]" />
                         </div>
                     )}
@@ -459,9 +462,9 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
                     <button
                         type="submit"
                         aria-label="Search"
-                        className="bg-[#009E49] hover:bg-[#007F3B] text-white px-3.5 sm:px-4 py-1.5 h-full rounded-lg font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition-all duration-150 active:scale-95 shadow-xs shrink-0 select-none cursor-pointer"
+                        className="bg-[#009E49] hover:bg-[#007F3B] text-white px-5 sm:px-6 h-full rounded-md font-bold text-xs sm:text-sm flex items-center gap-2 transition-all duration-150 active:scale-95 shadow-xs shrink-0 select-none cursor-pointer"
                     >
-                        <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
+                        <Search className="w-4 h-4 stroke-[2.5]" />
                         <span className="font-latin tracking-wide">Search</span>
                     </button>
                 </div>

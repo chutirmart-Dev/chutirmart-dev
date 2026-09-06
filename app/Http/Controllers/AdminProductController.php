@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attribute;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\Product;
@@ -34,6 +35,8 @@ class AdminProductController extends Controller
                 $query->where('is_best_selling', true);
             } elseif ($request->input('featured') === 'new_arrival') {
                 $query->where('is_new_arrival', true);
+            } elseif ($request->input('featured') === 'just_for_you') {
+                $query->where('is_featured', true);
             }
         }
 
@@ -52,10 +55,15 @@ class AdminProductController extends Controller
     {
         $brands = Brand::where('status', 'active')->get(['id', 'name']);
         $categories = Category::where('status', 'active')->get(['id', 'name']);
+        $attributes = Attribute::active()
+            ->with(['values' => fn ($q) => $q->where('status', 'active')->orderBy('sort_order')])
+            ->orderBy('sort_order')
+            ->get();
 
         return Inertia::render('Admin/Products/Create', [
             'brands' => $brands,
             'categories' => $categories,
+            'attributes' => $attributes,
         ]);
     }
 
@@ -74,12 +82,14 @@ class AdminProductController extends Controller
             'categories' => 'required|array|min:1',
             'is_best_selling' => 'nullable|boolean',
             'is_new_arrival' => 'nullable|boolean',
+            'is_featured' => 'nullable|boolean',
             'main_image' => 'nullable|string',
             'gallery_images' => 'nullable|array',
             'gallery_images.*' => 'string',
             'images' => 'nullable|array',
             'images.*' => 'string',
             'youtube_url' => 'nullable|url',
+            'selected_attribute_options' => 'nullable|array', // [{attribute_id, option_ids:[]}]
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -87,12 +97,13 @@ class AdminProductController extends Controller
 
             $isBestSelling = $request->boolean('is_best_selling');
             $isNewArrival = $request->boolean('is_new_arrival');
+            $isFeatured = $request->boolean('is_featured');
             if ($isBestSelling && $isNewArrival) {
                 $isNewArrival = false;
             }
 
             $status = $request->status;
-            if (($isBestSelling || $isNewArrival) && $status === 'draft') {
+            if (($isBestSelling || $isNewArrival || $isFeatured) && $status === 'draft') {
                 $status = 'active';
             }
 
@@ -109,12 +120,19 @@ class AdminProductController extends Controller
                 'status' => $status,
                 'is_best_selling' => $isBestSelling,
                 'is_new_arrival' => $isNewArrival,
+                'is_featured' => $isFeatured,
                 'brand_id' => $request->brand_id,
                 'youtube_url' => $request->youtube_url,
             ]);
 
             // Attach categories
             $product->categories()->attach($request->categories);
+
+            // Save selected attribute options and auto-generate variations
+            if ($request->filled('selected_attribute_options') && is_array($request->selected_attribute_options)) {
+                $this->syncAttributeOptions($product, $request->selected_attribute_options);
+                app(AdminVariationController::class)->generateProductVariations($product);
+            }
 
             $sortOrder = 0;
 
@@ -172,11 +190,29 @@ class AdminProductController extends Controller
         $product = Product::with(['images', 'categories', 'brand'])->findOrFail($id);
         $brands = Brand::where('status', 'active')->get(['id', 'name']);
         $categories = Category::where('status', 'active')->get(['id', 'name']);
+        $attributes = Attribute::active()
+            ->with(['values' => fn ($q) => $q->where('status', 'active')->orderBy('sort_order')])
+            ->orderBy('sort_order')
+            ->get();
+
+        // Load existing attribute option selections for this product
+        $selectedAttributeOptions = DB::table('product_attribute_options')
+            ->where('product_id', $product->id)
+            ->get()
+            ->groupBy('attribute_id')
+            ->map(fn ($rows) => $rows->pluck('option_id')->toArray())
+            ->toArray();
+
+        // Load existing variations with their options
+        $variations = $product->variations()->with(['options.attribute'])->get();
 
         return Inertia::render('Admin/Products/Edit', [
             'product' => $product,
             'brands' => $brands,
             'categories' => $categories,
+            'attributes' => $attributes,
+            'selectedAttributeOptions' => $selectedAttributeOptions,
+            'variations' => $variations,
         ]);
     }
 
@@ -197,6 +233,7 @@ class AdminProductController extends Controller
             'categories' => 'required|array|min:1',
             'is_best_selling' => 'nullable|boolean',
             'is_new_arrival' => 'nullable|boolean',
+            'is_featured' => 'nullable|boolean',
             'youtube_url' => 'nullable|url',
             'main_image_id' => 'nullable|integer',
             'new_main_image' => 'nullable|string',
@@ -204,17 +241,19 @@ class AdminProductController extends Controller
             'new_gallery_images.*' => 'string',
             'deleted_image_ids' => 'nullable|array',
             'deleted_image_ids.*' => 'integer',
+            'selected_attribute_options' => 'nullable|array',
         ]);
 
         return DB::transaction(function () use ($request, $product) {
             $isBestSelling = $request->boolean('is_best_selling');
             $isNewArrival = $request->boolean('is_new_arrival');
+            $isFeatured = $request->boolean('is_featured');
             if ($isBestSelling && $isNewArrival) {
                 $isNewArrival = false;
             }
 
             $status = $request->status;
-            if (($isBestSelling || $isNewArrival) && $status === 'draft') {
+            if (($isBestSelling || $isNewArrival || $isFeatured) && $status === 'draft') {
                 $status = 'active';
             }
 
@@ -229,12 +268,18 @@ class AdminProductController extends Controller
                 'status' => $status,
                 'is_best_selling' => $isBestSelling,
                 'is_new_arrival' => $isNewArrival,
+                'is_featured' => $isFeatured,
                 'brand_id' => $request->brand_id,
                 'youtube_url' => $request->youtube_url,
             ]);
 
             // Sync categories
             $product->categories()->sync($request->categories);
+
+            // Sync attribute options
+            if ($request->has('selected_attribute_options')) {
+                $this->syncAttributeOptions($product, $request->selected_attribute_options ?? []);
+            }
 
             // 1. Delete removed images safely
             if ($request->has('deleted_image_ids') && is_array($request->deleted_image_ids)) {
@@ -353,18 +398,12 @@ class AdminProductController extends Controller
     public function toggleFeatured(Request $request, string $id)
     {
         $request->validate([
-            'feature' => 'required|string|in:is_best_selling,is_new_arrival',
+            'feature' => 'required|string|in:is_best_selling,is_new_arrival,is_featured',
         ]);
 
         $product = Product::findOrFail($id);
         $feature = $request->input('feature');
-        $otherFeature = $feature === 'is_best_selling' ? 'is_new_arrival' : 'is_best_selling';
         $product->$feature = ! $product->$feature;
-
-        // If enabled, strictly deactivate the other showcase feature so products never appear in two sections
-        if ($product->$feature) {
-            $product->$otherFeature = false;
-        }
 
         // Auto-activate if showcased from draft
         if ($product->$feature && $product->status === 'draft') {
@@ -373,7 +412,12 @@ class AdminProductController extends Controller
 
         $product->save();
 
-        $label = $feature === 'is_best_selling' ? '🔥 সর্বাধিক বিক্রিত পণ্য' : '✨ নতুন পণ্য সমূহ';
+        $labels = [
+            'is_best_selling' => '🔥 সর্বাধিক বিক্রিত পণ্য',
+            'is_new_arrival' => '✨ নতুন পণ্য সমূহ',
+            'is_featured' => '⚡ Just For You (আপনার জন্য পণ্য)',
+        ];
+        $label = $labels[$feature] ?? $feature;
         $state = $product->$feature ? 'যুক্ত করা হয়েছে' : 'সরিয়ে ফেলা হয়েছে';
 
         if ($request->wantsJson()) {
@@ -396,5 +440,40 @@ class AdminProductController extends Controller
         $statusLabel = $product->status === 'active' ? 'Active (লাইভ)' : 'Draft (ড্রাফট)';
 
         return back()->with('success', "{$product->name} এর স্ট্যাটাস {$statusLabel} করা হয়েছে।");
+    }
+
+    /**
+     * Sync product's attribute options in product_attribute_options pivot.
+     *
+     * @param  array<array{attribute_id: int, option_ids: int[]}>  $selectedAttributeOptions
+     */
+    private function syncAttributeOptions(Product $product, array $selectedAttributeOptions): void
+    {
+        // Delete all existing records for this product
+        DB::table('product_attribute_options')->where('product_id', $product->id)->delete();
+
+        // Re-insert selected ones
+        $rows = [];
+        $now = now();
+        foreach ($selectedAttributeOptions as $attrSelection) {
+            $attributeId = $attrSelection['attribute_id'] ?? null;
+            $optionIds = $attrSelection['option_ids'] ?? [];
+            if (! $attributeId || empty($optionIds)) {
+                continue;
+            }
+            foreach ($optionIds as $optionId) {
+                $rows[] = [
+                    'product_id' => $product->id,
+                    'attribute_id' => $attributeId,
+                    'option_id' => $optionId,
+                    'created_at' => $now,
+                    'updated_at' => $now,
+                ];
+            }
+        }
+
+        if (! empty($rows)) {
+            DB::table('product_attribute_options')->insert($rows);
+        }
     }
 }

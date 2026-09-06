@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendMetaPurchaseEvent;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
@@ -205,6 +206,11 @@ class AdminOrderController extends Controller
                     $item->product->increment('total_sold', $item->quantity);
                 }
             }
+        }
+
+        // Trigger Meta Conversions API (CAPI) Purchase event asynchronously if transitioned to 'complete'
+        if ($oldStatus !== 'complete' && $request->status === 'complete' && ! $order->meta_purchase_sent) {
+            SendMetaPurchaseEvent::dispatch($order->fresh());
         }
 
         return back()->with('success', 'অর্ডার স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে।');

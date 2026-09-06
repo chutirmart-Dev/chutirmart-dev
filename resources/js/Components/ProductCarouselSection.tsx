@@ -4,11 +4,10 @@ import {
     Carousel,
     CarouselContent,
     CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
     type CarouselApi,
 } from '@/components/ui/carousel';
 import { ProductCard } from '@/components/ProductCard';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ProductCarouselSectionProps {
     title: string;
@@ -72,6 +71,28 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
         return () => clearInterval(timer);
     }, [api, isPaused, products.length, autoPlayInterval]);
 
+    const handlePrev = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!api) return;
+        if (api.canScrollPrev()) {
+            api.scrollPrev();
+        } else {
+            api.scrollTo(products.length - 1);
+        }
+    }, [api, products.length]);
+
+    const handleNext = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!api) return;
+        if (api.canScrollNext()) {
+            api.scrollNext();
+        } else {
+            api.scrollTo(0);
+        }
+    }, [api]);
+
     if (!products || products.length === 0) {
         return null;
     }
@@ -80,19 +101,23 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
 
     return (
         <section className="container py-6">
-            {/* Header with Title & View All */}
-            <div className="flex justify-between items-center mb-5">
-                <h2 className="text-lg md:text-xl font-bold text-gray-800 flex items-center gap-2">
-                    {icon && <span>{icon}</span>}
-                    <span>{title}</span>
-                </h2>
+            {/* Header matching Reference Image with full-width line & branding color active bar */}
+            <div className="relative border-b border-gray-200/90 pb-3 mb-6 flex items-center justify-between">
+                <div className="relative">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-black text-gray-900 flex items-center gap-2 tracking-tight">
+                        {icon && <span className="text-xl">{icon}</span>}
+                        <span>{title}</span>
+                    </h2>
+                    {/* Brand Color Underline Accent (Matching Reference Image) */}
+                    <div className="absolute -bottom-3 left-0 h-[3.5px] w-14 sm:w-16 bg-[#009E49] rounded-full" />
+                </div>
                 {viewAllHref && (
                     <Link
                         href={viewAllHref}
-                        className="text-xs md:text-sm font-semibold text-[#E2231A] hover:text-[#c61e16] hover:underline flex items-center gap-1 transition-colors"
+                        className="text-xs sm:text-sm font-extrabold text-[#009E49] hover:text-[#008038] tracking-wider uppercase flex items-center gap-1.5 transition-colors group"
                     >
-                        <span>সবগুলো দেখুন</span>
-                        <span>→</span>
+                        <span>VIEW ALL PRODUCTS</span>
+                        <span className="text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
                     </Link>
                 )}
             </div>
@@ -111,31 +136,45 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
                     }}
                     className="w-full"
                 >
-                    <CarouselContent className="-ml-3 md:-ml-4">
+                    <CarouselContent className="-ml-2 sm:-ml-3 md:-ml-4 py-3 -my-3">
                         {products.map(product => (
                             <CarouselItem
                                 key={product.id}
-                                className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 pl-3 md:pl-4 flex"
+                                className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 pl-2 sm:pl-3 md:pl-4 flex"
                             >
-                                <div className="w-full h-full">
+                                <div className="w-full h-full py-1 pb-6">
                                     <ProductCard product={product} />
                                 </div>
                             </CarouselItem>
                         ))}
                     </CarouselContent>
 
-                    {/* Side navigation arrows */}
+                    {/* Side navigation arrows in Branding Color */}
                     {canSlide && (
                         <>
-                            <CarouselPrevious className="-left-2 md:-left-4 z-20 bg-[#E2231A] hover:bg-[#c61e16] text-white border-none shadow-md w-8 h-8 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 transition-all flex items-center justify-center top-1/2 -translate-y-1/2 disabled:opacity-0" />
-                            <CarouselNext className="-right-2 md:-right-4 z-20 bg-[#E2231A] hover:bg-[#c61e16] text-white border-none shadow-md w-8 h-8 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 transition-all flex items-center justify-center top-1/2 -translate-y-1/2 disabled:opacity-0" />
+                            <button
+                                type="button"
+                                onClick={handlePrev}
+                                className="absolute -left-2 sm:-left-3 md:-left-4 lg:-left-5 top-[35%] -translate-y-1/2 z-30 bg-[#009E49] hover:bg-[#008038] active:scale-90 text-white border-2 border-white shadow-md hover:shadow-lg w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full cursor-pointer transition-all flex items-center justify-center touch-manipulation select-none"
+                                aria-label="Previous slide"
+                            >
+                                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleNext}
+                                className="absolute -right-2 sm:-right-3 md:-right-4 lg:-right-5 top-[35%] -translate-y-1/2 z-30 bg-[#009E49] hover:bg-[#008038] active:scale-90 text-white border-2 border-white shadow-md hover:shadow-lg w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full cursor-pointer transition-all flex items-center justify-center touch-manipulation select-none"
+                                aria-label="Next slide"
+                            >
+                                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
+                            </button>
                         </>
                     )}
                 </Carousel>
 
-                {/* Bottom slider dots (matching reference image) */}
+                {/* Bottom slider dots in Branding Color */}
                 {scrollSnaps.length > 1 && (
-                    <div className="flex items-center justify-center gap-2 mt-6 select-none">
+                    <div className="flex items-center justify-center gap-1.5 mt-6 select-none">
                         {scrollSnaps.map((_, index) => {
                             const isActive = selectedIndex === index;
                             return (
@@ -143,10 +182,10 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
                                     key={index}
                                     type="button"
                                     onClick={() => api?.scrollTo(index)}
-                                    className={`transition-all duration-300 cursor-pointer rounded-full p-0 outline-none ${
+                                    className={`transition-all duration-300 cursor-pointer rounded-full p-0 outline-none border-none ${
                                         isActive
-                                            ? 'w-2.5 h-2.5 bg-[#E2231A] border-[1.5px] border-[#E2231A] shadow-xs scale-110'
-                                            : 'w-2.5 h-2.5 bg-white border-[1.5px] border-[#E2231A]/40 hover:border-[#E2231A] hover:bg-[#E2231A]/10'
+                                            ? 'w-5 h-1.5 bg-[#009E49] shadow-xs'
+                                            : 'w-1.5 h-1.5 bg-gray-300 hover:bg-gray-400'
                                     }`}
                                     title={`Slide ${index + 1}`}
                                     aria-label={`Slide ${index + 1}`}

@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
-import { ShoppingCart, Search, Heart, User, Box, ChevronDown, Menu } from 'lucide-react';
+import { ShoppingCart, ShoppingBag, Search, Heart, User, Box, ChevronDown, Menu } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { LiveSearchBar } from '@/components/LiveSearchBar';
+import { MobileMenu } from '@/components/MobileMenu';
 
 export const Header: React.FC = () => {
     const { store_settings, auth } = usePage().props as any;
     const { cartCount, setIsCartOpen } = useCart();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isTrackOpen, setIsTrackOpen] = useState(false);
     const [trackOrderNum, setTrackOrderNum] = useState('');
     const [trackMobile, setTrackMobile] = useState('');
@@ -29,106 +31,148 @@ export const Header: React.FC = () => {
     return (
         <header className="bg-white shadow-sm sticky top-0 z-40">
             {/* Top Bar / Brand section */}
-            <div className="container py-3 md:py-4 flex items-center justify-between gap-4">
-                {/* Logo */}
-                <Link href={route('home')} className="flex items-center shrink-0 select-none no-underline">
-                    {store_settings?.site_logo ? (
-                        <img 
-                            src={store_settings.site_logo} 
-                            alt={store_settings.site_name || "ChutirMart"} 
-                            className="h-10 md:h-12 w-auto object-contain" 
-                            onError={e => {
-                                (e.target as HTMLImageElement).src = '/storage/defaults/default-logo.svg';
-                            }}
-                        />
-                    ) : (
-                        <div className="flex flex-col items-start leading-none gap-0.5">
-                            <div className="text-xl md:text-2xl font-black tracking-tight flex items-center">
-                                <span className="text-primary font-bangla">ছুটির</span>
-                                <span className="text-destructive font-bangla">মার্ট</span>
-                            </div>
-                            <span className="text-[10px] md:text-xs font-bold text-gray-500 tracking-wider font-latin">chutirmart</span>
-                        </div>
-                    )}
-                </Link>
+            <div className="container py-2.5 sm:py-3 md:py-4 flex items-center justify-between gap-2.5 sm:gap-4">
+                {/* Left Section: Mobile Hamburger Button + Logo */}
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                    {/* Modern Clean Hamburger Button (Mobile Only) */}
+                    <button
+                        type="button"
+                        onClick={() => setIsMobileMenuOpen(true)}
+                        className="md:hidden p-2 border border-gray-200 hover:border-[#009E49] rounded-lg text-gray-800 hover:text-[#009E49] transition-all duration-150 focus:outline-none cursor-pointer flex items-center justify-center active:scale-95 shrink-0"
+                        aria-label="Open mobile menu"
+                    >
+                        <Menu className="w-5 h-5 stroke-[2]" />
+                    </button>
 
-                {/* Search Bar */}
-                <div className="flex-1 max-w-lg hidden md:block">
+                    {/* Logo */}
+                    <Link href={route('home')} className="flex items-center shrink-0 select-none no-underline">
+                        {store_settings?.site_logo ? (
+                            <img 
+                                src={store_settings.site_logo} 
+                                alt={store_settings.site_name || "ChutirMart"} 
+                                className="h-9 sm:h-10 md:h-12 w-auto object-contain" 
+                                onError={e => {
+                                    (e.target as HTMLImageElement).src = '/storage/defaults/default-logo.svg';
+                                }}
+                            />
+                        ) : (
+                            <div className="flex flex-col items-start leading-none gap-0.5">
+                                <div className="text-xl md:text-2xl font-black tracking-tight flex items-center">
+                                    <span className="text-primary font-bangla">ছুটির</span>
+                                    <span className="text-destructive font-bangla">মার্ট</span>
+                                </div>
+                                <span className="text-[10px] md:text-xs font-bold text-gray-500 tracking-wider font-latin">chutirmart</span>
+                            </div>
+                        )}
+                    </Link>
+                </div>
+
+                {/* Search Bar - Cleanly centered with proportional width on wider container */}
+                <div className="w-full max-w-[500px] lg:max-w-[560px] xl:max-w-[620px] hidden md:block mx-auto">
                     <LiveSearchBar />
                 </div>
 
-                {/* Utility Icons */}
-                <div className="flex items-center gap-4 lg:gap-6">
-                    {/* Track Order */}
-                    <button 
-                        onClick={() => setIsTrackOpen(true)}
-                        className="flex flex-col items-center gap-0.5 text-gray-600 hover:text-primary group transition-colors focus:outline-none"
+                {/* Right Actions - Same to same reference image with branding color */}
+                <div className="flex items-center gap-2 sm:gap-4.5 lg:gap-5 shrink-0">
+                    {/* Order Inquiry & Big Bold Phone Number (Desktop Only) */}
+                    <a 
+                        href="tel:+8801705105889" 
+                        className="hidden md:flex flex-col items-start leading-tight hover:opacity-90 transition-opacity shrink-0 select-none no-underline"
+                        title="Call for Order Inquiry"
                     >
-                        <Box className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />
-                        <span className="text-[9px] font-semibold text-gray-500 group-hover:text-primary transition-colors">Track Order</span>
-                    </button>
+                        <span className="text-[11px] sm:text-[12px] font-bold text-[#009E49] mb-0.5">Order Inquiry</span>
+                        <span className="text-[17px] sm:text-[18px] lg:text-[20px] font-black text-gray-900 font-latin tracking-tight leading-none">
+                            +880 1705-105889
+                        </span>
+                    </a>
 
-                    {/* Sign In / Admin */}
-                    {auth?.user ? (
-                        <Link 
-                            href={route('admin.dashboard')} 
-                            className="flex flex-col items-center gap-0.5 text-gray-600 hover:text-primary group transition-colors"
-                        >
-                            <User className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />
-                            <span className="text-[9px] font-semibold text-gray-500 group-hover:text-primary transition-colors">Admin</span>
-                        </Link>
-                    ) : (
-                        <Link 
-                            href={route('admin.login')} 
-                            className="flex flex-col items-center gap-0.5 text-gray-600 hover:text-primary group transition-colors"
-                        >
-                            <User className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />
-                            <span className="text-[9px] font-semibold text-gray-500 group-hover:text-primary transition-colors">Sign In</span>
-                        </Link>
-                    )}
-
-                    {/* Wishlist */}
+                    {/* Wishlist Icon with Badge */}
                     <Link 
                         href={route('shop')} 
-                        className="flex flex-col items-center gap-0.5 text-gray-600 hover:text-primary group transition-colors"
+                        className="relative p-1 text-gray-800 hover:text-[#009E49] transition-colors focus:outline-none shrink-0"
+                        title="Wishlist"
                     >
-                        <Heart className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />
-                        <span className="text-[9px] font-semibold text-gray-500 group-hover:text-primary transition-colors">Wishlist</span>
+                        <Heart className="w-6 h-6 stroke-[1.8]" />
+                        <span className="absolute -top-1 -right-1 bg-[#009E49] text-white text-[9px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white shadow-2xs">
+                            0
+                        </span>
                     </Link>
 
-                    {/* Cart Trigger */}
+                    {/* Cart Icon with Badge */}
                     <button 
+                        type="button"
                         onClick={() => setIsCartOpen(true)}
-                        className="flex flex-col items-center gap-0.5 text-gray-600 hover:text-primary group relative transition-colors focus:outline-none"
+                        className="relative p-1 text-gray-800 hover:text-[#009E49] transition-colors focus:outline-none cursor-pointer shrink-0"
+                        title="Cart"
                     >
-                        <div className="relative">
-                            <ShoppingCart className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />
-                            {cartCount > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 bg-destructive text-white text-[8px] font-bold w-4 h-4 rounded-full flex items-center justify-center animate-pulse border border-white">
-                                    {cartCount}
-                                </span>
-                            )}
-                        </div>
-                        <span className="text-[9px] font-semibold text-gray-500 group-hover:text-primary transition-colors">Cart</span>
+                        <ShoppingBag className="w-6 h-6 stroke-[1.8]" />
+                        <span className="absolute -top-1 -right-1 bg-[#009E49] text-white text-[9px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white shadow-2xs">
+                            {cartCount}
+                        </span>
                     </button>
 
-                    {/* More Dropdown */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger className="flex flex-col items-center gap-0.5 text-gray-600 hover:text-primary group transition-colors focus:outline-none">
-                            <Menu className="w-5 h-5 text-gray-500 group-hover:text-primary transition-colors" />
-                            <span className="text-[9px] font-semibold text-gray-500 group-hover:text-primary transition-colors flex items-center gap-0.5">
-                                More <ChevronDown className="w-2.5 h-2.5" />
-                            </span>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-white">
-                            <DropdownMenuItem className="cursor-pointer">
-                                <Link href={route('about')} className="w-full h-full block">আমাদের সম্পর্কে</Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem className="cursor-pointer">
-                                <Link href={route('terms')} className="w-full h-full block">শর্তাবলী ও পলিসি</Link>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    {/* Mobile User Icon (Replacing pill button on mobile) */}
+                    <div className="md:hidden flex items-center shrink-0">
+                        {auth?.user ? (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger className="p-1 text-gray-800 hover:text-[#009E49] transition-colors focus:outline-none cursor-pointer shrink-0">
+                                    <User className="w-6 h-6 stroke-[1.8]" />
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="bg-white rounded-2xl shadow-lg border border-gray-100 p-1.5 min-w-[150px]">
+                                    <div className="px-3 py-1.5 border-b border-gray-100 text-xs font-semibold text-gray-700">
+                                        {auth.user.name}
+                                    </div>
+                                    <DropdownMenuItem className="cursor-pointer rounded-xl font-medium">
+                                        <Link href={route('dashboard')} className="w-full h-full block py-0.5">My Dashboard</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="cursor-pointer rounded-xl font-medium">
+                                        <Link href={route('logout')} method="post" as="button" className="w-full text-left text-red-600 py-0.5">
+                                            Logout
+                                        </Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        ) : (
+                            <Link 
+                                href={route('login')} 
+                                className="p-1 text-gray-800 hover:text-[#009E49] transition-colors focus:outline-none shrink-0"
+                                title="Login / Register"
+                            >
+                                <User className="w-6 h-6 stroke-[1.8]" />
+                            </Link>
+                        )}
+                    </div>
+
+                    {/* Desktop Login/Register Button matching Search Button's rounded corners */}
+                    <div className="hidden md:flex items-center shrink-0">
+                        {auth?.user ? (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger className="bg-[#009E49] hover:bg-[#007F3B] text-white px-4 sm:px-5 py-2.5 rounded-md text-xs sm:text-[13px] font-bold flex items-center gap-1.5 shadow-xs transition-all active:scale-95 cursor-pointer shrink-0 focus:outline-none">
+                                    <User className="w-3.5 h-3.5" />
+                                    <span className="max-w-[90px] truncate">{auth.user.name}</span>
+                                    <ChevronDown className="w-3 h-3" />
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="bg-white rounded-lg shadow-lg border border-gray-100 p-1.5 min-w-[150px]">
+                                    <DropdownMenuItem className="cursor-pointer rounded-md font-medium">
+                                        <Link href={route('dashboard')} className="w-full h-full block py-0.5">My Dashboard</Link>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="cursor-pointer rounded-md font-medium">
+                                        <Link href={route('logout')} method="post" as="button" className="w-full text-left text-red-600 py-0.5">
+                                            Logout
+                                        </Link>
+                                    </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        ) : (
+                            <Link 
+                                href={route('login')} 
+                                className="bg-[#009E49] hover:bg-[#007F3B] text-white px-4 sm:px-5 py-2.5 rounded-md text-xs sm:text-[13px] font-bold flex items-center gap-1.5 shadow-xs transition-all active:scale-95 shrink-0 select-none no-underline cursor-pointer"
+                            >
+                                <User className="w-3.5 h-3.5" />
+                                <span>Login/Register</span>
+                            </Link>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -146,35 +190,35 @@ export const Header: React.FC = () => {
                 </div>
                 
                 {/* Real nav items */}
-                <div className="container relative z-10 flex justify-between">
+                <div className="container relative z-10 flex items-center justify-between">
                     {/* Left category section links */}
-                    <div className="flex flex-1 justify-start gap-4 py-2">
-                        <Link href={route('shop')} prefetch className="text-white hover:text-white/90 text-xs font-medium font-latin">
+                    <div className="w-1/2 flex items-center justify-start gap-4 lg:gap-7 xl:gap-8 py-2.5">
+                        <Link href={route('shop')} prefetch className="text-white/95 hover:text-white text-xs lg:text-[13px] font-medium font-latin whitespace-nowrap transition-colors">
                             All Products
                         </Link>
-                        <Link href={route('shop', {category: 'home-kitchen'})} prefetch className="text-white hover:text-white/90 text-xs font-medium font-latin">
+                        <Link href={route('shop', {category: 'home-kitchen'})} prefetch className="text-white/95 hover:text-white text-xs lg:text-[13px] font-medium font-latin whitespace-nowrap transition-colors">
                             Home & kitchen
                         </Link>
-                        <Link href={route('shop', {category: 'smart-gadgets'})} prefetch className="text-white hover:text-white/90 text-xs font-medium font-latin">
+                        <Link href={route('shop', {category: 'smart-gadgets'})} prefetch className="text-white/95 hover:text-white text-xs lg:text-[13px] font-medium font-latin whitespace-nowrap transition-colors">
                             Smart Gadget
                         </Link>
-                        <Link href={route('shop', {category: 'offer-products'})} prefetch className="text-white hover:text-white/90 text-xs font-medium font-latin">
+                        <Link href={route('shop', {category: 'offer-products'})} prefetch className="text-white/95 hover:text-white text-xs lg:text-[13px] font-medium font-latin whitespace-nowrap transition-colors">
                             Offer Products
                         </Link>
                     </div>
 
                     {/* Right promotion section links */}
-                    <div className="flex justify-end gap-4 py-2">
-                        <Link href={route('shop', {category: 'summer-products'})} prefetch className="text-white hover:text-white/90 text-xs font-medium font-latin">
+                    <div className="w-1/2 flex items-center justify-end gap-4 lg:gap-7 xl:gap-8 py-2.5">
+                        <Link href={route('shop', {category: 'summer-products'})} prefetch className="text-white/95 hover:text-white text-xs lg:text-[13px] font-medium font-latin whitespace-nowrap transition-colors">
                             Summer Products
                         </Link>
-                        <Link href={route('shop', {category: 'featured-products'})} prefetch className="text-white hover:text-white/90 text-xs font-medium font-latin">
+                        <Link href={route('shop', {category: 'featured-products'})} prefetch className="text-white/95 hover:text-white text-xs lg:text-[13px] font-medium font-latin whitespace-nowrap transition-colors">
                             Feature Products
                         </Link>
-                        <Link href={route('shop', {category: 'flash-products'})} prefetch className="text-white hover:text-white/90 text-xs font-medium font-latin">
+                        <Link href={route('shop', {category: 'flash-products'})} prefetch className="text-white/95 hover:text-white text-xs lg:text-[13px] font-medium font-latin whitespace-nowrap transition-colors">
                             Flash Products
                         </Link>
-                        <Link href={route('about')} prefetch className="text-white hover:text-white/90 text-xs font-medium font-latin">
+                        <Link href={route('about')} prefetch className="text-white/95 hover:text-white text-xs lg:text-[13px] font-medium font-latin whitespace-nowrap transition-colors">
                             About Us
                         </Link>
                     </div>
@@ -212,6 +256,13 @@ export const Header: React.FC = () => {
                     </form>
                 </DialogContent>
             </Dialog>
+
+            {/* Mobile Menu Drawer */}
+            <MobileMenu 
+                isOpen={isMobileMenuOpen} 
+                onClose={() => setIsMobileMenuOpen(false)} 
+                onOpenTrackOrder={() => setIsTrackOpen(true)} 
+            />
         </header>
     );
 };

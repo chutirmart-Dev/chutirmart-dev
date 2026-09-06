@@ -254,7 +254,7 @@ export const AdminGlobalSearch: React.FC = () => {
                         }
                     }}
                     onKeyDown={handleKeyDown}
-                    placeholder="Search orders, products, customers... (Ctrl + K)"
+                    placeholder="Search orders, products... (Ctrl+K)"
                     className={`w-full h-10 pl-10 pr-20 rounded-lg border text-[13px] transition-all duration-150 ${
                         isOpen
                             ? 'bg-white border-[#009E49] ring-2 ring-[#009E49]/15 shadow-sm text-slate-800'
