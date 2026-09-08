@@ -18,6 +18,7 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
     const store_settings = (props as any)?.store_settings;
     const isCheckout = url.includes('/checkout') || (typeof window !== 'undefined' && window.location.pathname.includes('/checkout'));
     const isProductPage = url.includes('/product/') || (typeof window !== 'undefined' && window.location.pathname.includes('/product/'));
+    const isConfirmation = url.includes('/order/confirmation') || (typeof window !== 'undefined' && window.location.pathname.includes('/order/confirmation'));
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [scrollProgress, setScrollProgress] = useState(0);
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -65,23 +66,23 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
             <Header />
 
             {/* Main Content Area */}
-            <main className="flex-grow pb-24 md:pb-0 w-full max-w-full min-w-0">
+            <main className="flex-grow w-full max-w-full min-w-0">
                 {children}
             </main>
 
             {/* Footer */}
             <Footer />
 
-            {/* Mobile Bottom Navigation - Hidden on Checkout and Product Single */}
-            {!isCheckout && !isProductPage && <MobileBottomNav />}
+            {/* Mobile Bottom Navigation - Hidden on Checkout, Order Confirmation and Product Single */}
+            {!isCheckout && !isProductPage && !isConfirmation && <MobileBottomNav />}
 
             {/* Persistent Cart Sheet Drawer */}
             <CartSheet />
 
             {/* ── FLOATING WIDGETS ────────────────────────────────────── */}
 
-            {/* 1. Floating Cart Sidebar Button (Right Edge) - Responsive on Mobile & Desktop, Hidden on Checkout */}
-            {!isCheckout && cartCount > 0 && (
+            {/* 1. Floating Cart Sidebar Button (Right Edge) - Responsive on Mobile & Desktop, Hidden on Checkout & Confirmation */}
+            {!isCheckout && !isConfirmation && cartCount > 0 && (
                 <div 
                     onClick={() => setIsCartOpen(true)}
                     className="flex fixed right-0 top-1/2 -translate-y-1/2 z-40 flex-col items-center bg-white shadow-[-3px_4px_16px_rgba(0,0,0,0.16)] rounded-l sm:rounded-l-md border border-r-0 border-gray-200 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-3px] active:scale-95"
@@ -103,7 +104,7 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
             {showScrollTop && (
                 <div 
                     onClick={scrollToTop}
-                    className={`fixed right-4 bottom-24 md:bottom-8 z-40 w-12 h-12 items-center justify-center cursor-pointer select-none active:scale-95 transition-transform duration-200 ${isCheckout || isProductPage ? 'hidden md:flex' : 'flex'}`}
+                    className={`fixed right-4 bottom-24 md:bottom-8 z-40 w-12 h-12 items-center justify-center cursor-pointer select-none active:scale-95 transition-transform duration-200 ${isCheckout || isProductPage || isConfirmation ? 'hidden md:flex' : 'flex'}`}
                     title="Scroll to Top"
                 >
                     {/* SVG Progress Circle */}
@@ -140,7 +141,7 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
             )}
 
             {/* 3. Left-side Floating Contact Speed-Dial */}
-            <div className={`fixed left-4 bottom-24 md:bottom-8 z-40 items-center gap-3 ${isCheckout || isProductPage ? 'hidden md:flex md:flex-col-reverse' : 'flex flex-col-reverse'}`}>
+            <div className={`fixed left-4 bottom-24 md:bottom-8 z-40 items-center gap-3 ${isCheckout || isProductPage || isConfirmation ? 'hidden md:flex md:flex-col-reverse' : 'flex flex-col-reverse'}`}>
 
                 {/* Expanded contact buttons — WhatsApp, Messenger, Phone */}
                 <div

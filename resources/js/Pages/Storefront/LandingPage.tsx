@@ -512,7 +512,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                                                                         className="w-16 h-16 object-cover rounded-xl border border-gray-200 shrink-0" 
                                                                     />
                                                                     <div className="flex-1 min-w-0">
-                                                                        <h4 className="text-sm font-bold text-gray-900 line-clamp-1">{product.name || landingPage.title}</h4>
+                                                                        <h4 className="text-sm font-medium text-gray-900 line-clamp-1">{product.name || landingPage.title}</h4>
                                                                         <p className="text-xs font-bold text-[#E2231A] mt-0.5">৳{unitPrice} / পিস</p>
                                                                     </div>
                                                                 </div>
@@ -624,7 +624,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                                     <img src={selectedImage} alt="" className="w-full h-full object-cover" />
                                 </div>
                                 <div className="space-y-6">
-                                    <h3 className="text-2xl font-black text-gray-900">{product.name || landingPage.title}</h3>
+                                    <h3 className="text-xl sm:text-2xl font-medium text-gray-900">{product.name || landingPage.title}</h3>
                                     <div className="flex items-baseline gap-3 my-4">
                                         <span className="text-3xl font-black text-[#E2231A]">৳{unitPrice}</span>
                                         {originalPrice > unitPrice && (

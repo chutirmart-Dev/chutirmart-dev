@@ -142,7 +142,7 @@ export const CartSheet: React.FC = () => {
 
                                     {/* Product Info & Quantity Row */}
                                     <div className="flex-1 min-w-0 pr-1 flex flex-col justify-center">
-                                        <h4 className="text-sm sm:text-base font-bold text-gray-900 line-clamp-2 leading-snug font-bangla">
+                                        <h4 className="text-sm sm:text-base font-medium text-gray-900 line-clamp-2 leading-snug font-bangla">
                                             {item.name}
                                         </h4>
                                         {item.variant_info && (

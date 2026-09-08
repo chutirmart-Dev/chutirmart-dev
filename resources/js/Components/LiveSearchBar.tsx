@@ -352,7 +352,7 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
 
                 {/* Product Details */}
                 <div className="flex-1 min-w-0">
-                    <div className="text-xs font-semibold text-gray-900 truncate leading-snug">
+                    <div className="text-xs font-medium text-gray-900 truncate leading-snug">
                         {renderHighlightedName(product.name, query)}
                     </div>
 

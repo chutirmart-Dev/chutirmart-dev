@@ -100,24 +100,24 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
     const canSlide = products.length > 1;
 
     return (
-        <section className="container py-6">
+        <section className="container py-3 sm:py-6">
             {/* Header matching Reference Image with full-width line & branding color active bar */}
-            <div className="relative border-b border-gray-200/90 pb-3 mb-6 flex items-center justify-between">
+            <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex items-center justify-between">
                 <div className="relative">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 flex items-center gap-2 tracking-tight font-bangla">
-                        {icon && <span className="text-xl sm:text-2xl">{icon}</span>}
+                    <h2 className="text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
+                        {icon && <span className="text-base sm:text-lg">{icon}</span>}
                         <span>{title}</span>
                     </h2>
-                    {/* Brand Color Underline Accent (Matching Reference Image) */}
-                    <div className="absolute -bottom-3 left-0 h-[3.5px] w-14 sm:w-16 bg-[#009E49] rounded-full" />
+                    {/* Brand Color Underline Accent */}
+                    <div className="absolute -bottom-2.5 sm:-bottom-3 left-0 h-[3px] w-10 sm:w-12 bg-[#009E49] rounded-full" />
                 </div>
                 {viewAllHref && (
                     <Link
                         href={viewAllHref}
-                        className="text-xs sm:text-sm md:text-base font-extrabold text-[#009E49] hover:text-[#008038] tracking-wider uppercase flex items-center gap-1.5 transition-colors group font-latin"
+                        className="text-xs sm:text-[13px] font-bold text-[#009E49] hover:text-[#008038] tracking-wide uppercase flex items-center gap-1 sm:gap-1.5 transition-colors group font-latin"
                     >
                         <span>VIEW ALL PRODUCTS</span>
-                        <span className="text-base sm:text-lg transition-transform duration-200 group-hover:translate-x-1">→</span>
+                        <span className="text-sm sm:text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
                     </Link>
                 )}
             </div>
@@ -136,13 +136,13 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
                     }}
                     className="w-full"
                 >
-                    <CarouselContent className="-ml-2 sm:-ml-3 md:-ml-4 py-2 -my-2">
+                    <CarouselContent className="-ml-2 sm:-ml-3 md:-ml-4 py-1.5 sm:py-2 -my-1.5 sm:-my-2">
                         {products.map(product => (
                             <CarouselItem
                                 key={product.id}
                                 className="basis-[48%] xs:basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 pl-2 sm:pl-3 md:pl-4 flex"
                             >
-                                <div className="w-full h-full py-1 pb-4">
+                                <div className="w-full h-full py-0.5 pb-2 sm:pb-4">
                                     <ProductCard product={product} />
                                 </div>
                             </CarouselItem>
@@ -174,7 +174,7 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
 
                 {/* Bottom slider dots in Branding Color */}
                 {scrollSnaps.length > 1 && (
-                    <div className="flex items-center justify-center gap-1.5 mt-6 select-none">
+                    <div className="flex items-center justify-center gap-1.5 mt-2.5 sm:mt-6 select-none">
                         {scrollSnaps.map((_, index) => {
                             const isActive = selectedIndex === index;
                             return (

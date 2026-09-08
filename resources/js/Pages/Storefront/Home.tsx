@@ -87,7 +87,7 @@ export const Home: React.FC<HomeProps> = ({
             <Head title="বাংলাদেশের সেরা অনলাইন শপ" />
 
             {/* Hero Banner Section with Optimized Responsive Height */}
-            <section className="container py-4 sm:py-6">
+            <section className="container pt-2.5 pb-3 sm:py-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
                     {/* Left: Larger Carousel Banner */}
                     <div 
@@ -193,23 +193,23 @@ export const Home: React.FC<HomeProps> = ({
             </section>
 
             {/* Featured Categories Row */}
-            <section className="container py-8 select-none">
+            <section className="container py-3 sm:py-8 select-none">
                 {/* Reference Image Styled Header */}
-                <div className="relative border-b border-gray-200/90 pb-3 mb-6 flex items-center justify-between">
+                <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex items-center justify-between">
                     <div className="relative">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 flex items-center gap-2 tracking-tight font-bangla">
-                            <span>🛍️</span>
+                        <h2 className="text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
+                            <span className="text-base sm:text-lg">🛍️</span>
                             <span>ক্যাটাগরি সমূহ</span>
                         </h2>
-                        {/* Brand Color Underline Accent (Matching Reference Image) */}
-                        <div className="absolute -bottom-3 left-0 h-[3.5px] w-14 sm:w-16 bg-[#009E49] rounded-full" />
+                        {/* Brand Color Underline Accent */}
+                        <div className="absolute -bottom-2.5 sm:-bottom-3 left-0 h-[3px] w-10 sm:w-12 bg-[#009E49] rounded-full" />
                     </div>
                     <Link 
                         href={route('shop')}
-                        className="text-xs sm:text-sm md:text-base font-extrabold text-[#009E49] hover:text-[#008038] tracking-wider uppercase flex items-center gap-1.5 transition-colors group font-bangla"
+                        className="text-xs sm:text-[13px] font-bold text-[#009E49] hover:text-[#008038] tracking-wide flex items-center gap-1 sm:gap-1.5 transition-colors group font-bangla"
                     >
                         <span>সবগুলো দেখুন</span>
-                        <span className="text-base sm:text-lg transition-transform duration-200 group-hover:translate-x-1">→</span>
+                        <span className="text-sm sm:text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
                     </Link>
                 </div>
 
@@ -267,23 +267,23 @@ export const Home: React.FC<HomeProps> = ({
 
             {/* Multi-Row Product Grid: Just For You / আপনার জন্য পণ্য */}
             {justForYou && justForYou.length > 0 && (
-                <section className="container py-8">
+                <section className="container py-3 sm:py-8">
                     {/* Header matching Reference Image 2 */}
-                    <div className="relative border-b border-gray-200/90 pb-3 mb-4 sm:mb-6 flex items-center justify-between gap-2">
+                    <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex items-center justify-between gap-2">
                         <div className="relative min-w-0">
-                            <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight truncate font-bangla">
-                                <span className="text-xl sm:text-2xl">⚡</span>
+                            <h2 className="text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight truncate font-bangla">
+                                <span className="text-base sm:text-lg">⚡</span>
                                 <span>আপনার জন্য পণ্য</span>
                             </h2>
                             {/* Brand Color Underline Accent */}
-                            <div className="absolute -bottom-3 left-0 h-[3.5px] w-12 sm:w-16 bg-[#009E49] rounded-full" />
+                            <div className="absolute -bottom-2.5 sm:-bottom-3 left-0 h-[3px] w-10 sm:w-12 bg-[#009E49] rounded-full" />
                         </div>
                         <Link
                             href={route('shop')}
-                            className="text-xs sm:text-sm md:text-base font-extrabold text-[#009E49] hover:text-[#008038] tracking-wider uppercase flex items-center gap-1 sm:gap-1.5 transition-colors group shrink-0 whitespace-nowrap font-latin"
+                            className="text-xs sm:text-[13px] font-bold text-[#009E49] hover:text-[#008038] tracking-wide uppercase flex items-center gap-1 sm:gap-1.5 transition-colors group shrink-0 whitespace-nowrap font-latin"
                         >
                             <span>VIEW ALL PRODUCTS</span>
-                            <span className="text-sm sm:text-lg transition-transform duration-200 group-hover:translate-x-1">→</span>
+                            <span className="text-sm sm:text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
                         </Link>
                     </div>
 
@@ -297,10 +297,10 @@ export const Home: React.FC<HomeProps> = ({
                     </div>
 
                     {/* View All CTA Button */}
-                    <div className="text-center mt-10">
+                    <div className="text-center mt-4 sm:mt-10">
                         <Link
                             href={route('shop')}
-                            className="inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-white text-[#009E49] font-black text-base sm:text-lg rounded-md border-2 border-[#009E49] hover:bg-[#009E49] hover:text-white shadow-xs hover:shadow-md transition-all duration-300 group cursor-pointer font-bangla"
+                            className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-5 py-2.5 sm:px-8 sm:py-3.5 bg-white text-[#009E49] font-black text-sm sm:text-lg rounded-md border-2 border-[#009E49] hover:bg-[#009E49] hover:text-white shadow-xs hover:shadow-md transition-all duration-300 group cursor-pointer font-bangla"
                         >
                             <span>সবগুলো পণ্য দেখুন (View All Products)</span>
                             <span className="text-lg transition-transform duration-200 group-hover:translate-x-1">→</span>
@@ -310,15 +310,15 @@ export const Home: React.FC<HomeProps> = ({
             )}
 
             {/* Customer Reviews Section */}
-            <section className="container py-8">
+            <section className="container py-3 sm:py-8">
                 {/* Header matching Reference Image */}
-                <div className="relative border-b border-gray-200/90 pb-3 mb-6 flex items-center justify-between">
+                <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex items-center justify-between">
                     <div className="relative">
-                        <h2 className="text-lg sm:text-xl md:text-2xl font-black text-gray-900 flex items-center gap-2 tracking-tight">
-                            <span>💬</span>
+                        <h2 className="text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight">
+                            <span className="text-base sm:text-lg">💬</span>
                             <span>গ্রাহকদের মতামত ও রিভিউ</span>
                         </h2>
-                        <div className="absolute -bottom-3 left-0 h-[3.5px] w-14 sm:w-16 bg-[#009E49] rounded-full" />
+                        <div className="absolute -bottom-2.5 sm:-bottom-3 left-0 h-[3px] w-10 sm:w-12 bg-[#009E49] rounded-full" />
                     </div>
                 </div>
                 {reviews.length === 0 ? (
@@ -351,7 +351,7 @@ export const Home: React.FC<HomeProps> = ({
                                 </CarouselItem>
                             ))}
                         </CarouselContent>
-                        <div className="flex justify-end gap-2 mt-4">
+                        <div className="flex justify-end gap-2 mt-2.5 sm:mt-4">
                             <CarouselPrevious className="static translate-y-0" />
                             <CarouselNext className="static translate-y-0" />
                         </div>
@@ -360,49 +360,49 @@ export const Home: React.FC<HomeProps> = ({
             </section>
 
             {/* Trust Badges */}
-            <section className="container py-8 border-t border-gray-200/50 mt-10">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-8 text-center">
-                    <div className="flex flex-col items-center p-5 md:p-6 bg-white border border-[#E3E0D8] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:border-[#009E49]/30 transition-all duration-300">
-                        <div className="w-13 h-13 bg-primary/10 rounded-full flex items-center justify-center mb-3.5">
-                            <ShieldCheck className="w-6 h-6 text-primary" />
+            <section className="container py-3.5 sm:py-8 border-t border-gray-200/50 mt-4 sm:mt-10">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-5 lg:gap-8 text-center">
+                    <div className="flex flex-col items-center p-3.5 sm:p-5 md:p-6 bg-white border border-[#E3E0D8] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:border-[#009E49]/30 transition-all duration-300">
+                        <div className="w-10 h-10 sm:w-13 sm:h-13 bg-primary/10 rounded-full flex items-center justify-center mb-2 sm:mb-3.5">
+                            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                         </div>
                         <h4 className="font-bold text-gray-900 text-sm md:text-base">১০০% আসল প্রোডাক্ট</h4>
-                        <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">সবচেয়ে সেরা ও গুণগত মানসম্পন্ন পণ্য সরবরাহের নিশ্চয়তা</p>
+                        <p className="text-xs text-gray-500 mt-1 leading-relaxed">সবচেয়ে সেরা ও গুণগত মানসম্পন্ন পণ্য সরবরাহের নিশ্চয়তা</p>
                     </div>
-                    <div className="flex flex-col items-center p-5 md:p-6 bg-white border border-[#E3E0D8] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:border-[#009E49]/30 transition-all duration-300">
-                        <div className="w-13 h-13 bg-primary/10 rounded-full flex items-center justify-center mb-3.5">
-                            <Truck className="w-6 h-6 text-primary" />
+                    <div className="flex flex-col items-center p-3.5 sm:p-5 md:p-6 bg-white border border-[#E3E0D8] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:border-[#009E49]/30 transition-all duration-300">
+                        <div className="w-10 h-10 sm:w-13 sm:h-13 bg-primary/10 rounded-full flex items-center justify-center mb-2 sm:mb-3.5">
+                            <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                         </div>
                         <h4 className="font-bold text-gray-900 text-sm md:text-base">ক্যাশ অন ডেলিভারি</h4>
-                        <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">সারা বাংলাদেশে ২৪-৭২ ঘন্টায় দ্রুত ক্যাশ অন ডেলিভারি সুবিধা</p>
+                        <p className="text-xs text-gray-500 mt-1 leading-relaxed">সারা বাংলাদেশে ২৪-৭২ ঘন্টায় দ্রুত ক্যাশ অন ডেলিভারি সুবিধা</p>
                     </div>
-                    <div className="flex flex-col items-center p-5 md:p-6 bg-white border border-[#E3E0D8] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:border-[#009E49]/30 transition-all duration-300">
-                        <div className="w-13 h-13 bg-primary/10 rounded-full flex items-center justify-center mb-3.5">
-                            <MessageCircle className="w-6 h-6 text-primary" />
+                    <div className="flex flex-col items-center p-3.5 sm:p-5 md:p-6 bg-white border border-[#E3E0D8] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:border-[#009E49]/30 transition-all duration-300">
+                        <div className="w-10 h-10 sm:w-13 sm:h-13 bg-primary/10 rounded-full flex items-center justify-center mb-2 sm:mb-3.5">
+                            <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                         </div>
                         <h4 className="font-bold text-gray-900 text-sm md:text-base">২৪/৭ কাস্টমার সাপোর্ট</h4>
-                        <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">যেকোনো প্রশ্ন বা অর্ডারের জন্য সরাসরি আমাদের কল করুন</p>
+                        <p className="text-xs text-gray-500 mt-1 leading-relaxed">যেকোনো প্রশ্ন বা অর্ডারের জন্য সরাসরি আমাদের কল করুন</p>
                     </div>
                 </div>
             </section>
 
             {/* Urgency CTA Banner */}
-            <section className="container py-8">
-                <div className="bg-gradient-to-r from-[#1E8A3C] to-[#D62828] text-white rounded-lg p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
-                    <div className="space-y-2 text-center md:text-left">
-                        <h3 className="text-xl md:text-2xl font-black">{urgencyBanner.text}</h3>
-                        <p className="text-sm text-white/80">অর্ডার কনফার্ম করতে আমাদের কল করুন অথবা সরাসরি এখনই কিনুন বাটনে ক্লিক করুন।</p>
+            <section className="container py-3 sm:py-8">
+                <div className="bg-gradient-to-r from-[#1E8A3C] to-[#D62828] text-white rounded-lg p-4 sm:p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-3.5 sm:gap-6 shadow-[0_4px_16px_rgba(0,0,0,0.08)]">
+                    <div className="space-y-1.5 sm:space-y-2 text-center md:text-left">
+                        <h3 className="text-lg sm:text-xl md:text-2xl font-black">{urgencyBanner.text}</h3>
+                        <p className="text-xs sm:text-sm text-white/80">অর্ডার কনফার্ম করতে আমাদের কল করুন অথবা সরাসরি এখনই কিনুন বাটনে ক্লিক করুন।</p>
                     </div>
-                    <div className="flex flex-wrap justify-center gap-3">
+                    <div className="flex flex-wrap justify-center gap-2.5 sm:gap-3">
                         {urgencyBanner.product && (
                             <Link href={route('product.show', { slug: urgencyBanner.product.slug })}>
-                                <Button className="bg-white text-destructive hover:bg-white/95 font-bold px-6 h-12 rounded-md border-none">
+                                <Button className="bg-white text-destructive hover:bg-white/95 font-bold px-4 sm:px-6 h-10 sm:h-12 rounded-md border-none text-xs sm:text-sm">
                                     এখনই কিনুন 🛍️
                                 </Button>
                             </Link>
                         )}
                         <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer">
-                            <Button className="bg-[#25D366] hover:bg-[#20ba56] text-white font-bold px-6 h-12 rounded-md border-none">
+                            <Button className="bg-[#25D366] hover:bg-[#20ba56] text-white font-bold px-4 sm:px-6 h-10 sm:h-12 rounded-md border-none text-xs sm:text-sm">
                                 হোয়াটসঅ্যাপে অর্ডার
                             </Button>
                         </a>

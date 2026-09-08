@@ -14,7 +14,7 @@ export const Footer: React.FC = () => {
     const aboutText = store_settings?.footer_about || 'ছুটির মার্ট একটি বিশ্বস্ত বাংলাদেশী অনলাইন শপ যেখানে ট্রেন্ডিং ও মানসম্পন্ন পণ্য পাওয়া যায়।';
 
     return (
-        <footer className="bg-white text-gray-700 pt-12 pb-20 md:pb-12 border-t border-gray-200">
+        <footer className="bg-white text-gray-700 pt-6 sm:pt-12 pb-24 md:pb-12 border-t border-gray-200">
             {/* Desktop grid layout — 4 equal columns filling full width */}
             <div className="container hidden md:grid grid-cols-4 gap-0 divide-x divide-gray-100">
                 {/* Col 1: Logo & About */}
@@ -151,7 +151,7 @@ export const Footer: React.FC = () => {
             {/* Mobile Accordion Layout */}
             <div className="container md:hidden px-4">
                 {/* Mobile logo */}
-                <div className="mb-5">
+                <div className="mb-3 sm:mb-5">
                     <Link href={route('home')} className="flex items-start shrink-0 select-none no-underline">
                         {store_settings?.site_logo ? (
                             <img src={store_settings.site_logo} alt={store_settings.site_name || "ChutirMart"} className="h-10 w-auto object-contain" />

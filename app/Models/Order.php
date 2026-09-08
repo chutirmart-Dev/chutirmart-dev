@@ -97,4 +97,32 @@ class Order extends Model
             default => null,
         };
     }
+
+    /**
+     * Generate a concise 3-digit order number (e.g. CHU-101, CHU-102, ... CHU-123).
+     */
+    public static function generateOrderNumber(): string
+    {
+        // Find the highest numeric suffix in CHU-{number} format
+        $latestOrderNumber = static::where('order_number', 'REGEXP', '^CHU-[0-9]+$')
+            ->where('order_number', 'NOT LIKE', 'CHU-%-%')
+            ->orderByRaw('CAST(SUBSTRING(order_number, 5) AS UNSIGNED) DESC')
+            ->value('order_number');
+
+        $nextNumber = 101;
+        if ($latestOrderNumber && preg_match('/^CHU-(\d+)$/', $latestOrderNumber, $matches)) {
+            $lastVal = (int) $matches[1];
+            // If the last order is within normal sequential bounds (< 10000), increment it
+            if ($lastVal < 10000) {
+                $nextNumber = max(101, $lastVal + 1);
+            }
+        }
+
+        // Guarantee uniqueness
+        while (static::where('order_number', 'CHU-'.$nextNumber)->exists()) {
+            $nextNumber++;
+        }
+
+        return 'CHU-'.$nextNumber;
+    }
 }

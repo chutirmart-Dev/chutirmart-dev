@@ -328,7 +328,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                         <div className="flex-1 min-w-0 space-y-1.5">
                                             {/* Product Title & Variant */}
                                             <div>
-                                                <h4 className="text-sm sm:text-base font-bold text-gray-900 line-clamp-2 leading-snug">{item.name}</h4>
+                                                <h4 className="text-sm sm:text-base font-medium text-gray-900 line-clamp-2 leading-snug font-bangla">{item.name}</h4>
                                                 {item.variant_info && (
                                                     <span className="text-xs text-[#009E49] font-bold block mt-0.5">
                                                         {item.variant_info.label || item.variant_info.value || 'Variant selected'}

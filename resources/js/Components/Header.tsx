@@ -233,7 +233,7 @@ export const Header: React.FC = () => {
                     </DialogHeader>
                     <form onSubmit={handleTrackOrder} className="space-y-4 pt-2">
                         <div>
-                            <label className="text-xs font-semibold text-gray-500 block mb-1">অর্ডার নম্বর (যেমন: CHU-10245)</label>
+                            <label className="text-xs font-semibold text-gray-500 block mb-1">অর্ডার নম্বর (যেমন: CHU-123)</label>
                             <Input 
                                 placeholder="অর্ডার নম্বর" 
                                 value={trackOrderNum}

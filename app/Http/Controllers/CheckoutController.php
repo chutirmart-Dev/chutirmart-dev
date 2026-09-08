@@ -276,10 +276,6 @@ class CheckoutController extends Controller
 
     private function generateOrderNumber(): string
     {
-        do {
-            $number = 'CHU-'.date('ymd').'-'.str_pad(rand(100, 999), 3, '0', STR_PAD_LEFT);
-        } while (Order::where('order_number', $number)->exists());
-
-        return $number;
+        return Order::generateOrderNumber();
     }
 }
