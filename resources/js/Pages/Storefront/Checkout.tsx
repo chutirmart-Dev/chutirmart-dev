@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { Button } from '@/components/ui/button';
@@ -12,14 +12,23 @@ import { useCart } from '@/context/CartContext';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { trackInitiateCheckout } from '@/lib/gtm';
+import { 
+    getDistrictLabel, 
+    getDistrictSearchKeywords, 
+    getThanaLabel, 
+    getThanaSearchKeywords,
+    DISTRICT_BANGLA_MAP,
+    COMMON_THANA_BANGLA_MAP
+} from '@/lib/bangladeshLocations';
 
 interface CheckoutProps {
     districts: Array<{ id: number; name: string; delivery_charge: number | null }>;
+    thanasByDistrict?: Record<string | number, Array<{ id: number; district_id: number; name: string }>>;
     defaultInsideDhaka: number;
     defaultOutsideDhaka: number;
 }
 
-export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhaka, defaultOutsideDhaka }) => {
+export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict, defaultInsideDhaka, defaultOutsideDhaka }) => {
     const { auth } = usePage().props as any;
     const authUser = auth?.user;
 
@@ -44,6 +53,24 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
     const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
     const [deliveryCharge, setDeliveryCharge] = useState(defaultOutsideDhaka);
 
+    const originalButtonRef = useRef<HTMLDivElement>(null);
+    const [isOriginalButtonVisible, setIsOriginalButtonVisible] = useState(false);
+
+    useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                setIsOriginalButtonVisible(entry.isIntersecting);
+            },
+            { threshold: 0.1 }
+        );
+
+        if (originalButtonRef.current) {
+            observer.observe(originalButtonRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, [cartItems]);
+
     useEffect(() => {
         setIsCartOpen(false);
         if (cartItems.length > 0) {
@@ -61,7 +88,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
         items: [] as any[],
         coupon_code: '',
         special_notes: '',
-        agree: false,
+        agree: true,
     });
 
     useEffect(() => {
@@ -81,10 +108,65 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
         })));
     }, [cartItems]);
 
-    // Handle district change for delivery charges and AJAX thanas
+    // Helper to automatically update the address input when district / thana is selected
+    const updateAddressWithLocation = (
+        currentAddress: string,
+        newDistrict: string,
+        newThana: string,
+        prevDistrict: string,
+        prevThana: string
+    ): string => {
+        const distBn = newDistrict ? (DISTRICT_BANGLA_MAP[newDistrict]?.bn || newDistrict) : '';
+        const thanaBn = newThana ? (COMMON_THANA_BANGLA_MAP[newThana] || newThana) : '';
+        
+        // Target location string in standard format: "থানা, জেলা" or just "জেলা"
+        const newLocation = [thanaBn, distBn].filter(Boolean).join(', ');
+        if (!newLocation) return currentAddress;
+
+        const prevDistBn = prevDistrict ? (DISTRICT_BANGLA_MAP[prevDistrict]?.bn || prevDistrict) : '';
+        const prevThanaBn = prevThana ? (COMMON_THANA_BANGLA_MAP[prevThana] || prevThana) : '';
+
+        // All previous auto-inserted tokens to match and replace cleanly
+        const prevPatterns = [
+            [prevThanaBn, prevDistBn].filter(Boolean).join(', '),
+            [prevThana, prevDistrict].filter(Boolean).join(', '),
+            prevThanaBn,
+            prevDistBn,
+            prevThana,
+            prevDistrict,
+        ].filter(Boolean);
+
+        let cleanAddress = (currentAddress || '').trim();
+
+        // If current address is empty, or equals any previous auto-generated pattern
+        if (!cleanAddress || prevPatterns.some(p => cleanAddress === p)) {
+            return newLocation;
+        }
+
+        // If user already typed custom parts (e.g. "বাসা ১২, রোড ৪, পূর্বেরথানা, পূর্বেরজেলা")
+        for (const p of prevPatterns) {
+            if (p && cleanAddress.includes(p)) {
+                cleanAddress = cleanAddress.replace(p, '').replace(/,\s*,/g, ',').replace(/^[\s,]+|[\s,]+$/g, '').trim();
+                break;
+            }
+        }
+
+        if (cleanAddress) {
+            return `${cleanAddress}, ${newLocation}`;
+        }
+
+        return newLocation;
+    };
+
+    // Handle district change for delivery charges, AJAX thanas, and auto-filling address
     const handleDistrictChange = async (districtName: string) => {
-        setData('district', districtName);
-        setData('thana', '');
+        const newAddress = updateAddressWithLocation(data.address, districtName, '', data.district, data.thana);
+        setData(prev => ({
+            ...prev,
+            district: districtName,
+            thana: '',
+            address: newAddress
+        }));
         setThanas([]);
 
         // Calculate delivery charge
@@ -97,7 +179,14 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                 setDeliveryCharge(insideDhaka.includes(districtName) ? defaultInsideDhaka : defaultOutsideDhaka);
             }
 
-            // Fetch Thanas via AJAX
+            // Check if thanas are pre-loaded in Inertia props for zero-latency response
+            const preloaded = thanasByDistrict && (thanasByDistrict[selected.id] || (thanasByDistrict as any)[String(selected.id)]);
+            if (preloaded && preloaded.length > 0) {
+                setThanas(preloaded);
+                return;
+            }
+
+            // Fallback: Fetch Thanas via AJAX
             setIsLoadingThanas(true);
             try {
                 const response = await axios.get(route('api.thanas', { district_id: selected.id }));
@@ -108,6 +197,16 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                 setIsLoadingThanas(false);
             }
         }
+    };
+
+    // Handle thana change and automatically update address field
+    const handleThanaChange = (thanaName: string) => {
+        const newAddress = updateAddressWithLocation(data.address, data.district, thanaName, data.district, data.thana);
+        setData(prev => ({
+            ...prev,
+            thana: thanaName,
+            address: newAddress
+        }));
     };
 
     const handleApplyCoupon = async (e: React.FormEvent) => {
@@ -191,11 +290,11 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
 
             <div className="container py-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-                    <h1 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2 font-bangla">
+                    <h1 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-gray-900 flex items-center gap-2 font-bangla">
                         <span>🛒</span> চেকআউট
                     </h1>
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#009E49] text-xs font-bold w-fit shadow-2xs font-bangla">
-                        <CheckCircle2 className="w-4 h-4 text-[#009E49]" />
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[#009E49] text-xs sm:text-sm font-bold w-fit shadow-2xs font-bangla">
+                        <CheckCircle2 className="w-4.5 h-4.5 text-[#009E49]" />
                         <span>অ্যাকাউন্ট ছাড়াই সরাসরি অর্ডার কনফার্ম করুন</span>
                     </div>
                 </div>
@@ -205,68 +304,82 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                     {/* Left Column: Product Overview and Delivery Address */}
                     <div className="lg:col-span-7 space-y-6">
                         {/* 1. Ordered Products List Card */}
-                        <div className="bg-white border border-gray-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+                        <div className="bg-white border border-gray-200/90 rounded-lg p-5 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-4">
                             <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3">
                                 <div className="w-1 h-5 bg-[#009E49] rounded-full" />
-                                <h2 className="text-base font-bold text-gray-900 font-bangla">
+                                <h2 className="text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
                                     অর্ডারকৃত পণ্যসমূহ
                                 </h2>
                             </div>
                             <div className="space-y-3">
                                 {cartItems.map((item, index) => (
-                                    <div key={item.id} className="bg-gray-50/50 border border-gray-200/80 rounded-xl p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-2xs">
-                                        <div className="flex items-center gap-3 min-w-0">
-                                            <img 
-                                                src={item.image} 
-                                                alt={item.name} 
-                                                className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-xl border border-gray-200 shrink-0 bg-white" 
-                                                onError={e => {
-                                                    (e.target as HTMLImageElement).src = '/storage/defaults/default-product.svg';
-                                                }}
-                                            />
-                                            <div className="min-w-0">
-                                                <h4 className="text-xs sm:text-sm font-bold text-gray-800 line-clamp-1 leading-snug">{item.name}</h4>
+                                    <div key={item.id} className="bg-gray-50/60 border border-gray-200/80 rounded-md p-3 sm:p-4 flex items-center gap-3 shadow-2xs">
+                                        {/* Product Image */}
+                                        <img 
+                                            src={item.image} 
+                                            alt={item.name} 
+                                            className="w-15 h-15 sm:w-18 sm:h-18 object-cover rounded-md border border-gray-200 shrink-0 bg-white" 
+                                            onError={e => {
+                                                (e.target as HTMLImageElement).src = '/storage/defaults/default-product.svg';
+                                            }}
+                                        />
+
+                                        {/* Details & Controls */}
+                                        <div className="flex-1 min-w-0 space-y-1.5">
+                                            {/* Product Title & Variant */}
+                                            <div>
+                                                <h4 className="text-sm sm:text-base font-bold text-gray-900 line-clamp-2 leading-snug">{item.name}</h4>
                                                 {item.variant_info && (
-                                                    <span className="text-[11px] text-[#009E49] font-semibold block mt-0.5">
+                                                    <span className="text-xs text-[#009E49] font-bold block mt-0.5">
                                                         {item.variant_info.label || item.variant_info.value || 'Variant selected'}
                                                     </span>
                                                 )}
-                                                <span className="text-xs text-gray-500 font-semibold block sm:hidden mt-1 font-latin">৳{item.price} × {item.quantity}</span>
                                             </div>
-                                        </div>
 
-                                        <div className="flex items-center gap-3 sm:gap-4 shrink-0 font-latin">
-                                            {/* Quantity edit */}
-                                            <div className="flex items-center border border-gray-300 rounded-lg bg-white shadow-2xs overflow-hidden h-8 sm:h-9">
+                                            {/* Bottom row matching user reference: Qty: [ - 1 + ]  ৳ 490 */}
+                                            <div className="flex items-center justify-between gap-2 pt-0.5">
+                                                <div className="flex items-center gap-2 font-latin">
+                                                    <span className="text-xs sm:text-sm text-gray-600 font-bold">Qty:</span>
+                                                    
+                                                    {/* Stepper matching Pop up Cart (CartSheet) reference exactly */}
+                                                    <div className="inline-flex items-center bg-gray-100 border border-gray-200/80 rounded-full p-0.5 h-8 sm:h-9">
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={() => updateQuantity(index, item.quantity - 1)} 
+                                                            className="w-7 sm:w-8 h-full flex items-center justify-center rounded-full bg-white shadow-2xs hover:bg-gray-50 active:scale-90 text-gray-700 text-xs sm:text-sm font-black transition-transform cursor-pointer"
+                                                            title="Decrease"
+                                                        >
+                                                            <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+                                                        </button>
+                                                        <span className="px-2 text-sm sm:text-base font-black text-gray-900 min-w-[22px] text-center">
+                                                            {item.quantity}
+                                                        </span>
+                                                        <button 
+                                                            type="button" 
+                                                            onClick={() => updateQuantity(index, item.quantity + 1)} 
+                                                            className="w-7 sm:w-8 h-full flex items-center justify-center rounded-full bg-white shadow-2xs hover:bg-gray-50 active:scale-90 text-[#009E49] text-xs sm:text-sm font-black transition-transform cursor-pointer"
+                                                            title="Increase"
+                                                        >
+                                                            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                                                        </button>
+                                                    </div>
+
+                                                    {/* Total Price */}
+                                                    <span className="text-sm sm:text-base font-black text-gray-950 font-latin ml-1 whitespace-nowrap">
+                                                        ৳{item.price * item.quantity}
+                                                    </span>
+                                                </div>
+
+                                                {/* Delete button */}
                                                 <button 
                                                     type="button" 
-                                                    onClick={() => updateQuantity(index, item.quantity - 1)} 
-                                                    className="w-7 sm:w-8 h-full flex items-center justify-center hover:bg-slate-100 text-gray-700 text-sm font-black transition-colors"
-                                                    title="Decrease"
+                                                    onClick={() => removeFromCart(index)} 
+                                                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-red-50 hover:bg-red-500 text-red-500 hover:text-white border border-red-200 hover:border-red-500 transition-all flex items-center justify-center cursor-pointer shadow-2xs shrink-0 active:scale-90"
+                                                    title="Remove Item"
                                                 >
-                                                    -
-                                                </button>
-                                                <span className="px-2.5 sm:px-3 text-xs sm:text-sm font-black text-gray-900 min-w-[24px] text-center">{item.quantity}</span>
-                                                <button 
-                                                    type="button" 
-                                                    onClick={() => updateQuantity(index, item.quantity + 1)} 
-                                                    className="w-7 sm:w-8 h-full flex items-center justify-center hover:bg-slate-100 text-gray-700 text-sm font-black transition-colors"
-                                                    title="Increase"
-                                                >
-                                                    +
+                                                    <Trash2 className="w-4 h-4" />
                                                 </button>
                                             </div>
-                                            <span className="text-xs sm:text-sm font-black text-gray-900 min-w-[65px] text-right">৳{item.price * item.quantity}</span>
-                                            
-                                            {/* Red delete box button */}
-                                            <button 
-                                                type="button" 
-                                                onClick={() => removeFromCart(index)} 
-                                                className="bg-red-50 hover:bg-red-500 text-red-500 hover:text-white p-2 rounded-xl transition-all flex items-center justify-center w-8 h-8 shrink-0 border border-red-200 hover:border-red-500 cursor-pointer shadow-2xs"
-                                                title="Remove Item"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
                                         </div>
                                     </div>
                                 ))}
@@ -274,11 +387,11 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                         </div>
 
                         {/* 2. Delivery Address Card (Modern & Clean Design) */}
-                        <div className="bg-white border border-gray-200/90 rounded-2xl p-5 sm:p-7 shadow-xs space-y-5">
+                        <div className="bg-white border border-gray-200/90 rounded-lg p-5 sm:p-7 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-5">
                             {/* Header with vertical accent bar */}
                             <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3.5">
                                 <div className="w-1 h-5 bg-[#009E49] rounded-full" />
-                                <h2 className="text-base font-bold text-gray-900 font-bangla">
+                                <h2 className="text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
                                     ডেলিভারি ঠিকানা
                                 </h2>
                             </div>
@@ -293,7 +406,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                             placeholder="আপনার নাম *" 
                                             value={data.customer_name} 
                                             onChange={e => setData('customer_name', e.target.value)} 
-                                            className={`w-full h-12 px-4 rounded-xl border ${errors.customer_name ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 transition-all font-bangla`}
+                                            className={`w-full h-12 px-4 rounded-md border ${errors.customer_name ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 transition-all font-bangla`}
                                             required
                                         />
                                         {errors.customer_name && <p className="text-red-500 text-xs mt-1 font-bangla">{errors.customer_name}</p>}
@@ -301,7 +414,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
 
                                     {/* Mobile Input with 88 Prefix */}
                                     <div>
-                                        <div className={`flex rounded-xl border ${errors.mobile ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} overflow-hidden h-12 focus-within:border-[#009E49] focus-within:ring-2 focus-within:ring-[#009E49]/15 transition-all`}>
+                                        <div className={`flex rounded-md border ${errors.mobile ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} overflow-hidden h-12 focus-within:border-[#009E49] focus-within:ring-2 focus-within:ring-[#009E49]/15 transition-all`}>
                                             <div className="px-4 bg-gray-50/80 border-r border-gray-300 flex items-center justify-center text-[15px] font-bold text-gray-700 font-latin select-none">
                                                 88
                                             </div>
@@ -326,7 +439,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                         placeholder="জেলা, থানা, বাড়ি/ফ্ল্যাট নম্বর, রোড, এলাকা *" 
                                         value={data.address} 
                                         onChange={e => setData('address', e.target.value)} 
-                                        className={`w-full h-12 px-4 rounded-xl border ${errors.address ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 transition-all font-bangla`}
+                                        className={`w-full h-12 px-4 rounded-md border ${errors.address ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 transition-all font-bangla`}
                                         required
                                     />
                                     {errors.address && <p className="text-red-500 text-xs mt-1 font-bangla">{errors.address}</p>}
@@ -337,11 +450,15 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                     {/* District Searchable Dropdown */}
                                     <div>
                                         <SearchableSelect
-                                            options={districts.map(d => ({ value: d.name, label: d.name }))}
+                                            options={districts.map(d => ({
+                                                value: d.name,
+                                                label: getDistrictLabel(d.name),
+                                                searchTerms: getDistrictSearchKeywords(d.name)
+                                            }))}
                                             value={data.district}
                                             onChange={handleDistrictChange}
                                             placeholder="জেলা সিলেক্ট করুন *"
-                                            searchPlaceholder="Type to search..."
+                                            searchPlaceholder="জেলা খুঁজুন (যেমন: ঢাকা, Mymensingh)..."
                                             error={errors.district}
                                         />
                                         {errors.district && <p className="text-red-500 text-xs mt-1 font-bangla">{errors.district}</p>}
@@ -350,9 +467,13 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                     {/* Thana Searchable Dropdown */}
                                     <div>
                                         <SearchableSelect
-                                            options={thanas.map(t => ({ value: t.name, label: t.name }))}
+                                            options={thanas.map(t => ({
+                                                value: t.name,
+                                                label: getThanaLabel(t.name),
+                                                searchTerms: getThanaSearchKeywords(t.name)
+                                            }))}
                                             value={data.thana}
-                                            onChange={(val) => setData('thana', val)}
+                                            onChange={handleThanaChange}
                                             placeholder={
                                                 isLoadingThanas 
                                                     ? "থানা লোড হচ্ছে..." 
@@ -360,8 +481,9 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                                         ? "থানা সিলেক্ট করুন (ঐচ্ছিক)" 
                                                         : "থানা সিলেক্ট করুন (প্রথমে জেলা নির্বাচন করুন)"
                                             }
-                                            searchPlaceholder="Type to search..."
+                                            searchPlaceholder="থানা খুঁজুন (যেমন: ত্রিশাল, Trishal)..."
                                             disabled={!data.district || isLoadingThanas}
+                                            allowCustom={true}
                                             onDisabledClick={() => {
                                                 if (!data.district) {
                                                     toast.info('অনুগ্রহ করে প্রথমে আপনার জেলা নির্বাচন করুন।');
@@ -377,78 +499,78 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                     {/* Right Column: Payment & Order Summary */}
                     <div className="lg:col-span-5 space-y-6">
                         {/* 1. Payment Method radio cards */}
-                        <div className="bg-white border border-gray-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+                        <div className="bg-white border border-gray-200/90 rounded-lg p-5 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-4">
                             <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3">
                                 <div className="w-1 h-5 bg-[#009E49] rounded-full" />
-                                <h2 className="text-base font-bold text-gray-900 font-bangla">
+                                <h2 className="text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
                                     পেমেন্ট পদ্ধতি
                                 </h2>
                             </div>
                             <div className="space-y-3 font-bangla">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 xs:grid-cols-2 gap-2.5 sm:gap-3">
                                     {/* Cash on Delivery */}
-                                    <div className="border-2 border-[#009E49] bg-emerald-50/40 rounded-xl p-3.5 flex items-center justify-between cursor-pointer transition-all shadow-2xs">
+                                    <div className="border-2 border-[#009E49] bg-emerald-50/40 rounded-md p-3.5 sm:p-4 flex items-center justify-between cursor-pointer transition-all shadow-2xs">
                                         <div className="flex items-center gap-2.5">
-                                            <div className="w-4 h-4 rounded-full border-2 border-[#009E49] flex items-center justify-center shrink-0">
-                                                <div className="w-2 h-2 rounded-full bg-[#009E49]" />
+                                            <div className="w-4.5 h-4.5 rounded-full border-2 border-[#009E49] flex items-center justify-center shrink-0">
+                                                <div className="w-2.5 h-2.5 rounded-full bg-[#009E49]" />
                                             </div>
-                                            <span className="text-xs font-bold text-gray-900">ক্যাশ অন ডেলিভারি</span>
+                                            <span className="text-sm sm:text-base font-bold text-gray-950">ক্যাশ অন ডেলিভারি</span>
                                         </div>
-                                        <span className="text-[#009E49] font-black text-xs">✔</span>
+                                        <span className="text-[#009E49] font-black text-sm">✔</span>
                                     </div>
 
                                     {/* Online Payment */}
-                                    <div className="border border-gray-200 opacity-60 rounded-xl p-3.5 flex items-center gap-2.5 bg-gray-50/50 cursor-not-allowed">
-                                        <div className="w-4 h-4 rounded-full border border-gray-300 shrink-0" />
-                                        <span className="text-xs font-bold text-gray-600">অনলাইন পেমেন্ট</span>
+                                    <div className="border border-gray-200 opacity-60 rounded-md p-3.5 sm:p-4 flex items-center gap-2.5 bg-gray-50/50 cursor-not-allowed">
+                                        <div className="w-4.5 h-4.5 rounded-full border border-gray-300 shrink-0" />
+                                        <span className="text-sm sm:text-base font-bold text-gray-600">অনলাইন পেমেন্ট</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* 2. Coupon Validation & Order Summary */}
-                        <div className="bg-white border border-gray-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+                        <div className="bg-white border border-gray-200/90 rounded-lg p-5 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-4">
                             <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3">
                                 <div className="w-1 h-5 bg-[#009E49] rounded-full" />
-                                <h2 className="text-base font-bold text-gray-900 font-bangla">
+                                <h2 className="text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
                                     অর্ডার বিবরণ ও সামারি
                                 </h2>
                             </div>
 
                             {/* Coupon field */}
                             {coupon ? (
-                                <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl p-3 px-4">
+                                <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-md p-3 px-4">
                                     <div>
-                                        <span className="text-xs text-gray-500 font-bangla">প্রযুক্ত কুপন:</span>
-                                        <span className="text-sm font-black text-[#009E49] block font-latin">{coupon.code} (-৳{coupon.discount})</span>
+                                        <span className="text-xs sm:text-sm text-gray-500 font-bangla">প্রযুক্ত কুপন:</span>
+                                        <span className="text-sm sm:text-base font-black text-[#009E49] block font-latin">{coupon.code} (-৳{coupon.discount})</span>
                                     </div>
-                                    <Button type="button" size="sm" variant="ghost" onClick={handleRemoveCoupon} className="text-red-500 hover:bg-red-50 border-none font-bold text-xs">মুছুন</Button>
+                                    <Button type="button" size="sm" variant="ghost" onClick={handleRemoveCoupon} className="text-red-500 hover:bg-red-50 border-none font-bold text-xs sm:text-sm rounded-md">মুছুন</Button>
                                 </div>
                             ) : (
                                 <div className="space-y-2">
                                     <div className="flex gap-2">
                                         <Input 
                                             placeholder="কুপন কোড লিখুন" 
-                                            value={couponCode}
-                                            onChange={e => setCouponCode(e.target.value)}
-                                            className="h-11 text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal border-gray-300 rounded-xl focus-visible:ring-[#009E49]/15 focus-visible:border-[#009E49] font-bangla"
+                                            value={couponCode} 
+                                            onChange={e => setCouponCode(e.target.value)} 
+                                            className="h-12 text-[15px] sm:text-base font-medium text-gray-900 placeholder:text-gray-500 placeholder:font-normal border-gray-300 rounded-md focus-visible:ring-[#009E49]/15 focus-visible:border-[#009E49] font-bangla"
                                         />
-                                        <Button type="button" onClick={handleApplyCoupon} disabled={isValidatingCoupon} className="bg-[#009E49] hover:bg-[#007F3B] text-white font-bold h-11 px-5 border-none rounded-xl font-bangla shrink-0 cursor-pointer">
+                                        <Button type="button" onClick={handleApplyCoupon} disabled={isValidatingCoupon} className="bg-[#009E49] hover:bg-[#007F3B] text-white font-bold h-12 px-5 border-none rounded-md font-bangla shrink-0 cursor-pointer text-sm sm:text-base">
                                             প্রয়োগ করুন
                                         </Button>
                                     </div>
                                 </div>
                             )}
-                            {couponError && <p className="text-red-500 text-xs mt-1 font-bangla">{couponError}</p>}
-                            {couponSuccess && <p className="text-green-600 text-xs mt-1 font-bangla">{couponSuccess}</p>}
+                            {couponError && <p className="text-red-500 text-xs sm:text-sm mt-1 font-bangla">{couponError}</p>}
+                            {couponSuccess && <p className="text-green-600 text-xs sm:text-sm mt-1 font-bangla">{couponSuccess}</p>}
 
                             {/* Cost Lines */}
-                            <div className="space-y-3 pt-2 text-sm text-gray-600 border-t border-gray-100 font-bangla">
-                                <div className="flex justify-between font-semibold">
+                            <div className="space-y-3 pt-2 text-sm sm:text-base text-gray-700 border-t border-gray-100 font-bangla">
+                                <div className="flex justify-between font-medium">
                                     <span>সাবটোটাল</span>
                                     <span className="text-gray-900 font-bold font-latin">৳{cartSubtotal.toLocaleString()}</span>
                                 </div>
-                                <div className="flex justify-between font-semibold">
+                                <div className="flex justify-between font-medium">
                                     <span>ডেলিভারি চার্জ</span>
                                     <span className="text-gray-900 font-bold font-latin">৳{deliveryCharge}</span>
                                 </div>
@@ -459,7 +581,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                     </div>
                                 )}
                                 
-                                <div className="flex justify-between text-base sm:text-lg font-black text-gray-900 border-t border-dashed border-gray-200 pt-3.5 mt-2">
+                                <div className="flex justify-between text-base sm:text-lg md:text-xl font-black text-gray-950 border-t border-dashed border-gray-200 pt-3.5 mt-2">
                                     <span>সর্বমোট</span>
                                     <span className="text-[#009E49] font-latin">৳{finalTotal.toLocaleString()}</span>
                                 </div>
@@ -469,8 +591,8 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                             <div className="space-y-2 pt-2">
                                 <div className="flex items-center gap-2">
                                     <div className="w-1 h-4 bg-[#009E49] rounded-full" />
-                                    <Label htmlFor="special_notes" className="text-xs sm:text-sm font-bold text-gray-900 font-bangla">
-                                        বিশেষ নির্দেশনা <span className="text-xs font-normal text-gray-500">(ঐচ্ছিক)</span>
+                                    <Label htmlFor="special_notes" className="text-sm sm:text-base font-bold text-gray-900 font-bangla">
+                                        বিশেষ নির্দেশনা <span className="text-xs sm:text-sm font-normal text-gray-500">(ঐচ্ছিক)</span>
                                     </Label>
                                 </div>
                                 <Textarea 
@@ -478,7 +600,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                                     placeholder="ডেলিভারির জন্য কোনো বিশেষ নির্দেশনা থাকলে লিখুন..." 
                                     value={data.special_notes} 
                                     onChange={e => setData('special_notes', e.target.value)} 
-                                    className="min-h-[75px] text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal border-gray-300 rounded-xl focus-visible:ring-[#009E49]/15 focus-visible:border-[#009E49] font-bangla"
+                                    className="min-h-[75px] text-[15px] sm:text-base font-medium text-gray-900 placeholder:text-gray-500 placeholder:font-normal border-gray-300 rounded-md focus-visible:ring-[#009E49]/15 focus-visible:border-[#009E49] font-bangla"
                                 />
                             </div>
 
@@ -486,25 +608,48 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, defaultInsideDhak
                             <div className="flex items-start gap-2.5 pt-2">
                                 <Checkbox 
                                     id="agree" 
-                                    checked={data.agree}
-                                    onCheckedChange={checked => setData('agree', !!checked)}
-                                    className="border-gray-400 data-[state=checked]:bg-[#009E49] data-[state=checked]:border-[#009E49] w-4.5 h-4.5 mt-0.5 rounded cursor-pointer"
+                                    checked={data.agree} 
+                                    onCheckedChange={checked => setData('agree', !!checked)} 
+                                    className="border-gray-400 data-[state=checked]:bg-[#009E49] data-[state=checked]:border-[#009E49] w-4.5 h-4.5 mt-0.5 rounded cursor-pointer shrink-0"
                                 />
-                                <Label htmlFor="agree" className="text-xs sm:text-[13px] text-gray-700 leading-normal cursor-pointer font-medium font-bangla">
+                                <Label htmlFor="agree" className="text-sm text-gray-800 leading-relaxed cursor-pointer font-medium font-bangla select-none">
                                     আমি টার্মস & কন্ডিশনস, প্রাইভেসি পলিসি এবং রিফান্ড পলিসি পড়েছি এবং সম্মত আছি।
                                 </Label>
                             </div>
 
-                            {/* Place order button */}
-                            <Button 
-                                type="submit" 
-                                disabled={processing} 
-                                className="w-full bg-[#009E49] hover:bg-[#007F3B] text-white h-14 text-base font-extrabold rounded-xl shadow-lg border-none flex items-center justify-center gap-2 transition-all font-bangla uppercase tracking-wide cursor-pointer"
-                            >
-                                <ShoppingBag className="w-5 h-5" />
-                                {processing ? 'অর্ডার প্রসেস হচ্ছে...' : 'অর্ডার কনফার্ম করুন 🛍️'}
-                            </Button>
+                            {/* Original In-Place Order Button (Visible in summary card on both mobile & desktop) */}
+                            <div ref={originalButtonRef}>
+                                <Button 
+                                    type="submit" 
+                                    disabled={processing} 
+                                    className="w-full bg-[#009E49] hover:bg-[#007F3B] active:scale-[0.98] text-white h-14 text-base sm:text-lg font-extrabold rounded-md shadow-[0_4px_16px_rgba(0,158,73,0.3)] border-none flex items-center justify-center gap-2 transition-all font-bangla uppercase tracking-wide cursor-pointer"
+                                >
+                                    <ShoppingBag className="w-5 h-5" />
+                                    {processing ? 'অর্ডার প্রসেস হচ্ছে...' : 'অর্ডার কনফার্ম করুন 🛍️'}
+                                </Button>
+                            </div>
                         </div>
+                    </div>
+
+                    {/* Mobile Floating Order Button (Smoothly hides when original button is scrolled into view) */}
+                    <div 
+                        className={`fixed left-0 right-0 z-40 md:hidden px-3.5 py-2 pointer-events-none transition-all duration-300 ease-in-out ${
+                            isOriginalButtonVisible 
+                                ? 'opacity-0 translate-y-8 pointer-events-none' 
+                                : 'opacity-100 translate-y-0'
+                        }`}
+                        style={{ bottom: 'calc(10px + env(safe-area-inset-bottom, 0px))' }}
+                    >
+                        <Button 
+                            type="submit" 
+                            form="checkout-form" 
+                            disabled={processing || isOriginalButtonVisible} 
+                            onClick={handleSubmit} 
+                            className="w-full bg-[#009E49] hover:bg-[#007F3B] active:scale-[0.98] text-white h-14 text-base font-extrabold rounded-md shadow-[0_4px_20px_rgba(0,158,73,0.35)] border-none flex items-center justify-center gap-2 transition-all font-bangla uppercase tracking-wide cursor-pointer pointer-events-auto"
+                        >
+                            <ShoppingBag className="w-5 h-5" />
+                            {processing ? 'অর্ডার প্রসেস হচ্ছে...' : 'অর্ডার কনফার্ম করুন 🛍️'}
+                        </Button>
                     </div>
                 </form>
             </div>

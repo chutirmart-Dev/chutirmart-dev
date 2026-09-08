@@ -29,19 +29,19 @@ export const Header: React.FC = () => {
     };
 
     return (
-        <header className="bg-white shadow-sm sticky top-0 z-40">
+        <header className="bg-white sticky top-0 z-40 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] border-b border-gray-100/80 transition-shadow">
             {/* Top Bar / Brand section */}
-            <div className="container py-2.5 sm:py-3 md:py-4 flex items-center justify-between gap-2.5 sm:gap-4">
+            <div className="container py-2 sm:py-3 md:py-4 flex items-center justify-between gap-1.5 xs:gap-2.5 sm:gap-4">
                 {/* Left Section: Mobile Hamburger Button + Logo */}
-                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
                     {/* Modern Clean Hamburger Button (Mobile Only) */}
                     <button
                         type="button"
                         onClick={() => setIsMobileMenuOpen(true)}
-                        className="md:hidden p-2 border border-gray-200 hover:border-[#009E49] rounded-lg text-gray-800 hover:text-[#009E49] transition-all duration-150 focus:outline-none cursor-pointer flex items-center justify-center active:scale-95 shrink-0"
+                        className="md:hidden p-1.5 xs:p-2 border border-gray-200 hover:border-[#009E49] rounded-lg text-gray-800 hover:text-[#009E49] transition-all duration-150 focus:outline-none cursor-pointer flex items-center justify-center active:scale-95 shrink-0"
                         aria-label="Open mobile menu"
                     >
-                        <Menu className="w-5 h-5 stroke-[2]" />
+                        <Menu className="w-4.5 h-4.5 xs:w-5 xs:h-5 stroke-[2]" />
                     </button>
 
                     {/* Logo */}
@@ -50,18 +50,18 @@ export const Header: React.FC = () => {
                             <img 
                                 src={store_settings.site_logo} 
                                 alt={store_settings.site_name || "ChutirMart"} 
-                                className="h-9 sm:h-10 md:h-12 w-auto object-contain" 
+                                className="h-8 xs:h-9 sm:h-10 md:h-12 w-auto object-contain" 
                                 onError={e => {
                                     (e.target as HTMLImageElement).src = '/storage/defaults/default-logo.svg';
                                 }}
                             />
                         ) : (
                             <div className="flex flex-col items-start leading-none gap-0.5">
-                                <div className="text-xl md:text-2xl font-black tracking-tight flex items-center">
+                                <div className="text-lg xs:text-xl md:text-2xl font-black tracking-tight flex items-center">
                                     <span className="text-primary font-bangla">ছুটির</span>
                                     <span className="text-destructive font-bangla">মার্ট</span>
                                 </div>
-                                <span className="text-[10px] md:text-xs font-bold text-gray-500 tracking-wider font-latin">chutirmart</span>
+                                <span className="text-[9px] xs:text-[10px] md:text-xs font-bold text-gray-500 tracking-wider font-latin">chutirmart</span>
                             </div>
                         )}
                     </Link>
@@ -72,8 +72,8 @@ export const Header: React.FC = () => {
                     <LiveSearchBar />
                 </div>
 
-                {/* Right Actions - Same to same reference image with branding color */}
-                <div className="flex items-center gap-2 sm:gap-4.5 lg:gap-5 shrink-0">
+                {/* Right Actions */}
+                <div className="flex items-center gap-1.5 xs:gap-2.5 sm:gap-4.5 lg:gap-5 shrink-0">
                     {/* Order Inquiry & Big Bold Phone Number (Desktop Only) */}
                     <a 
                         href="tel:+8801705105889" 
@@ -92,8 +92,8 @@ export const Header: React.FC = () => {
                         className="relative p-1 text-gray-800 hover:text-[#009E49] transition-colors focus:outline-none shrink-0"
                         title="Wishlist"
                     >
-                        <Heart className="w-6 h-6 stroke-[1.8]" />
-                        <span className="absolute -top-1 -right-1 bg-[#009E49] text-white text-[9px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white shadow-2xs">
+                        <Heart className="w-5 h-5 xs:w-5.5 xs:h-5.5 sm:w-6 sm:h-6 stroke-[1.8]" />
+                        <span className="absolute -top-0.5 -right-0.5 bg-[#009E49] text-white text-[9px] font-black w-4 h-4 xs:w-4.5 xs:h-4.5 rounded-full flex items-center justify-center border-2 border-white shadow-2xs font-latin">
                             0
                         </span>
                     </Link>
@@ -105,8 +105,8 @@ export const Header: React.FC = () => {
                         className="relative p-1 text-gray-800 hover:text-[#009E49] transition-colors focus:outline-none cursor-pointer shrink-0"
                         title="Cart"
                     >
-                        <ShoppingBag className="w-6 h-6 stroke-[1.8]" />
-                        <span className="absolute -top-1 -right-1 bg-[#009E49] text-white text-[9px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white shadow-2xs">
+                        <ShoppingBag className="w-5 h-5 xs:w-5.5 xs:h-5.5 sm:w-6 sm:h-6 stroke-[1.8]" />
+                        <span className="absolute -top-0.5 -right-0.5 bg-[#009E49] text-white text-[9px] font-black w-4 h-4 xs:w-4.5 xs:h-4.5 rounded-full flex items-center justify-center border-2 border-white shadow-2xs font-latin">
                             {cartCount}
                         </span>
                     </button>
@@ -116,16 +116,16 @@ export const Header: React.FC = () => {
                         {auth?.user ? (
                             <DropdownMenu>
                                 <DropdownMenuTrigger className="p-1 text-gray-800 hover:text-[#009E49] transition-colors focus:outline-none cursor-pointer shrink-0">
-                                    <User className="w-6 h-6 stroke-[1.8]" />
+                                    <User className="w-5 h-5 xs:w-5.5 xs:h-5.5 stroke-[1.8]" />
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="bg-white rounded-2xl shadow-lg border border-gray-100 p-1.5 min-w-[150px]">
+                                <DropdownMenuContent align="end" className="bg-white rounded-lg shadow-[0_10px_30px_-5px_rgba(0,0,0,0.08),0_4px_12px_-2px_rgba(0,0,0,0.04)] border border-gray-200/90 p-1.5 min-w-[150px]">
                                     <div className="px-3 py-1.5 border-b border-gray-100 text-xs font-semibold text-gray-700">
                                         {auth.user.name}
                                     </div>
-                                    <DropdownMenuItem className="cursor-pointer rounded-xl font-medium">
+                                    <DropdownMenuItem className="cursor-pointer rounded-md font-medium">
                                         <Link href={route('dashboard')} className="w-full h-full block py-0.5">My Dashboard</Link>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem className="cursor-pointer rounded-xl font-medium">
+                                    <DropdownMenuItem className="cursor-pointer rounded-md font-medium">
                                         <Link href={route('logout')} method="post" as="button" className="w-full text-left text-red-600 py-0.5">
                                             Logout
                                         </Link>
@@ -138,7 +138,7 @@ export const Header: React.FC = () => {
                                 className="p-1 text-gray-800 hover:text-[#009E49] transition-colors focus:outline-none shrink-0"
                                 title="Login / Register"
                             >
-                                <User className="w-6 h-6 stroke-[1.8]" />
+                                <User className="w-5 h-5 xs:w-5.5 xs:h-5.5 stroke-[1.8]" />
                             </Link>
                         )}
                     </div>

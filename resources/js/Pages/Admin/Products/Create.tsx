@@ -5,6 +5,7 @@ import { AdminCard, CardHead, PageHeader, SaveBtn, AdminInput, AdminTextarea, Ad
 import { UploadCloud, X, Save, ArrowLeft, Images } from 'lucide-react';
 import { toast } from 'sonner';
 import { VariationsSection } from '@/components/admin/VariationsSection';
+import { compressImageFile } from '@/lib/imageCompression';
 
 interface CreateProps {
     brands: any[];
@@ -14,13 +15,14 @@ interface CreateProps {
 
 export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }) => {
     const [selectedAttributeOptions, setSelectedAttributeOptions] = useState<Record<number, number[]>>({});
+    const [isOptimizingImages, setIsOptimizingImages] = useState(false);
     const { data, setData, post, processing, errors, transform } = useForm({
         name: '',
         price: '',
         compare_at_price: '',
         discount_type: 'none',
-        discount_value: '0',
-        stock_quantity: '',
+        discount_value: '0' as string | number,
+        stock_quantity: '10' as string | number,
         description: '',
         status: 'active',
         is_best_selling: false,
@@ -34,18 +36,24 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
         selected_attribute_options: [] as {attribute_id: number; option_ids: number[]}[],
     });
 
-    const handleMainImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleMainImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             if (!file.type.startsWith('image/')) {
                 toast.error('Please upload an image file.');
                 return;
             }
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setData('main_image', reader.result as string);
-            };
-            reader.readAsDataURL(file);
+            try {
+                const compressed = await compressImageFile(file);
+                setData('main_image', compressed);
+                toast.success('Main Image uploaded and optimized! ✨');
+            } catch (err) {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    setData('main_image', reader.result as string);
+                };
+                reader.readAsDataURL(file);
+            }
         }
     };
 
@@ -56,21 +64,38 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
         const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
         if (imageFiles.length === 0) return;
 
-        const readPromises = imageFiles.map(file => {
-            return new Promise<string>((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result as string);
-                reader.readAsDataURL(file);
-            });
-        });
+        setIsOptimizingImages(true);
+        const toastId = toast.loading(`Optimizing ${imageFiles.length} gallery image(s)... ⏳`);
 
-        const newBase64Images = await Promise.all(readPromises);
-        setData(prev => ({
-            ...prev,
-            gallery_images: [...prev.gallery_images, ...newBase64Images],
-        }));
-        e.target.value = ''; // Reset input so same images can be re-selected if needed
-        toast.success(`${newBase64Images.length} gallery image(s) added! 🖼️`);
+        try {
+            const compressedImages = await Promise.all(
+                imageFiles.map(file => compressImageFile(file))
+            );
+            setData(prev => ({
+                ...prev,
+                gallery_images: [...prev.gallery_images, ...compressedImages],
+            }));
+            e.target.value = ''; // Reset input so same images can be re-selected if needed
+            toast.success(`${compressedImages.length} gallery image(s) optimized and added! 🖼️`, { id: toastId });
+        } catch (error) {
+            const readPromises = imageFiles.map(file => {
+                return new Promise<string>((resolve) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result as string);
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            const newBase64Images = await Promise.all(readPromises);
+            setData(prev => ({
+                ...prev,
+                gallery_images: [...prev.gallery_images, ...newBase64Images],
+            }));
+            e.target.value = '';
+            toast.success(`${newBase64Images.length} gallery image(s) added! 🖼️`, { id: toastId });
+        } finally {
+            setIsOptimizingImages(false);
+        }
     };
 
     const handleRemoveGalleryImage = (index: number) => {
@@ -267,8 +292,8 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
                             </div>
 
                             {data.main_image ? (
-                                <div className="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-2xl bg-[#F0FDF4] border border-[#DCFCE7]">
-                                    <div className="relative w-40 h-40 rounded-xl overflow-hidden border-2 border-[#009E49] bg-white shadow-sm flex-shrink-0 group">
+                                <div className="flex flex-col sm:flex-row items-center gap-5 p-4 rounded-xl bg-[#F0FDF4] border border-[#DCFCE7]">
+                                    <div className="relative w-40 h-40 rounded-lg overflow-hidden border-2 border-[#009E49] bg-white shadow-sm flex-shrink-0 group">
                                         <img src={data.main_image} className="w-full h-full object-cover" alt="Main Product Preview" />
                                         <span className="absolute bottom-1.5 left-1.5 bg-[#009E49] text-white text-[9px] font-black px-1.5 py-0.5 rounded-md shadow">
                                             ★ MAIN
@@ -278,14 +303,14 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
                                         <p className="text-sm font-bold text-gray-800">Primary Product Image Selected</p>
                                         <p className="text-xs text-gray-500">Ready to save. You can change this image anytime or promote another image from the gallery.</p>
                                         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
-                                            <label className="px-3.5 py-2 rounded-xl bg-white border border-[#009E49] text-xs font-bold text-[#009E49] hover:bg-[#009E49] hover:text-white cursor-pointer transition-all shadow-2xs">
+                                            <label className="px-3.5 py-2 rounded-lg bg-white border border-[#009E49] text-xs font-bold text-[#009E49] hover:bg-[#009E49] hover:text-white cursor-pointer transition-all shadow-2xs">
                                                 Change Main Image
                                                 <input type="file" accept="image/*" onChange={handleMainImageUpload} className="hidden" />
                                             </label>
                                             <button
                                                 type="button"
                                                 onClick={() => setData('main_image', '')}
-                                                className="px-3.5 py-2 rounded-xl bg-white border border-red-200 text-xs font-bold text-red-600 hover:bg-red-50 cursor-pointer transition-all shadow-2xs"
+                                                className="px-3.5 py-2 rounded-lg bg-white border border-red-200 text-xs font-bold text-red-600 hover:bg-red-50 cursor-pointer transition-all shadow-2xs"
                                             >
                                                 Remove
                                             </button>
@@ -294,7 +319,7 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
                                 </div>
                             ) : (
                                 <label
-                                    className="group relative block w-full border-2 border-dashed border-[#009E49]/40 rounded-2xl bg-[#FAFDFB] hover:bg-[#F0FDF4] hover:border-[#009E49] transition-all duration-200 cursor-pointer"
+                                    className="group relative block w-full border-2 border-dashed border-[#009E49]/40 rounded-xl bg-[#FAFDFB] hover:bg-[#F0FDF4] hover:border-[#009E49] transition-all duration-200 cursor-pointer"
                                     onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-[#009E49]', 'bg-[#F0FDF4]'); }}
                                     onDragLeave={e => { e.currentTarget.classList.remove('border-[#009E49]', 'bg-[#F0FDF4]'); }}
                                     onDrop={e => {
@@ -309,12 +334,12 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
                                     }}
                                 >
                                     <div className="flex flex-col items-center justify-center py-8 px-6 text-center">
-                                        <div className="w-12 h-12 rounded-2xl bg-white border border-[#DCFCE7] shadow-sm flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                                        <div className="w-12 h-12 rounded-lg bg-white border border-[#DCFCE7] shadow-sm flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                                             <UploadCloud className="w-6 h-6 text-[#009E49]" />
                                         </div>
                                         <p className="text-[14px] font-bold text-[#1A1A2E] mb-1">Click to upload Main Product Image</p>
                                         <p className="text-[12px] text-[#9096B0] mb-3">JPEG, PNG, WebP · Max 5 MB</p>
-                                        <span className="px-4 py-1.5 rounded-xl bg-white border border-[#009E49] text-[12px] font-bold text-[#009E49] shadow-2xs group-hover:bg-[#009E49] group-hover:text-white transition-all">
+                                        <span className="px-4 py-1.5 rounded-lg bg-white border border-[#009E49] text-[12px] font-bold text-[#009E49] shadow-2xs group-hover:bg-[#009E49] group-hover:text-white transition-all">
                                             Select Main Image
                                         </span>
                                     </div>
@@ -332,7 +357,7 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
                         <AdminCard className="p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="w-8 h-8 rounded-xl bg-[#009E49]/10 flex items-center justify-center">
+                                    <div className="w-8 h-8 rounded-lg bg-[#009E49]/10 flex items-center justify-center">
                                         <Images className="w-4 h-4 text-[#009E49]" />
                                     </div>
                                     <div>
@@ -347,7 +372,7 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
 
                             {/* Gallery Upload Drop Zone */}
                             <label
-                                className="group relative block w-full border-2 border-dashed border-[#86EFAC] rounded-2xl bg-[#FAFDFB] hover:bg-[#F0FDF4] hover:border-[#009E49] transition-all duration-200 cursor-pointer mb-4"
+                                className="group relative block w-full border-2 border-dashed border-[#86EFAC] rounded-xl bg-[#FAFDFB] hover:bg-[#F0FDF4] hover:border-[#009E49] transition-all duration-200 cursor-pointer mb-4"
                                 onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-[#009E49]', 'bg-[#F0FDF4]'); }}
                                 onDragLeave={e => { e.currentTarget.classList.remove('border-[#009E49]', 'bg-[#F0FDF4]'); }}
                                 onDrop={async e => {
@@ -376,12 +401,12 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
                                 }}
                             >
                                 <div className="flex flex-col items-center justify-center py-7 px-6 text-center">
-                                    <div className="w-11 h-11 rounded-2xl bg-white border border-[#DCFCE7] shadow-sm flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
+                                    <div className="w-11 h-11 rounded-lg bg-white border border-[#DCFCE7] shadow-sm flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
                                         <UploadCloud className="w-5 h-5 text-[#009E49]" />
                                     </div>
                                     <p className="text-[13px] font-bold text-[#1A1A2E] mb-0.5">Choose multiple gallery files or drag & drop here</p>
                                     <p className="text-[11px] text-[#9096B0] mb-3">JPEG, PNG, WebP · Max 5 MB each</p>
-                                    <span className="px-4 py-1.5 rounded-xl bg-white border border-[#E6F5EC] text-[12px] font-bold text-[#009E49] shadow-2xs group-hover:bg-[#009E49] group-hover:text-white transition-all">
+                                    <span className="px-4 py-1.5 rounded-lg bg-white border border-[#E6F5EC] text-[12px] font-bold text-[#009E49] shadow-2xs group-hover:bg-[#009E49] group-hover:text-white transition-all">
                                         Browse Gallery Files
                                     </span>
                                 </div>
@@ -580,9 +605,9 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
                     </AdminCard>
 
                     {/* Save Button */}
-                    <SaveBtn type="submit" disabled={processing} className="w-full py-3.5 text-base">
+                    <SaveBtn type="submit" disabled={processing || isOptimizingImages} className="w-full py-3.5 text-base">
                         <Save className="w-5 h-5" />
-                        {processing ? 'Saving...' : 'Save Product'}
+                        {isOptimizingImages ? 'Optimizing Images...' : (processing ? 'Saving...' : 'Save Product')}
                     </SaveBtn>
                 </div>
 

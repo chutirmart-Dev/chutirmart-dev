@@ -166,7 +166,7 @@ export const VariationsSection: React.FC<VariationsSectionProps> = ({
         <div className="space-y-4">
             {/* Step 1: Select Attribute Options */}
             <AdminCard>
-                <div className="px-5 py-3 border-b border-[#F0EFFE] bg-[#F8F7FF] rounded-t-2xl">
+                <div className="px-5 py-3 border-b border-[#F0EFFE] bg-[#F8F7FF] rounded-t-xl">
                     <div className="flex items-center gap-2">
                         <Layers className="w-4 h-4 text-[#009E49]" />
                         <span className="text-[13px] font-black text-[#1A1A2E]">Step 1 — অ্যাট্রিবিউট ও অপশন নির্বাচন করুন</span>
@@ -224,14 +224,14 @@ export const VariationsSection: React.FC<VariationsSectionProps> = ({
             </AdminCard>
 
             {/* Step 2: Generate Variations */}
-            <AdminCard className="p-5">
-                <div className="flex items-center justify-between">
-                    <div>
+            <AdminCard className="p-4 sm:p-5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                    <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                            <Zap className="w-4 h-4 text-amber-500" />
-                            <span className="text-[13px] font-black text-[#1A1A2E]">Step 2 — ভ্যারিয়েশন তৈরি করুন</span>
+                            <Zap className="w-4 h-4 text-amber-500 shrink-0" />
+                            <span className="text-[13.5px] sm:text-[14px] font-black text-[#1A1A2E]">Step 2 — ভ্যারিয়েশন তৈরি করুন</span>
                         </div>
-                        <p className="text-xs text-[#9096B0] mt-0.5">
+                        <p className="text-[12px] sm:text-[13px] text-[#9096B0] mt-1 leading-relaxed">
                             সব সিলেক্ট করা অপশনের combination automatically তৈরি হবে।
                             {productId == null && ' (পণ্য সেভ করার পর এই বোতামে ক্লিক করুন)'}
                         </p>
@@ -240,10 +240,10 @@ export const VariationsSection: React.FC<VariationsSectionProps> = ({
                         type="button"
                         onClick={handleGenerate}
                         disabled={isGenerating || !productId}
-                        className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white text-sm font-bold px-4 py-2 rounded-xl cursor-pointer transition-colors"
+                        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] disabled:opacity-50 text-white text-[12.5px] sm:text-[13px] font-bold px-4 py-2.5 rounded-lg cursor-pointer transition-all shadow-xs shrink-0 whitespace-nowrap border-none"
                     >
-                        <Zap className="w-4 h-4" />
-                        {isGenerating ? 'তৈরি হচ্ছে...' : 'ভ্যারিয়েশন Generate করুন'}
+                        <Zap className="w-4 h-4 shrink-0" />
+                        <span>{isGenerating ? 'তৈরি হচ্ছে...' : 'ভ্যারিয়েশন Generate করুন'}</span>
                     </button>
                 </div>
             </AdminCard>

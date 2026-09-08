@@ -36,7 +36,7 @@ export const PrimaryBtn: React.FC<{ children: React.ReactNode; onClick?: () => v
         type={type}
         onClick={onClick}
         disabled={disabled}
-        className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#009E49] text-white text-xs font-semibold hover:bg-[#007F3B] transition-all shadow-xs hover:shadow-sm active:scale-98 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed select-none ${className}`}
+        className={`inline-flex items-center justify-center gap-2 px-5 h-12 rounded-lg bg-[#009E49] text-white text-[14px] font-bold hover:bg-[#007F3B] transition-all shadow-xs hover:shadow-sm active:scale-98 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed select-none ${className}`}
     >
         {children}
     </button>
@@ -47,7 +47,7 @@ export const SaveBtn: React.FC<{ children: React.ReactNode; type?: 'button' | 's
     <button
         type={type}
         disabled={disabled}
-        className={`inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-lg text-white text-xs font-bold transition-all shadow-xs hover:shadow-sm active:scale-98 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed select-none ${className}`}
+        className={`inline-flex items-center justify-center gap-2 px-5 h-12 rounded-lg text-white text-[14px] font-bold transition-all shadow-xs hover:shadow-md active:scale-98 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed select-none ${className}`}
         style={{ background: 'linear-gradient(135deg,#E2231A 0%,#B8150D 100%)' }}
     >
         {children}
@@ -147,27 +147,27 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
     };
 
     return (
-        <div ref={containerRef} className={`relative select-none ${className}`}>
+        <div ref={containerRef} className={`relative select-none min-w-0 w-full ${className}`}>
             {/* Custom Interactive Trigger Button */}
             <button
                 type="button"
                 id={id}
                 disabled={disabled}
                 onClick={() => !disabled && setIsOpen(!isOpen)}
-                className={`w-full h-10 px-3 pr-8 rounded-lg border text-[13px] font-semibold text-[#1A1A2E] text-left flex items-center justify-between transition-all cursor-pointer ${
+                className={`w-full min-w-0 h-10 px-3.5 pr-9 rounded-lg border text-[13.5px] font-semibold text-[#1A1A2E] text-left flex items-center justify-between transition-all cursor-pointer ${
                     disabled
                         ? 'bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed'
                         : isOpen
                         ? 'bg-white border-[#009E49] ring-2 ring-[#009E49]/15 shadow-2xs'
-                        : 'border-[#EBEDF2] bg-[#F7F8FA] hover:border-[#009E49]/40 hover:bg-[#FAFDFB]'
+                        : 'border-[#E2E8F0] bg-[#F8FAFC] hover:border-[#009E49]/50 hover:bg-[#F9FCFA]'
                 }`}
             >
-                <span className="truncate block">
+                <span className="truncate block min-w-0 flex-1 pr-2">
                     {selectedOption ? selectedOption.label : 'Select...'}
                 </span>
-                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-[#009E49]">
+                <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#009E49]">
                     <ChevronDown
-                        className={`w-3.5 h-3.5 stroke-[2.5] transition-transform duration-200 ${
+                        className={`w-4 h-4 stroke-[2.5] transition-transform duration-200 ${
                             isOpen ? 'rotate-180 text-[#009E49]' : 'text-[#009E49]'
                         }`}
                     />
@@ -176,7 +176,7 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
 
             {/* Floating Branded Dropdown Menu */}
             {isOpen && (
-                <div className="absolute left-0 right-0 top-full mt-1.5 p-1 bg-white border border-[#E6F5EC] rounded-xl shadow-[0_12px_32px_rgba(0,158,73,0.14),0_4px_12px_rgba(0,0,0,0.06)] z-50 max-h-60 overflow-y-auto scrollbar-thin animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute left-0 right-0 top-full mt-1.5 p-1.5 bg-white border border-[#009E49]/25 rounded-xl shadow-[0_12px_32px_rgba(0,158,73,0.15),0_4px_12px_rgba(0,0,0,0.06)] z-50 max-h-60 overflow-y-auto scrollbar-thin animate-in fade-in zoom-in-95 duration-150">
                     {options.map((opt, idx) => {
                         const isSelected = String(opt.value) === String(currentValue);
                         return (
@@ -185,17 +185,17 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
                                 type="button"
                                 disabled={opt.disabled}
                                 onClick={() => handleSelect(opt)}
-                                className={`w-full px-2.5 py-2 rounded-lg text-xs text-left flex items-center justify-between transition-all cursor-pointer border-none mb-0.5 last:mb-0 ${
+                                className={`w-full px-3 py-2.5 rounded-lg text-[13px] text-left flex items-center justify-between transition-all cursor-pointer border-none mb-0.5 last:mb-0 ${
                                     opt.disabled
                                         ? 'opacity-40 cursor-not-allowed'
                                         : isSelected
                                         ? 'bg-[#009E49] text-white font-bold shadow-2xs'
-                                        : 'text-[#1A1A2E] hover:bg-[#F0FDF4] hover:text-[#009E49] font-medium'
+                                        : 'text-slate-700 hover:bg-[#E8F8F0] hover:text-[#009E49] font-medium'
                                 }`}
                             >
                                 <span className="truncate">{opt.label}</span>
                                 {isSelected && (
-                                    <Check className="w-3.5 h-3.5 text-white stroke-[2.5] shrink-0 ml-2" />
+                                    <Check className="w-4 h-4 text-white stroke-[2.5] shrink-0 ml-2" />
                                 )}
                             </button>
                         );

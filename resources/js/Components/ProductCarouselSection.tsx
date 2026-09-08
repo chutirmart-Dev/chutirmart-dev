@@ -104,8 +104,8 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
             {/* Header matching Reference Image with full-width line & branding color active bar */}
             <div className="relative border-b border-gray-200/90 pb-3 mb-6 flex items-center justify-between">
                 <div className="relative">
-                    <h2 className="text-lg sm:text-xl md:text-2xl font-black text-gray-900 flex items-center gap-2 tracking-tight">
-                        {icon && <span className="text-xl">{icon}</span>}
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-gray-900 flex items-center gap-2 tracking-tight font-bangla">
+                        {icon && <span className="text-xl sm:text-2xl">{icon}</span>}
                         <span>{title}</span>
                     </h2>
                     {/* Brand Color Underline Accent (Matching Reference Image) */}
@@ -114,10 +114,10 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
                 {viewAllHref && (
                     <Link
                         href={viewAllHref}
-                        className="text-xs sm:text-sm font-extrabold text-[#009E49] hover:text-[#008038] tracking-wider uppercase flex items-center gap-1.5 transition-colors group"
+                        className="text-xs sm:text-sm md:text-base font-extrabold text-[#009E49] hover:text-[#008038] tracking-wider uppercase flex items-center gap-1.5 transition-colors group font-latin"
                     >
                         <span>VIEW ALL PRODUCTS</span>
-                        <span className="text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
+                        <span className="text-base sm:text-lg transition-transform duration-200 group-hover:translate-x-1">→</span>
                     </Link>
                 )}
             </div>
@@ -136,26 +136,26 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
                     }}
                     className="w-full"
                 >
-                    <CarouselContent className="-ml-2 sm:-ml-3 md:-ml-4 py-3 -my-3">
+                    <CarouselContent className="-ml-2 sm:-ml-3 md:-ml-4 py-2 -my-2">
                         {products.map(product => (
                             <CarouselItem
                                 key={product.id}
-                                className="basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 pl-2 sm:pl-3 md:pl-4 flex"
+                                className="basis-[48%] xs:basis-1/2 sm:basis-1/3 md:basis-1/4 lg:basis-1/5 pl-2 sm:pl-3 md:pl-4 flex"
                             >
-                                <div className="w-full h-full py-1 pb-6">
+                                <div className="w-full h-full py-1 pb-4">
                                     <ProductCard product={product} />
                                 </div>
                             </CarouselItem>
                         ))}
                     </CarouselContent>
 
-                    {/* Side navigation arrows in Branding Color */}
+                    {/* Side navigation arrows in Branding Color (Desktop Only - Mobile swipes natively) */}
                     {canSlide && (
                         <>
                             <button
                                 type="button"
                                 onClick={handlePrev}
-                                className="absolute -left-2 sm:-left-3 md:-left-4 lg:-left-5 top-[35%] -translate-y-1/2 z-30 bg-[#009E49] hover:bg-[#008038] active:scale-90 text-white border-2 border-white shadow-md hover:shadow-lg w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full cursor-pointer transition-all flex items-center justify-center touch-manipulation select-none"
+                                className="hidden md:flex absolute -left-2 sm:-left-3 md:-left-4 lg:-left-5 top-[35%] -translate-y-1/2 z-30 bg-[#009E49] hover:bg-[#008038] active:scale-90 text-white border-2 border-white shadow-md hover:shadow-lg w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full cursor-pointer transition-all items-center justify-center touch-manipulation select-none"
                                 aria-label="Previous slide"
                             >
                                 <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
@@ -163,7 +163,7 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
                             <button
                                 type="button"
                                 onClick={handleNext}
-                                className="absolute -right-2 sm:-right-3 md:-right-4 lg:-right-5 top-[35%] -translate-y-1/2 z-30 bg-[#009E49] hover:bg-[#008038] active:scale-90 text-white border-2 border-white shadow-md hover:shadow-lg w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full cursor-pointer transition-all flex items-center justify-center touch-manipulation select-none"
+                                className="hidden md:flex absolute -right-2 sm:-right-3 md:-right-4 lg:-right-5 top-[35%] -translate-y-1/2 z-30 bg-[#009E49] hover:bg-[#008038] active:scale-90 text-white border-2 border-white shadow-md hover:shadow-lg w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full cursor-pointer transition-all items-center justify-center touch-manipulation select-none"
                                 aria-label="Next slide"
                             >
                                 <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />

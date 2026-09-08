@@ -294,30 +294,30 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             )}
 
             {/* ──────────────────────────────────────────────────────────────
-             *  Sidebar (Collapsible 240px expanded / 76px mini on desktop)
+             *  Sidebar (Collapsible 250px expanded / 68px mini on mobile, 80px on desktop)
              * ────────────────────────────────────────────────────────────── */}
             <aside
                 className={`fixed inset-y-0 left-0 z-50 bg-white flex flex-col transition-all duration-300 ease-in-out border-r border-slate-200/80 shadow-xs ${
                     isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
                 } md:translate-x-0 ${
-                    isCollapsed ? 'md:w-[76px]' : 'md:w-[240px]'
-                } w-[240px]`}
+                    isCollapsed ? 'w-[68px] md:w-[80px]' : 'w-[260px] md:w-[250px]'
+                }`}
             >
                 
                 {/* ── Brand Header (With Mini / Full Toggle) ── */}
                 <div className={`border-b border-slate-100 shrink-0 transition-all duration-300 ${
-                    isCollapsed ? 'p-3 flex flex-col items-center justify-center' : 'p-4 flex items-center justify-between'
+                    isCollapsed ? 'p-2.5 sm:p-3 flex flex-col items-center justify-center' : 'p-4 flex items-center justify-between'
                 }`}>
                     {isCollapsed ? (
                         <div className="flex flex-col items-center gap-2">
                             <Link href={route('admin.dashboard')} className="group flex items-center justify-center" title={store_settings?.site_name || 'ChutirMart'}>
-                                <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#009E49] via-[#00B853] to-[#0FD669] flex items-center justify-center text-white shadow-[0_4px_14px_rgba(0,158,73,0.3)] group-hover:scale-105 transition-transform">
+                                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-[#009E49] via-[#00B853] to-[#0FD669] flex items-center justify-center text-white shadow-[0_4px_14px_rgba(0,158,73,0.3)] group-hover:scale-105 transition-transform">
                                     <ShoppingBag className="w-5 h-5" />
                                 </div>
                             </Link>
                             <button
                                 onClick={toggleCollapse}
-                                className="w-8 h-8 rounded-xl hover:bg-emerald-50 text-slate-400 hover:text-[#009E49] flex items-center justify-center transition-colors cursor-pointer"
+                                className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl hover:bg-emerald-50 text-slate-400 hover:text-[#009E49] flex items-center justify-center transition-colors cursor-pointer"
                                 title="Expand Sidebar"
                             >
                                 <ChevronsRight className="w-4 h-4" />
@@ -325,48 +325,57 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                         </div>
                     ) : (
                         <>
-                            <Link href={route('admin.dashboard')} className="flex items-center gap-2 group rounded-xl px-2 py-1 transition-colors hover:bg-emerald-50">
+                            <Link href={route('admin.dashboard')} className="flex items-center gap-2.5 group rounded-xl px-1 sm:px-2 py-1 transition-colors hover:bg-slate-50 min-w-0">
                                 {store_settings?.site_logo ? (
                                     <img 
                                         src={store_settings.site_logo} 
                                         alt={store_settings.site_name || 'ChutirMart'} 
-                                        className="h-9 max-w-[140px] w-auto object-contain" 
+                                        className="h-9 max-w-[135px] sm:max-w-[145px] w-auto object-contain" 
                                         onError={e => {
-                                            (e.target as HTMLImageElement).src = '/storage/defaults/default-logo.svg';
+                                             (e.target as HTMLImageElement).src = '/storage/defaults/default-logo.svg';
                                         }}
                                     />
                                 ) : (
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#009E49] via-[#00B853] to-[#0FD669] flex items-center justify-center text-white shadow-[0_4px_14px_rgba(0,158,73,0.3)] group-hover:scale-105 transition-transform">
-                                            <ShoppingBag className="w-4.5 h-4.5" />
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#009E49] via-[#00B853] to-[#0FD669] flex items-center justify-center text-white shadow-[0_4px_14px_rgba(0,158,73,0.3)] group-hover:scale-105 transition-transform shrink-0">
+                                            <ShoppingBag className="w-5 h-5" />
                                         </div>
-                                        <h2 className="text-[15px] font-black text-slate-800 tracking-tight leading-tight">
+                                        <h2 className="text-[15.5px] font-black text-slate-800 tracking-tight leading-tight truncate">
                                             {store_settings?.site_name || 'ChutirMart'}
                                         </h2>
                                     </div>
                                 )}
                             </Link>
-                            <button
-                                onClick={toggleCollapse}
-                                className="w-8 h-8 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-                                title="Collapse Sidebar"
-                            >
-                                <ChevronsLeft className="w-4 h-4" />
-                            </button>
+                            <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                    onClick={toggleCollapse}
+                                    className="w-8 h-8 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                                    title="Collapse Sidebar"
+                                >
+                                    <ChevronsLeft className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => setIsSidebarOpen(false)}
+                                    className="md:hidden w-8 h-8 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                                    title="Close Sidebar"
+                                >
+                                    <X className="w-4.5 h-4.5" />
+                                </button>
+                            </div>
                         </>
                     )}
                 </div>
 
-                {/* ── Nav Items ── */}
-                <div className={`flex-1 overflow-y-auto overflow-x-hidden ${isCollapsed ? 'px-2 py-3 space-y-4' : 'px-3.5 py-4 space-y-5'}`} style={{ scrollbarWidth: 'none' }}>
+                {/* ── Nav Items (Neat & Clean Buttons with Branding Color & Modern Hover) ── */}
+                <div className={`flex-1 overflow-y-auto overflow-x-hidden ${isCollapsed ? 'px-1.5 sm:px-2 py-3 sm:py-4 space-y-2.5 sm:space-y-3' : 'px-3 py-4 space-y-4'}`} style={{ scrollbarWidth: 'none' }}>
                     {navSections.map((section, sIdx) => (
                         <div key={sIdx}>
                             {!isCollapsed && section.group && (
-                                <p className="text-[10.5px] font-bold text-slate-400 uppercase tracking-wider px-3 mb-2">
+                                <p className="text-[10.5px] font-extrabold text-slate-400 uppercase tracking-wider px-3 mb-2">
                                     {section.group}
                                 </p>
                             )}
-                            <div className={isCollapsed ? 'flex flex-col items-center gap-2' : 'space-y-1'}>
+                            <div className={isCollapsed ? 'flex flex-col items-center gap-1.5 sm:gap-2' : 'space-y-1.5'}>
                                 {section.items.map((item, idx) => {
                                     const IconComponent = item.icon;
                                     const isActive = isUrlMatch(item.key);
@@ -380,42 +389,42 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                                 {item.submenu ? (
                                                     <button
                                                         onClick={() => handleParentClick(item)}
-                                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 cursor-pointer border-none ${
+                                                        className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center transition-all duration-200 cursor-pointer border border-transparent ${
                                                             isHighlighted
-                                                                ? 'bg-[#009E49] text-white shadow-xs'
-                                                                : 'text-slate-500 hover:text-[#009E49] hover:bg-emerald-50/80 bg-transparent'
+                                                                ? 'bg-[#009E49] text-white shadow-md shadow-[#009E49]/30'
+                                                                : 'bg-[#F4F5F7] text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/90 hover:border-emerald-200/60 hover:shadow-md hover:shadow-emerald-500/10'
                                                         }`}
                                                         title={item.label}
                                                     >
-                                                        <IconComponent className="w-4 h-4 stroke-[2]" />
+                                                        <IconComponent className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
                                                     </button>
                                                 ) : (
                                                     <Link
                                                         href={item.route!}
                                                         prefetch
-                                                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 ${
+                                                        className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg flex items-center justify-center transition-all duration-200 border border-transparent ${
                                                             isActive
-                                                                ? 'bg-[#009E49] text-white shadow-xs'
-                                                                : 'text-slate-500 hover:text-[#009E49] hover:bg-emerald-50/80'
+                                                                ? 'bg-[#009E49] text-white shadow-md shadow-[#009E49]/30'
+                                                                : 'bg-[#F4F5F7] text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/90 hover:border-emerald-200/60 hover:shadow-md hover:shadow-emerald-500/10'
                                                         }`}
                                                         title={item.label}
                                                     >
-                                                        <IconComponent className="w-4 h-4 stroke-[2]" />
+                                                        <IconComponent className="w-5 h-5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
                                                     </Link>
                                                 )}
 
                                                 {/* Flyout Submenu Popover on Hover (Collapsed Mode) */}
                                                 {item.submenu ? (
-                                                    <div className="absolute left-full top-0 ml-2 py-2 px-1.5 bg-white border border-slate-200/90 rounded-xl shadow-lg min-w-[185px] invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 text-left pointer-events-auto">
-                                                        <div className="px-2.5 pb-1.5 border-b border-slate-100 mb-1 flex items-center justify-between">
-                                                            <p className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">
+                                                    <div className="absolute left-full top-0 ml-3 py-2 px-2 bg-white border border-slate-200/90 rounded-lg shadow-xl min-w-[195px] invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 text-left pointer-events-auto">
+                                                        <div className="px-2.5 pb-2 border-b border-slate-100 mb-1.5 flex items-center justify-between">
+                                                            <p className="text-[12px] font-bold text-slate-800 uppercase tracking-wider">
                                                                 {item.label}
                                                             </p>
                                                             {isHighlighted && (
-                                                                <span className="w-1.5 h-1.5 rounded-full bg-[#009E49]" />
+                                                                <span className="w-2 h-2 rounded-full bg-[#009E49]" />
                                                             )}
                                                         </div>
-                                                        <div className="space-y-0.5">
+                                                        <div className="space-y-1">
                                                             {item.submenu.map((sub, subIdx) => {
                                                                 const isSubActive = isSubmenuActive(item.key, sub.key);
                                                                 return (
@@ -423,10 +432,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                                                         key={subIdx}
                                                                         href={sub.route}
                                                                         prefetch
-                                                                        className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[12px] font-medium transition-all duration-200 ${
+                                                                        className={`flex items-center gap-2.5 px-3 py-2 rounded-md text-[13px] font-medium transition-all duration-200 ${
                                                                             isSubActive
                                                                                 ? 'bg-[#009E49] text-white font-bold shadow-xs'
-                                                                                : 'text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/80'
+                                                                                : 'text-slate-600 hover:text-[#009E49] hover:bg-emerald-50'
                                                                         }`}
                                                                     >
                                                                         <span
@@ -442,7 +451,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                                     </div>
                                                 ) : (
                                                     /* Floating Tooltip (Collapsed Mode) */
-                                                    <div className="absolute left-full ml-2 px-2.5 py-1 bg-slate-900 text-white text-[11.5px] font-semibold rounded-md shadow-md whitespace-nowrap invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-150 z-50 pointer-events-none">
+                                                    <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-800 text-white text-[12px] font-semibold rounded-md shadow-lg whitespace-nowrap invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-150 z-50 pointer-events-none">
                                                         {item.label}
                                                     </div>
                                                 )}
@@ -450,23 +459,23 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                         );
                                     }
 
-                                    // ── Full Expanded Mode ──
+                                    // ── Full Expanded Mode (Modern Sharp Rounded-LG Buttons with Larger Icons & Text) ──
                                     if (item.submenu) {
                                         return (
-                                            <div key={idx} className="space-y-0.5">
+                                            <div key={idx} className="space-y-1">
                                                 <div
                                                     onClick={() => handleParentClick(item)}
-                                                    className={`group w-full flex items-center justify-between px-3 py-2 rounded-xl text-[13px] cursor-pointer select-none
-                                                        transition-all duration-200 ease-out border ${
+                                                    className={`group w-full flex items-center justify-between px-3.5 py-2.5 sm:py-3 rounded-lg text-[14.5px] sm:text-[15px] cursor-pointer select-none
+                                                        transition-all duration-200 ease-out border border-transparent ${
                                                         isHighlighted
-                                                            ? 'bg-emerald-50 text-[#009E49] font-bold border-emerald-200/80 shadow-2xs'
-                                                            : 'text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/50 hover:border-emerald-100/70 border-transparent hover:translate-x-0.5 font-medium'
+                                                            ? 'bg-[#009E49] text-white font-bold shadow-md shadow-[#009E49]/25'
+                                                            : 'bg-[#F4F5F7] text-slate-700 hover:text-[#009E49] hover:bg-emerald-50/90 hover:border-emerald-200/60 hover:shadow-md hover:shadow-emerald-500/10 hover:-translate-y-0.5 font-semibold'
                                                     }`}
                                                 >
-                                                    <div className="flex items-center gap-2.5">
+                                                    <div className="flex items-center gap-3">
                                                         <IconComponent
-                                                            className={`w-4 h-4 shrink-0 transition-colors duration-200 ${
-                                                                isHighlighted ? 'text-[#009E49]' : 'text-slate-400 group-hover:text-[#009E49]'
+                                                            className={`w-5 h-5 shrink-0 stroke-[2.2] transition-colors duration-200 ${
+                                                                isHighlighted ? 'text-white' : 'text-slate-500 group-hover:text-[#009E49]'
                                                             }`}
                                                         />
                                                         <span className="tracking-tight">{item.label}</span>
@@ -479,13 +488,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                                         }}
                                                         className={`p-1 rounded-md transition-colors duration-200 cursor-pointer border-none bg-transparent ${
                                                             isHighlighted
-                                                                ? 'text-[#009E49] hover:bg-emerald-100/60'
-                                                                : 'text-slate-400 hover:bg-slate-200/60 group-hover:text-[#009E49]'
+                                                                ? 'text-white/90 hover:text-white hover:bg-white/15'
+                                                                : 'text-slate-400 group-hover:text-[#009E49] hover:bg-emerald-100/60'
                                                         }`}
                                                         title={isExpanded ? 'Collapse menu' : 'Expand menu'}
                                                     >
                                                         <ChevronRight
-                                                            className={`w-3.5 h-3.5 shrink-0 transition-transform duration-300 ease-out ${
+                                                            className={`w-4.5 h-4.5 shrink-0 transition-transform duration-300 ease-out ${
                                                                 isExpanded ? 'rotate-90' : 'rotate-0'
                                                             }`}
                                                         />
@@ -499,7 +508,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                                     }`}
                                                 >
                                                     <div className="overflow-hidden">
-                                                        <div className="ml-3.5 pl-3 border-l-2 border-emerald-100/90 space-y-1 py-1 my-0.5">
+                                                        <div className="ml-3 pl-3 border-l-2 border-emerald-100/90 space-y-1 py-1 my-0.5">
                                                             {item.submenu.map((sub, subIdx) => {
                                                                 const isSubActive = isSubmenuActive(item.key, sub.key);
                                                                 return (
@@ -507,18 +516,18 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                                                         key={subIdx}
                                                                         href={sub.route}
                                                                         prefetch
-                                                                        className={`group/sub flex items-center px-2.5 py-1.5 rounded-lg text-[12.5px] select-none
+                                                                        className={`group/sub flex items-center px-3 py-2 rounded-md text-[13.5px] select-none
                                                                             transition-all duration-200 ease-out ${
                                                                             isSubActive
-                                                                                ? 'bg-[#009E49] text-white font-bold shadow-xs translate-x-1'
-                                                                                : 'text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/80 hover:translate-x-1 font-medium'
+                                                                                ? 'bg-[#009E49] text-white font-bold shadow-xs'
+                                                                                : 'text-slate-600 hover:text-[#009E49] hover:bg-emerald-50 hover:shadow-2xs font-medium'
                                                                         }`}
                                                                     >
                                                                         <span
-                                                                            className={`w-1.5 h-1.5 rounded-full mr-2 shrink-0 transition-all duration-200 ${
+                                                                            className={`w-2 h-2 rounded-full mr-2.5 shrink-0 transition-all duration-200 ${
                                                                                 isSubActive
                                                                                     ? 'bg-white scale-110 shadow-xs'
-                                                                                    : 'bg-slate-300 group-hover/sub:bg-[#009E49] group-hover/sub:scale-110'
+                                                                                    : 'bg-slate-300 group-hover/sub:bg-[#009E49]'
                                                                             }`}
                                                                         />
                                                                         <span>{sub.label}</span>
@@ -538,16 +547,16 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                             key={idx}
                                             href={item.route!}
                                             prefetch
-                                            className={`group flex items-center gap-2.5 px-3 py-2 rounded-xl text-[13px] select-none
-                                                transition-all duration-200 ease-out border ${
+                                            className={`group flex items-center gap-3 px-3.5 py-2.5 sm:py-3 rounded-lg text-[14.5px] sm:text-[15px] select-none
+                                                transition-all duration-200 ease-out border border-transparent ${
                                                 isActive
-                                                    ? 'bg-[#009E49] text-white font-bold shadow-xs border-[#009E49]'
-                                                    : 'text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/60 hover:border-emerald-100/70 border-transparent hover:translate-x-0.5 font-medium'
+                                                    ? 'bg-[#009E49] text-white font-bold shadow-md shadow-[#009E49]/25'
+                                                    : 'bg-[#F4F5F7] text-slate-700 hover:text-[#009E49] hover:bg-emerald-50/90 hover:border-emerald-200/60 hover:shadow-md hover:shadow-emerald-500/10 hover:-translate-y-0.5 font-semibold'
                                             }`}
                                         >
                                             <IconComponent
-                                                className={`w-4 h-4 shrink-0 transition-colors duration-200 ${
-                                                    isActive ? 'text-white' : 'text-slate-400 group-hover:text-[#009E49]'
+                                                className={`w-5 h-5 shrink-0 stroke-[2.2] transition-colors duration-200 ${
+                                                    isActive ? 'text-white' : 'text-slate-500 group-hover:text-[#009E49]'
                                                 }`}
                                             />
                                             <span className="tracking-tight">{item.label}</span>
@@ -561,28 +570,28 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
                 {/* ── User Profile Footer & Visit Store Button ── */}
                 <div className={`border-t border-slate-100 bg-slate-50/50 shrink-0 transition-all duration-300 ${
-                    isCollapsed ? 'p-2.5 flex flex-col items-center gap-2.5' : 'p-3.5 space-y-2.5'
+                    isCollapsed ? 'p-2 sm:p-2.5 flex flex-col items-center gap-2 sm:gap-2.5' : 'p-3 space-y-2'
                 }`}>
                     {isCollapsed ? (
                         <>
                             <Link
                                 href={route('home')}
                                 target="_blank"
-                                className="w-10 h-10 rounded-2xl bg-emerald-50 hover:bg-[#009E49] hover:text-white text-[#009E49] flex items-center justify-center transition-all shadow-2xs relative group"
+                                className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg bg-emerald-50 hover:bg-[#009E49] hover:text-white text-[#009E49] flex items-center justify-center transition-all shadow-2xs relative group"
                                 title="Visit Live Storefront"
                             >
-                                <Globe className="w-5 h-5" />
-                                <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-900 text-white text-[12px] font-semibold rounded-xl shadow-lg whitespace-nowrap invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-150 z-50 pointer-events-none">
+                                <Globe className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+                                <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-800 text-white text-[12px] font-semibold rounded-md shadow-lg whitespace-nowrap invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-150 z-50 pointer-events-none">
                                     Visit Store
                                 </div>
                             </Link>
                             <button
                                 onClick={handleLogout}
-                                className="w-10 h-10 rounded-2xl hover:bg-red-50 text-slate-400 hover:text-red-500 flex items-center justify-center transition-all cursor-pointer relative group"
+                                className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-500 flex items-center justify-center transition-all cursor-pointer relative group"
                                 title="Logout"
                             >
-                                <LogOut className="w-5 h-5" />
-                                <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-900 text-white text-[12px] font-semibold rounded-xl shadow-lg whitespace-nowrap invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-150 z-50 pointer-events-none">
+                                <LogOut className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
+                                <div className="absolute left-full ml-3 px-3 py-1.5 bg-slate-800 text-white text-[12px] font-semibold rounded-md shadow-lg whitespace-nowrap invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-150 z-50 pointer-events-none">
                                     Logout
                                 </div>
                             </button>
@@ -592,11 +601,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                             <Link
                                 href={route('home')}
                                 target="_blank"
-                                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-emerald-50 text-[#009E49] hover:bg-[#009E49] hover:text-white font-bold text-[13px] transition-all border border-emerald-200/60 shadow-2xs group"
+                                className="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-lg bg-[#E8F8F0] text-[#009E49] hover:bg-[#009E49] hover:text-white font-bold text-[14px] transition-all border border-[#009E49]/25 shadow-2xs hover:shadow-md hover:shadow-[#009E49]/25 hover:-translate-y-0.5 group"
                             >
-                                <Globe className="w-4 h-4 text-[#009E49] group-hover:text-white transition-colors" />
+                                <Globe className="w-4.5 h-4.5 text-[#009E49] group-hover:text-white transition-colors" />
                                 <span>Visit Store</span>
-                                <ArrowUpRight className="w-3.5 h-3.5" />
+                                <ArrowUpRight className="w-4 h-4" />
                             </Link>
 
                             <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/60">
@@ -628,7 +637,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
              *  Main Content Area (Smooth padding transition matching sidebar)
              * ────────────────────────────────────────────────────────────── */}
             <div className={`flex-1 flex flex-col transition-[padding] duration-300 ease-in-out min-h-screen w-full max-w-full overflow-x-clip ${
-                isCollapsed ? 'md:pl-[76px]' : 'md:pl-[240px]'
+                isCollapsed ? 'md:pl-[80px]' : 'md:pl-[250px]'
             }`}>
                 
                 {/* ── Topbar (Fixed Sticky at Top of Screen on Scroll) ── */}
@@ -665,12 +674,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                             <Link
                                 href={route('home')}
                                 target="_blank"
-                                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-full border border-[#009E49]/30 bg-[#E1F7EE]/70 text-[#009E49] text-[12px] sm:text-[12.5px] font-bold hover:bg-[#009E49] hover:text-white transition-all shadow-2xs shrink-0"
+                                className="group inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-full border border-[#009E49]/30 bg-[#E1F7EE]/70 text-[#009E49] text-[12px] sm:text-[12.5px] font-bold hover:bg-[#009E49] hover:text-white transition-all shadow-2xs shrink-0"
                                 title="Visit Live Storefront"
                             >
-                                <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#009E49] shrink-0" />
+                                <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-current group-hover:text-white transition-colors" />
                                 <span className="hidden xs:inline sm:inline">Store</span>
-                                <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 hidden xs:inline" />
+                                <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 hidden xs:inline text-current group-hover:text-white transition-colors" />
                             </Link>
 
                             {/* Notification Bell */}
@@ -700,7 +709,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                 {isProfileDropdownOpen && (
                                     <>
                                         <div className="fixed inset-0 z-40" onClick={() => setIsProfileDropdownOpen(false)} />
-                                        <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95">
+                                        <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95">
                                             <div className="px-4 py-2.5 border-b border-slate-100">
                                                 <p className="text-[13.5px] font-bold text-slate-800">{auth?.user?.name || 'Administrator'}</p>
                                                 <p className="text-[11.5px] text-slate-400">{auth?.user?.email || 'admin@store.com'}</p>

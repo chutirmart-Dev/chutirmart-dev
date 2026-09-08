@@ -171,12 +171,12 @@ export const Create: React.FC<CreateProps> = ({ products }) => {
                     <div className="lg:col-span-2 space-y-6">
                         
                         {/* Customer Information Card */}
-                        <AdminCard className="p-6">
-                            <h3 className="text-sm font-black text-[#1A1A2E] mb-5 flex items-center gap-2">
+                        <AdminCard className="p-4 sm:p-6">
+                            <h3 className="text-sm font-black text-[#1A1A2E] mb-4 sm:mb-5 flex items-center gap-2">
                                 <span className="p-1 rounded-lg bg-[#E6F5EC] text-[#009E49]"><ShoppingCart className="w-4 h-4" /></span>
                                 Customer Details
                             </h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                                 <div>
                                     <FieldLabel required>Customer Name</FieldLabel>
                                     <AdminInput 
@@ -212,11 +212,11 @@ export const Create: React.FC<CreateProps> = ({ products }) => {
                         </AdminCard>
 
                         {/* Product Items Selection Card */}
-                        <AdminCard className="p-6">
-                            <h3 className="text-sm font-black text-[#1A1A2E] mb-5">Select Products</h3>
+                        <AdminCard className="p-4 sm:p-6">
+                            <h3 className="text-sm font-black text-[#1A1A2E] mb-4 sm:mb-5">Select Products</h3>
                             
-                            <div className="flex gap-2 mb-6">
-                                <div className="flex-1">
+                            <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 mb-5">
+                                <div className="flex-1 min-w-0">
                                     <AdminSelect 
                                         value={selectedProduct} 
                                         onChange={e => setSelectedProduct(e.target.value)}
@@ -232,15 +232,16 @@ export const Create: React.FC<CreateProps> = ({ products }) => {
                                 <button
                                     type="button"
                                     onClick={addProductToOrder}
-                                    className="px-4 py-2.5 rounded-xl bg-[#009E49] text-white hover:bg-[#007F3B] font-bold text-xs flex items-center gap-1.5 border-none transition-all cursor-pointer shrink-0"
+                                    className="w-full sm:w-auto h-12 px-6 rounded-lg bg-[#009E49] hover:bg-[#00873E] text-white font-bold text-[14px] flex items-center justify-center gap-2 border-none transition-all cursor-pointer shrink-0 shadow-xs hover:shadow-md active:scale-98"
                                 >
-                                    <Plus className="w-4 h-4" /> Add Product
+                                    <Plus className="w-4.5 h-4.5 stroke-[2.5]" />
+                                    <span>Add Product</span>
                                 </button>
                             </div>
 
                             {/* Added Items List Table */}
                             {orderItems.length === 0 ? (
-                                <div className="border border-dashed border-[#E6F5EC] rounded-2xl p-8 text-center text-gray-400 text-xs font-bold">
+                                <div className="border border-dashed border-[#E6F5EC] rounded-xl p-6 sm:p-8 text-center text-gray-400 text-xs font-bold">
                                     No products added to order list yet. Choose a product above to start.
                                 </div>
                             ) : (
@@ -297,7 +298,7 @@ export const Create: React.FC<CreateProps> = ({ products }) => {
 
                     {/* Right: Pricing Summary & Create */}
                     <div className="space-y-6">
-                        <AdminCard className="p-6">
+                        <AdminCard className="p-4 sm:p-6">
                             <h3 className="text-sm font-black text-[#1A1A2E] mb-5">Order Summary</h3>
                             
                             <div className="space-y-4">

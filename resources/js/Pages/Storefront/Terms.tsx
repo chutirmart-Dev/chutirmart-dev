@@ -15,12 +15,12 @@ export const Terms: React.FC<TermsProps> = ({ terms, privacy, returns }) => {
             <Head title="শর্তাবলী ও পলিসি" />
 
             <div className="container py-8 max-w-2xl">
-                <div className="bg-white border border-[#E3E0D8] rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+                <div className="bg-white border border-[#E3E0D8] rounded-lg p-6 md:p-8 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-6">
                     <Tabs defaultValue="terms" className="w-full">
-                        <TabsList className="grid grid-cols-3 bg-gray-100 p-1 rounded-xl">
-                            <TabsTrigger value="terms" className="rounded-lg text-xs md:text-sm font-bold">শর্তাবলী</TabsTrigger>
-                            <TabsTrigger value="privacy" className="rounded-lg text-xs md:text-sm font-bold">প্রাইভেসি</TabsTrigger>
-                            <TabsTrigger value="returns" className="rounded-lg text-xs md:text-sm font-bold">রিটার্ন</TabsTrigger>
+                        <TabsList className="grid grid-cols-3 bg-gray-100 p-1 rounded-md">
+                            <TabsTrigger value="terms" className="rounded-md text-xs md:text-sm font-bold">শর্তাবলী</TabsTrigger>
+                            <TabsTrigger value="privacy" className="rounded-md text-xs md:text-sm font-bold">প্রাইভেসি</TabsTrigger>
+                            <TabsTrigger value="returns" className="rounded-md text-xs md:text-sm font-bold">রিটার্ন</TabsTrigger>
                         </TabsList>
                         
                         <TabsContent value="terms" className="pt-6">

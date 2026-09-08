@@ -6,7 +6,7 @@ import {
     Eye, ShoppingBag, Plus, Search, Clock,
     AlertCircle, CheckCircle2, XCircle, Trash2, FileQuestion, ShoppingCart,
     Truck, Send, RefreshCw, Copy, ExternalLink, CheckSquare, Square,
-    ChevronDown, BarChart2, X, Loader2, TrendingUp, RotateCcw, Package, ShieldCheck,
+    ChevronDown, ChevronLeft, ChevronRight, BarChart2, X, Loader2, TrendingUp, RotateCcw, Package, ShieldCheck,
     Phone, MessageSquare, MapPin, ArrowRight
 } from 'lucide-react';
 
@@ -207,7 +207,7 @@ const CustomerSuccessModal: React.FC<{
             style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(3px)' }}
             onClick={e => { if (e.target === e.currentTarget) onClose(); }}
         >
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-[370px] overflow-hidden p-6 animate-in zoom-in-95 duration-200 border border-slate-100">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-[370px] overflow-hidden p-6 animate-in zoom-in-95 duration-200 border border-slate-100">
 
                 {/* Header */}
                 <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
@@ -253,7 +253,7 @@ const CustomerSuccessModal: React.FC<{
                     ) : (
                         <div className="space-y-0">
                             {/* Live Fraud Check Status Banner (Matching Steadfast Portal) */}
-                            <div className={`mb-3.5 p-2.5 rounded-2xl flex items-center gap-2 text-[12px] font-bold ${
+                            <div className={`mb-3.5 p-2.5 rounded-lg flex items-center gap-2 text-[12px] font-bold ${
                                 stats.has_fraud
                                     ? 'bg-red-50 border border-red-200 text-red-700'
                                     : 'bg-[#EAF8EE] border border-[#D2EED9] text-[#0F291E]'
@@ -304,7 +304,7 @@ const CustomerSuccessModal: React.FC<{
                             </div>
 
                             {/* Success Ratio Box */}
-                            <div className="mt-5 mb-5 p-4 rounded-2xl bg-[#EAF8EE] border border-[#D2EED9]">
+                            <div className="mt-5 mb-5 p-4 rounded-lg bg-[#EAF8EE] border border-[#D2EED9]">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[14px] font-bold text-[#0F291E]">Success Ratio</span>
                                     <span className="text-[18px] font-extrabold text-[#006837]">
@@ -371,6 +371,81 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
     const [rowCourierMap, setRowCourierMap] = useState<Record<number, string>>({});
     // Customer stats modal
     const [statsModal, setStatsModal] = useState<{ mobile: string; name: string; courier?: string } | null>(null);
+
+    // Mobile Status Tabs Carousel logic
+    const statusTabsRef = useRef<HTMLDivElement>(null);
+    const [canScrollTabsLeft, setCanScrollTabsLeft] = useState(false);
+    const [canScrollTabsRight, setCanScrollTabsRight] = useState(false);
+    const [isDraggingTabs, setIsDraggingTabs] = useState(false);
+    const [hasDraggedTabs, setHasDraggedTabs] = useState(false);
+    const tabsStartX = useRef(0);
+    const tabsStartScroll = useRef(0);
+
+    const checkTabsScroll = () => {
+        if (!statusTabsRef.current) return;
+        const { scrollLeft, scrollWidth, clientWidth } = statusTabsRef.current;
+        setCanScrollTabsLeft(scrollLeft > 5);
+        setCanScrollTabsRight(scrollLeft + clientWidth < scrollWidth - 5);
+    };
+
+    useEffect(() => {
+        checkTabsScroll();
+        const el = statusTabsRef.current;
+        if (!el) return;
+
+        el.addEventListener('scroll', checkTabsScroll, { passive: true });
+        window.addEventListener('resize', checkTabsScroll);
+
+        return () => {
+            el.removeEventListener('scroll', checkTabsScroll);
+            window.removeEventListener('resize', checkTabsScroll);
+        };
+    }, []);
+
+    // Auto-center active status tab on status change or initial render
+    useEffect(() => {
+        if (!statusTabsRef.current) return;
+        const activeBtn = statusTabsRef.current.querySelector<HTMLElement>(`[data-status-tab="${status}"]`);
+        if (activeBtn) {
+            const container = statusTabsRef.current;
+            const targetScroll = activeBtn.offsetLeft - (container.clientWidth / 2) + (activeBtn.offsetWidth / 2);
+            container.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
+        }
+        setTimeout(checkTabsScroll, 300);
+    }, [status]);
+
+    const handleTabsMouseDown = (e: React.MouseEvent) => {
+        if (!statusTabsRef.current) return;
+        setIsDraggingTabs(true);
+        setHasDraggedTabs(false);
+        tabsStartX.current = e.pageX - statusTabsRef.current.offsetLeft;
+        tabsStartScroll.current = statusTabsRef.current.scrollLeft;
+    };
+
+    const handleTabsMouseMove = (e: React.MouseEvent) => {
+        if (!isDraggingTabs || !statusTabsRef.current) return;
+        e.preventDefault();
+        const x = e.pageX - statusTabsRef.current.offsetLeft;
+        const walk = (x - tabsStartX.current) * 1.4;
+        if (Math.abs(walk) > 4) {
+            setHasDraggedTabs(true);
+        }
+        statusTabsRef.current.scrollLeft = tabsStartScroll.current - walk;
+    };
+
+    const handleTabsMouseUpOrLeave = () => {
+        setIsDraggingTabs(false);
+        setTimeout(() => setHasDraggedTabs(false), 50);
+    };
+
+    const scrollTabs = (direction: 'left' | 'right') => {
+        if (!statusTabsRef.current) return;
+        const distance = 200;
+        statusTabsRef.current.scrollBy({
+            left: direction === 'left' ? -distance : distance,
+            behavior: 'smooth',
+        });
+    };
 
     const getRowCourier = (orderId: number) => rowCourierMap[orderId] || 'steadfast';
     const setRowCourier = (orderId: number, val: string) =>
@@ -572,31 +647,74 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                     }
                 />
 
-                {/* ── Mobile Status Tabs (Native App Swipe Bar) ── */}
-                <div className="md:hidden flex items-center gap-2 overflow-x-auto pb-1 -mx-4 px-4 no-scrollbar scroll-smooth">
-                    {statusCards.map(card => {
-                        const Icon = card.icon;
-                        const isSelected = status === card.key;
-                        return (
-                            <Link
-                                key={card.key}
-                                href={route('admin.orders.index', { status: card.key })}
-                                className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer no-underline select-none ${
-                                    isSelected
-                                        ? 'bg-[#009E49] text-white shadow-xs ring-2 ring-[#009E49]/25'
-                                        : 'bg-white text-slate-700 border border-slate-200/90 hover:border-slate-300'
-                                }`}
-                            >
-                                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : card.iconColor}`} />
-                                <span>{card.label}</span>
-                                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-black ${
-                                    isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
-                                }`}>
-                                    {card.count}
-                                </span>
-                            </Link>
-                        );
-                    })}
+                {/* ── Mobile Status Carousel (Touch Swipe + Drag + Arrow Controls) ── */}
+                <div className="md:hidden relative group select-none">
+                    {/* Left Carousel Arrow */}
+                    {canScrollTabsLeft && (
+                        <button
+                            type="button"
+                            onClick={() => scrollTabs('left')}
+                            aria-label="Scroll left"
+                            className="absolute -left-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 flex items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-md border border-slate-200/90 hover:bg-[#009E49] hover:text-white transition-all active:scale-90 cursor-pointer"
+                        >
+                            <ChevronLeft className="w-4 h-4" />
+                        </button>
+                    )}
+
+                    {/* Scrollable Track */}
+                    <div
+                        ref={statusTabsRef}
+                        onMouseDown={handleTabsMouseDown}
+                        onMouseMove={handleTabsMouseMove}
+                        onMouseUp={handleTabsMouseUpOrLeave}
+                        onMouseLeave={handleTabsMouseUpOrLeave}
+                        className={`flex items-center gap-2 overflow-x-auto pb-1.5 -mx-4 px-4 no-scrollbar scroll-smooth ${
+                            isDraggingTabs ? 'cursor-grabbing' : 'cursor-grab'
+                        }`}
+                        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+                    >
+                        {statusCards.map(card => {
+                            const Icon = card.icon;
+                            const isSelected = status === card.key;
+                            return (
+                                <Link
+                                    key={card.key}
+                                    data-status-tab={card.key}
+                                    href={route('admin.orders.index', { status: card.key })}
+                                    onClick={(e) => {
+                                        if (hasDraggedTabs) {
+                                            e.preventDefault();
+                                        }
+                                    }}
+                                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold shrink-0 transition-all no-underline select-none active:scale-95 ${
+                                        isSelected
+                                            ? 'bg-[#009E49] text-white shadow-xs ring-2 ring-[#009E49]/25'
+                                            : 'bg-white text-slate-700 border border-slate-200/90 hover:border-slate-300 hover:bg-slate-50'
+                                    }`}
+                                >
+                                    <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : card.iconColor}`} />
+                                    <span>{card.label}</span>
+                                    <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-black ${
+                                        isSelected ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                                    }`}>
+                                        {card.count}
+                                    </span>
+                                </Link>
+                            );
+                        })}
+                    </div>
+
+                    {/* Right Carousel Arrow */}
+                    {canScrollTabsRight && (
+                        <button
+                            type="button"
+                            onClick={() => scrollTabs('right')}
+                            aria-label="Scroll right"
+                            className="absolute -right-2 top-1/2 -translate-y-1/2 z-20 w-7 h-7 flex items-center justify-center rounded-full bg-white/95 text-slate-700 shadow-md border border-slate-200/90 hover:bg-[#009E49] hover:text-white transition-all active:scale-90 cursor-pointer"
+                        >
+                            <ChevronRight className="w-4 h-4" />
+                        </button>
+                    )}
                 </div>
 
                 {/* ── Desktop Status Grid ── */}
@@ -622,7 +740,7 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                                         {card.count}
                                     </div>
                                 </div>
-                                <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl ${card.iconBg} ${card.iconColor} flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform ml-2`}>
+                                <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-lg ${card.iconBg} ${card.iconColor} flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform ml-2`}>
                                     <Icon className="w-5 h-5" />
                                 </div>
                             </Link>
@@ -642,7 +760,7 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                                 placeholder="অর্ডার নম্বর, কাস্টমারের নাম, মোবাইল বা ট্র্যাকিং কোড দিয়ে খুঁজুন..."
                                 value={searchQuery}
                                 onChange={e => handleSearchChange(e.target.value)}
-                                className="w-full h-10 pl-10 pr-20 rounded-xl border border-slate-200 bg-white text-[13px] sm:text-[13.5px] text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all shadow-2xs"
+                                className="w-full h-10 pl-10 pr-20 rounded-lg border border-slate-200 bg-white text-[13px] sm:text-[13.5px] text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all shadow-2xs"
                             />
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                                 {isSearching && (
@@ -664,7 +782,7 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
 
                     {/* Bulk Courier Dispatch Action Bar */}
                     {selectedOrders.length > 0 && (
-                        <div className="flex flex-wrap items-center justify-between gap-2 bg-emerald-50 border border-emerald-300 p-2 sm:p-1.5 sm:px-3 rounded-xl animate-in fade-in duration-150">
+                        <div className="flex flex-wrap items-center justify-between gap-2 bg-emerald-50 border border-emerald-300 p-2 sm:p-1.5 sm:px-3 rounded-lg animate-in fade-in duration-150">
                             <div className="flex items-center gap-2">
                                 <span className="text-xs font-black text-emerald-900 bg-emerald-200/70 px-2 py-0.5 rounded-md">
                                     {selectedOrders.length} Selected
@@ -713,7 +831,7 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                                 <h3 className="text-[14px] sm:text-[15px] font-black text-slate-800">Order List</h3>
                             </button>
                         </div>
-                        <span className="text-[11.5px] sm:text-[12px] text-slate-500 bg-slate-100 px-3 py-1 rounded-full font-bold">
+                        <span className="text-[11.5px] sm:text-[12px] text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md font-bold">
                             {orders.total} orders
                         </span>
                     </div>
@@ -738,7 +856,7 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                                     return (
                                         <div
                                             key={order.id}
-                                            className={`bg-white rounded-2xl border transition-all p-3.5 sm:p-4 shadow-2xs ${
+                                            className={`bg-white rounded-xl border transition-all p-3.5 sm:p-4 shadow-2xs ${
                                                 isSelected ? 'border-[#009E49] ring-2 ring-[#009E49]/20 bg-emerald-50/10' : 'border-slate-200/80'
                                             }`}
                                         >
@@ -822,7 +940,7 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                                             </div>
 
                                             {/* Price & Payment Summary */}
-                                            <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 my-2">
+                                            <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-100 my-2">
                                                 <div>
                                                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Price</span>
                                                     <div className="text-[16px] font-black text-slate-800">৳{order.total}</div>
@@ -838,7 +956,7 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                                             </div>
 
                                             {/* Courier Shipping & Dispatch Section */}
-                                            <div className="p-2.5 rounded-xl bg-slate-50/80 border border-slate-200/80 space-y-2">
+                                            <div className="p-2.5 rounded-lg bg-slate-50/80 border border-slate-200/80 space-y-2">
                                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Courier & Shipping</div>
                                                 {hasCourier ? (
                                                     <div className="space-y-1.5">

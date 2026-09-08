@@ -30,10 +30,16 @@ return new class extends Migration
         });
 
         // Make slug unique after backfill (only if not already unique)
-        $indexes = collect(DB::select("SHOW INDEX FROM `attributes` WHERE Key_name != 'PRIMARY'"))
-            ->pluck('Key_name')->toArray();
+        $hasUnique = false;
+        if (DB::connection()->getDriverName() === 'mysql') {
+            $indexes = collect(DB::select("SHOW INDEX FROM `attributes` WHERE Key_name != 'PRIMARY'"))
+                ->pluck('Key_name')->toArray();
+            $hasUnique = in_array('attributes_slug_unique', $indexes);
+        } elseif (method_exists(Schema::class, 'hasIndex')) {
+            $hasUnique = Schema::hasIndex('attributes', 'attributes_slug_unique');
+        }
 
-        if (! in_array('attributes_slug_unique', $indexes)) {
+        if (! $hasUnique) {
             Schema::table('attributes', function (Blueprint $table) {
                 $table->string('slug')->nullable(false)->unique()->change();
             });

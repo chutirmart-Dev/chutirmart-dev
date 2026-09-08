@@ -473,7 +473,7 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
             {/* Live Suggestion Dropdown */}
             {isOpen && (
                 <div 
-                    className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-[0_16px_50px_rgba(0,0,0,0.15)] border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+                    className="absolute left-0 right-0 top-full mt-2 bg-white rounded-lg shadow-[0_12px_40px_-5px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.04)] border border-gray-200/90 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150"
                     style={{ minWidth: mobileMode ? '100%' : '400px' }}
                 >
                     <div className="max-h-[75vh] md:max-h-[480px] overflow-y-auto divide-y divide-gray-50 scrollbar-thin">

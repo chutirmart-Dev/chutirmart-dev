@@ -83,11 +83,11 @@ class AdminProductController extends Controller
             'is_best_selling' => 'nullable|boolean',
             'is_new_arrival' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
-            'main_image' => 'nullable|string',
+            'main_image' => 'nullable',
             'gallery_images' => 'nullable|array',
-            'gallery_images.*' => 'string',
+            'gallery_images.*' => 'nullable',
             'images' => 'nullable|array',
-            'images.*' => 'string',
+            'images.*' => 'nullable',
             'youtube_url' => 'nullable|url',
             'selected_attribute_options' => 'nullable|array', // [{attribute_id, option_ids:[]}]
         ]);
@@ -138,13 +138,17 @@ class AdminProductController extends Controller
 
             // 1. Save Main Image
             if ($request->filled('main_image')) {
-                $path = MediaService::storeImage($request->main_image, 'products', 1200);
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image_path' => $path,
-                    'sort_order' => $sortOrder++,
-                    'is_main' => true,
-                ]);
+                try {
+                    $path = MediaService::storeImage($request->main_image, 'products', 1200);
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image_path' => $path,
+                        'sort_order' => $sortOrder++,
+                        'is_main' => true,
+                    ]);
+                } catch (\Throwable $e) {
+                    \Log::warning('Main image save error: '.$e->getMessage());
+                }
             }
 
             // 2. Save Gallery Images
@@ -153,13 +157,17 @@ class AdminProductController extends Controller
                     if (empty($imgData)) {
                         continue;
                     }
-                    $path = MediaService::storeImage($imgData, 'products', 1200);
-                    ProductImage::create([
-                        'product_id' => $product->id,
-                        'image_path' => $path,
-                        'sort_order' => $sortOrder++,
-                        'is_main' => ! $request->filled('main_image') && $sortOrder === 1,
-                    ]);
+                    try {
+                        $path = MediaService::storeImage($imgData, 'products', 1200);
+                        ProductImage::create([
+                            'product_id' => $product->id,
+                            'image_path' => $path,
+                            'sort_order' => $sortOrder++,
+                            'is_main' => ! $request->filled('main_image') && $sortOrder === 1,
+                        ]);
+                    } catch (\Throwable $e) {
+                        \Log::warning('Gallery image save error: '.$e->getMessage());
+                    }
                 }
             }
 
@@ -236,9 +244,9 @@ class AdminProductController extends Controller
             'is_featured' => 'nullable|boolean',
             'youtube_url' => 'nullable|url',
             'main_image_id' => 'nullable|integer',
-            'new_main_image' => 'nullable|string',
+            'new_main_image' => 'nullable',
             'new_gallery_images' => 'nullable|array',
-            'new_gallery_images.*' => 'string',
+            'new_gallery_images.*' => 'nullable',
             'deleted_image_ids' => 'nullable|array',
             'deleted_image_ids.*' => 'integer',
             'selected_attribute_options' => 'nullable|array',
@@ -296,13 +304,17 @@ class AdminProductController extends Controller
                 // Clear existing main flags
                 $product->images()->update(['is_main' => false]);
 
-                $path = MediaService::storeImage($request->new_main_image, 'products', 1200);
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'image_path' => $path,
-                    'sort_order' => 0,
-                    'is_main' => true,
-                ]);
+                try {
+                    $path = MediaService::storeImage($request->new_main_image, 'products', 1200);
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'image_path' => $path,
+                        'sort_order' => 0,
+                        'is_main' => true,
+                    ]);
+                } catch (\Throwable $e) {
+                    \Log::warning('New main image save error: '.$e->getMessage());
+                }
             } elseif ($request->filled('main_image_id')) {
                 $product->images()->update(['is_main' => false]);
                 ProductImage::where('id', $request->main_image_id)
@@ -317,13 +329,17 @@ class AdminProductController extends Controller
                     if (empty($imgData)) {
                         continue;
                     }
-                    $path = MediaService::storeImage($imgData, 'products', 1200);
-                    ProductImage::create([
-                        'product_id' => $product->id,
-                        'image_path' => $path,
-                        'sort_order' => $currentMaxSort + $index + 1,
-                        'is_main' => false,
-                    ]);
+                    try {
+                        $path = MediaService::storeImage($imgData, 'products', 1200);
+                        ProductImage::create([
+                            'product_id' => $product->id,
+                            'image_path' => $path,
+                            'sort_order' => $currentMaxSort + $index + 1,
+                            'is_main' => false,
+                        ]);
+                    } catch (\Throwable $e) {
+                        \Log::warning('New gallery image save error: '.$e->getMessage());
+                    }
                 }
             }
 

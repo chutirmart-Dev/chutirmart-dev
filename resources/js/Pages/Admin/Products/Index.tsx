@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/layouts/AdminLayout';
-import { AdminCard, AdminPagination, PageHeader } from '@/components/admin/ui';
+import { AdminCard, AdminPagination, PageHeader, AdminSelect } from '@/components/admin/ui';
 import {
     Edit,
     Trash2,
@@ -133,9 +133,9 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                     subtitle={`${products.total} টি পণ্য আপনার স্টোরে আছে`}
                     action={
                         <Link href={route('admin.products.create')}>
-                            <button className="h-9 sm:h-10 px-3.5 sm:px-4 rounded-lg bg-[#009E49] hover:bg-[#007F3B] text-white text-xs sm:text-[13px] font-semibold flex items-center gap-1.5 transition-all shadow-xs border-none cursor-pointer">
-                                <Plus className="w-4 h-4" />
-                                <span>+ Add New Product</span>
+                            <button className="h-11 sm:h-12 px-5 rounded-lg bg-[#009E49] hover:bg-[#007F3B] text-white text-[13.5px] sm:text-[14px] font-bold flex items-center justify-center gap-2 transition-all shadow-xs hover:shadow-md border-none cursor-pointer active:scale-98">
+                                <Plus className="w-4.5 h-4.5 stroke-[2.5]" />
+                                <span>Add New Product</span>
                             </button>
                         </Link>
                     }
@@ -173,34 +173,36 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                         </form>
 
                         {/* Featured Showcase Filter */}
-                        <select
-                            value={featuredFilter}
-                            onChange={e => {
-                                setFeaturedFilter(e.target.value);
-                                applyFilters({ featured: e.target.value === 'all' ? '' : e.target.value });
-                            }}
-                            className="h-10 px-3 rounded-lg border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all cursor-pointer min-w-[190px]"
-                        >
-                            <option value="all">হোমপেজ সেকশন: All</option>
-                            <option value="best_selling">🔥 সর্বাধিক বিক্রিত পণ্য</option>
-                            <option value="new_arrival">✨ নতুন পণ্য সমূহ</option>
-                            <option value="just_for_you">⚡ Just For You</option>
-                        </select>
+                        <div className="w-full sm:w-[210px] min-w-0">
+                            <AdminSelect
+                                value={featuredFilter}
+                                onChange={e => {
+                                    setFeaturedFilter(e.target.value);
+                                    applyFilters({ featured: e.target.value === 'all' ? '' : e.target.value });
+                                }}
+                            >
+                                <option value="all">হোমপেজ সেকশন: All</option>
+                                <option value="best_selling">🔥 সর্বাধিক বিক্রিত পণ্য</option>
+                                <option value="new_arrival">✨ নতুন পণ্য সমূহ</option>
+                                <option value="just_for_you">⚡ Just For You</option>
+                            </AdminSelect>
+                        </div>
 
                         {/* Status Filter */}
-                        <select
-                            value={statusFilter}
-                            onChange={e => {
-                                setStatusFilter(e.target.value);
-                                applyFilters({ status: e.target.value === 'all' ? '' : e.target.value });
-                            }}
-                            className="h-10 px-3 rounded-lg border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all cursor-pointer min-w-[140px]"
-                        >
-                            <option value="all">All Statuses</option>
-                            <option value="active">Active</option>
-                            <option value="draft">Draft</option>
-                            <option value="archived">Archived</option>
-                        </select>
+                        <div className="w-full sm:w-[155px] min-w-0">
+                            <AdminSelect
+                                value={statusFilter}
+                                onChange={e => {
+                                    setStatusFilter(e.target.value);
+                                    applyFilters({ status: e.target.value === 'all' ? '' : e.target.value });
+                                }}
+                            >
+                                <option value="all">All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="draft">Draft</option>
+                                <option value="archived">Archived</option>
+                            </AdminSelect>
+                        </div>
                     </div>
                 </AdminCard>
 
@@ -208,7 +210,7 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                 <AdminCard className="overflow-hidden">
                     <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white">
                         <h3 className="text-[15px] font-black text-slate-800">All Products</h3>
-                        <span className="text-[12px] text-slate-500 bg-slate-100 px-3 py-1 rounded-full font-bold">
+                        <span className="text-[11.5px] text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md font-bold">
                             {products.total} products
                         </span>
                     </div>
@@ -224,9 +226,9 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                             {/* ── Mobile View: Product Cards (md:hidden) ── */}
                             <div className="block md:hidden divide-y divide-slate-100 bg-slate-50/50 p-3 space-y-3">
                                 {products.data.map(product => (
-                                    <div key={product.id} className="bg-white rounded-2xl border border-slate-200/80 p-3.5 shadow-2xs space-y-3">
+                                    <div key={product.id} className="bg-white rounded-xl border border-slate-200/80 p-3.5 shadow-2xs space-y-3">
                                         <div className="flex items-start gap-3">
-                                            <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-slate-200 bg-white flex items-center justify-center shadow-2xs">
+                                            <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-white flex items-center justify-center shadow-2xs">
                                                 <img
                                                     src={product.images?.[0]?.image_path || '/storage/defaults/default-product.svg'}
                                                     onError={e => {
@@ -256,7 +258,7 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                         </div>
 
                                         {/* Price & Stock Row */}
-                                        <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                        <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
                                             <div>
                                                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Price</span>
                                                 <div className="text-[15px] font-black text-slate-800">৳{product.price}</div>
@@ -315,25 +317,25 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                         </div>
 
                                         {/* Actions Footer */}
-                                        <div className="pt-2 border-t border-slate-100 flex items-center justify-end gap-2">
-                                            <Link href={route('product.show', { slug: product.slug })} target="_blank">
-                                                <button className="h-8 px-2.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-[#009E49] text-xs font-semibold flex items-center gap-1 border-none cursor-pointer">
-                                                    <Eye className="w-3.5 h-3.5" />
+                                        <div className="pt-2.5 border-t border-slate-100 grid grid-cols-5 gap-2">
+                                            <Link href={route('product.show', { slug: product.slug })} target="_blank" className="col-span-2">
+                                                <button className="w-full h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[13px] font-bold flex items-center justify-center gap-1.5 border-none cursor-pointer transition-colors active:scale-98">
+                                                    <Eye className="w-4 h-4 stroke-[2.2]" />
                                                     <span>View</span>
                                                 </button>
                                             </Link>
-                                            <Link href={route('admin.products.edit', { id: product.id })}>
-                                                <button className="h-8 px-3 rounded-lg bg-emerald-50 text-[#009E49] hover:bg-[#009E49] hover:text-white text-xs font-bold flex items-center gap-1 border-none cursor-pointer transition-colors">
-                                                    <Edit className="w-3.5 h-3.5" />
+                                            <Link href={route('admin.products.edit', { id: product.id })} className="col-span-2">
+                                                <button className="w-full h-10 rounded-lg bg-[#009E49] hover:bg-[#00873E] text-white text-[13px] font-bold flex items-center justify-center gap-1.5 border-none cursor-pointer transition-colors shadow-xs hover:shadow-sm active:scale-98">
+                                                    <Edit className="w-4 h-4 stroke-[2.2]" />
                                                     <span>Edit</span>
                                                 </button>
                                             </Link>
                                             <button
                                                 onClick={() => handleDelete(product.id)}
-                                                className="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center border-none cursor-pointer transition-colors"
-                                                title="Delete"
+                                                className="col-span-1 h-10 rounded-lg bg-rose-50 hover:bg-rose-500 text-rose-600 hover:text-white flex items-center justify-center border border-rose-200/60 hover:border-rose-500 cursor-pointer transition-all active:scale-98"
+                                                title="Delete Product"
                                             >
-                                                <Trash2 className="w-3.5 h-3.5" />
+                                                <Trash2 className="w-4 h-4 stroke-[2.2]" />
                                             </button>
                                         </div>
                                     </div>
@@ -453,18 +455,18 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                                 <td className="px-6 py-3.5 text-right">
                                                     <div className="flex items-center justify-end gap-1.5">
                                                         <Link href={route('product.show', { slug: product.slug })} target="_blank">
-                                                            <button className="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-[#009E49] transition-all flex items-center justify-center border-none cursor-pointer" title="View Storefront">
-                                                                <Eye className="w-3.5 h-3.5" />
+                                                            <button className="w-9 h-9 rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-[#009E49] transition-all flex items-center justify-center border-none cursor-pointer active:scale-95" title="View Storefront">
+                                                                <Eye className="w-4 h-4" />
                                                             </button>
                                                         </Link>
                                                         <Link href={route('admin.products.edit', { id: product.id })}>
-                                                            <button className="w-8 h-8 rounded-lg bg-emerald-50 text-[#009E49] hover:bg-[#009E49] hover:text-white transition-all flex items-center justify-center border-none cursor-pointer" title="Edit Product">
-                                                                <Edit className="w-3.5 h-3.5" />
+                                                            <button className="w-9 h-9 rounded-lg bg-emerald-50 text-[#009E49] hover:bg-[#009E49] hover:text-white transition-all flex items-center justify-center border-none cursor-pointer active:scale-95" title="Edit Product">
+                                                                <Edit className="w-4 h-4" />
                                                             </button>
                                                         </Link>
                                                         <button
                                                             onClick={() => handleDelete(product.id)}
-                                                            className="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center border-none cursor-pointer"
+                                                            className="w-9 h-9 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center border-none cursor-pointer active:scale-95"
                                                             title="Delete"
                                                         >
                                                             <Trash2 className="w-3.5 h-3.5" />

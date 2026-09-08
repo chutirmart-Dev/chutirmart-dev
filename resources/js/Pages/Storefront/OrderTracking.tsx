@@ -37,40 +37,40 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ order }) => {
             <Head title="অর্ডার ট্র্যাকিং - ChutirMart" />
 
             <div className="container py-8 max-w-xl">
-                <div className="bg-white border border-[#E3E0D8] rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+                <div className="bg-white border border-[#E3E0D8] rounded-lg p-6 md:p-8 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-6">
                     <div className="text-center">
-                        <div className="w-14 h-14 rounded-2xl bg-emerald-50 text-[#009E49] flex items-center justify-center mx-auto mb-3">
+                        <div className="w-14 h-14 rounded-lg bg-emerald-50 text-[#009E49] flex items-center justify-center mx-auto mb-3">
                             <Truck className="w-7 h-7" />
                         </div>
-                        <h1 className="text-lg md:text-xl font-black text-gray-900">অর্ডার ট্র্যাকিং</h1>
-                        <p className="text-xs text-gray-400 font-mono mt-1">অর্ডার নং: #{order.order_number}</p>
+                        <h1 className="text-xl md:text-2xl font-black text-gray-900">অর্ডার ট্র্যাকিং</h1>
+                        <p className="text-sm text-gray-600 font-mono font-bold mt-1.5">অর্ডার নং: #{order.order_number}</p>
                     </div>
 
                     {/* Courier Live Tracking Card */}
                     {hasCourier && (
-                        <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 space-y-3">
+                        <div className="p-4 sm:p-5 rounded-lg bg-emerald-50/70 border border-emerald-200 space-y-3.5">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                                    <span className="text-xs font-black uppercase text-emerald-900">
+                                    <span className="text-sm font-black uppercase text-emerald-900">
                                         {order.courier_name || 'Courier'} ট্র্যাকিং
                                     </span>
                                 </div>
-                                <span className="text-[11px] font-bold text-emerald-800 bg-white px-2 py-0.5 rounded-md border border-emerald-200">
+                                <span className="text-xs sm:text-sm font-bold text-emerald-800 bg-white px-2.5 py-1 rounded-md border border-emerald-200">
                                     {order.courier_status || 'ইন ট্রানজিট'}
                                 </span>
                             </div>
 
-                            <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-emerald-100">
+                            <div className="flex items-center justify-between bg-white p-3.5 rounded-md border border-emerald-100 gap-2">
                                 <div>
-                                    <span className="text-[10px] text-gray-400 font-bold block">ট্র্যাকিং / কনসাইনমেন্ট নম্বর:</span>
-                                    <span className="text-sm font-mono font-black text-gray-800">{trackingCode}</span>
+                                    <span className="text-xs text-gray-500 font-bold block">ট্র্যাকিং / কনসাইনমেন্ট নম্বর:</span>
+                                    <span className="text-base font-mono font-black text-gray-900">{trackingCode}</span>
                                 </div>
-                                <div className="flex items-center gap-1.5">
+                                <div className="flex items-center gap-2 shrink-0">
                                     <button
                                         type="button"
                                         onClick={() => handleCopy(trackingCode)}
-                                        className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 border-none cursor-pointer"
+                                        className="p-2.5 rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 border-none cursor-pointer transition-colors"
                                         title="Copy Tracking Number"
                                     >
                                         <Copy className="w-4 h-4" />
@@ -80,10 +80,10 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ order }) => {
                                             href={order.tracking_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="px-3 py-2 rounded-lg bg-[#009E49] text-white text-xs font-bold flex items-center gap-1 shadow-2xs hover:bg-[#007F3B] transition-colors"
+                                            className="px-3.5 py-2.5 rounded-md bg-[#009E49] text-white text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-2xs hover:bg-[#007F3B] transition-colors"
                                         >
                                             <span>লাইভ ট্র্যাক</span>
-                                            <ExternalLink className="w-3.5 h-3.5" />
+                                            <ExternalLink className="w-4 h-4" />
                                         </a>
                                     )}
                                 </div>
@@ -93,7 +93,7 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ order }) => {
 
                     {/* Order Status Timeline */}
                     {order.status === 'cancelled' ? (
-                        <div className="bg-red-50 border border-red-200 text-red-700 text-sm font-semibold rounded-2xl p-4 text-center">
+                        <div className="bg-red-50 border border-red-200 text-red-700 text-base font-semibold rounded-lg p-4 text-center">
                             ❌ দুঃখিত, আপনার এই অর্ডারটি বাতিল করা হয়েছে। বিস্তারিত জানতে আমাদের কাস্টমার কেয়ারে যোগাযোগ করুন।
                         </div>
                     ) : (
@@ -108,9 +108,9 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ order }) => {
                                         <Circle className="w-7 h-7 text-gray-300" />
                                     )}
                                 </div>
-                                <div className="space-y-0.5">
-                                    <h4 className="text-sm font-bold text-gray-800">অর্ডার রিসিভ করা হয়েছে</h4>
-                                    <p className="text-xs text-gray-500">আমরা আপনার অর্ডারটি পেয়েছি এবং প্রক্রিয়া শুরু করেছি।</p>
+                                <div className="space-y-1">
+                                    <h4 className="text-base font-bold text-gray-900">অর্ডার রিসিভ করা হয়েছে</h4>
+                                    <p className="text-sm text-gray-600">আমরা আপনার অর্ডারটি পেয়েছি এবং প্রক্রিয়া শুরু করেছি।</p>
                                 </div>
                             </div>
 
@@ -126,9 +126,9 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ order }) => {
                                         <Circle className="w-7 h-7 text-gray-300" />
                                     )}
                                 </div>
-                                <div className="space-y-0.5">
-                                    <h4 className="text-sm font-bold text-gray-800">প্যাকেজিং ও কুরিয়ারে পাঠানো হয়েছে</h4>
-                                    <p className="text-xs text-gray-500">পণ্যটি প্যাকেজ করা হচ্ছে অথবা শিপিংয়ের জন্য প্রস্তুত করা হয়েছে।</p>
+                                <div className="space-y-1">
+                                    <h4 className="text-base font-bold text-gray-900">প্যাকেজিং ও কুরিয়ারে পাঠানো হয়েছে</h4>
+                                    <p className="text-sm text-gray-600">পণ্যটি প্যাকেজ করা হচ্ছে অথবা শিপিংয়ের জন্য প্রস্তুত করা হয়েছে।</p>
                                 </div>
                             </div>
 
@@ -141,24 +141,24 @@ export const OrderTracking: React.FC<OrderTrackingProps> = ({ order }) => {
                                         <Circle className="w-7 h-7 text-gray-300" />
                                     )}
                                 </div>
-                                <div className="space-y-0.5">
-                                    <h4 className="text-sm font-bold text-gray-800">ডেলিভারি সম্পন্ন</h4>
-                                    <p className="text-xs text-gray-500">কুরিয়ার প্রতিনিধি আপনার ঠিকানায় পণ্যটি পৌঁছে দিয়েছেন।</p>
+                                <div className="space-y-1">
+                                    <h4 className="text-base font-bold text-gray-900">ডেলিভারি সম্পন্ন</h4>
+                                    <p className="text-sm text-gray-600">কুরিয়ার প্রতিনিধি আপনার ঠিকানায় পণ্যটি পৌঁছে দিয়েছেন।</p>
                                 </div>
                             </div>
                         </div>
                     )}
 
                     {/* Summary Info */}
-                    <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100 space-y-2 text-xs md:text-sm text-gray-600 font-medium">
-                        <p><strong className="text-gray-800 font-bold">গ্রাহকের নাম:</strong> {order.customer_name}</p>
-                        <p><strong className="text-gray-800 font-bold">বর্তমান স্ট্যাটাস:</strong> <span className="text-[#009E49] font-bold">{getStatusLabel(order.status)}</span></p>
-                        <p><strong className="text-gray-800 font-bold">সর্বমোট মূল্য:</strong> ৳{order.total}</p>
+                    <div className="bg-gray-50 rounded-lg p-4 sm:p-5 border border-gray-100 space-y-2.5 text-sm sm:text-base text-gray-700 font-medium">
+                        <p><strong className="text-gray-900 font-bold">গ্রাহকের নাম:</strong> {order.customer_name}</p>
+                        <p><strong className="text-gray-900 font-bold">বর্তমান স্ট্যাটাস:</strong> <span className="text-[#009E49] font-bold">{getStatusLabel(order.status)}</span></p>
+                        <p><strong className="text-gray-900 font-bold">সর্বমোট মূল্য:</strong> ৳{order.total}</p>
                     </div>
 
                     <div className="pt-2">
                         <Link href={route('home')}>
-                            <Button className="w-full bg-[#009E49] hover:bg-[#007F3B] text-white font-bold h-12 rounded-xl border-none">
+                            <Button className="w-full bg-[#009E49] hover:bg-[#007F3B] text-white font-bold h-12 text-sm sm:text-base rounded-md border-none shadow-sm">
                                 কেনাকাটা চালিয়ে যান
                             </Button>
                         </Link>

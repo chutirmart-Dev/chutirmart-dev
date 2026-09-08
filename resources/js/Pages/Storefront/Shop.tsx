@@ -70,13 +70,13 @@ export const Shop: React.FC<ShopProps> = ({ products, categories, brands, filter
     const FilterContent = () => (
         <div className="space-y-6">
             <div>
-                <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide mb-3">ক্যাটাগরি</h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 uppercase tracking-wide mb-3 font-bangla">ক্যাটাগরি</h3>
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-2">
                     {categories.map(cat => (
                         <Link 
                             key={cat.id} 
                             href={route('shop', { ...safeFilters, category: cat.slug })}
-                            className={`block text-xs md:text-sm font-medium py-1 hover:text-primary transition-colors ${safeFilters.category === cat.slug ? 'text-primary font-bold' : 'text-gray-600'}`}
+                            className={`block text-sm sm:text-base font-medium py-1 hover:text-primary transition-colors font-bangla ${safeFilters.category === cat.slug ? 'text-primary font-bold' : 'text-gray-700'}`}
                         >
                             {cat.name} ({cat.products_count})
                         </Link>
@@ -85,13 +85,13 @@ export const Shop: React.FC<ShopProps> = ({ products, categories, brands, filter
             </div>
 
             <div className="border-t border-gray-200/80 pt-4">
-                <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide mb-3">ব্র্যান্ড</h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 uppercase tracking-wide mb-3 font-bangla">ব্র্যান্ড</h3>
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-2">
                     {brands.map(brand => (
                         <Link 
                             key={brand.id} 
                             href={route('shop', { ...safeFilters, brand: brand.slug })}
-                            className={`block text-xs md:text-sm font-medium py-1 hover:text-primary transition-colors ${safeFilters.brand === brand.slug ? 'text-primary font-bold' : 'text-gray-600'}`}
+                            className={`block text-sm sm:text-base font-medium py-1 hover:text-primary transition-colors font-bangla ${safeFilters.brand === brand.slug ? 'text-primary font-bold' : 'text-gray-700'}`}
                         >
                             {brand.name} ({brand.products_count})
                         </Link>
@@ -100,29 +100,29 @@ export const Shop: React.FC<ShopProps> = ({ products, categories, brands, filter
             </div>
 
             <div className="border-t border-gray-200/80 pt-4">
-                <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide mb-3">মূল্য পরিসীমা</h3>
-                <div className="flex gap-2 items-center">
+                <h3 className="text-sm sm:text-base font-bold text-gray-900 uppercase tracking-wide mb-3 font-bangla">মূল্য পরিসীমা</h3>
+                <div className="flex gap-2 items-center font-bangla">
                     <Input 
                         placeholder="সর্বনিম্ন" 
                         value={minPrice}
                         onChange={e => setMinPrice(e.target.value)}
                         type="number"
-                        className="h-9 text-xs"
+                        className="h-10 text-sm"
                     />
-                    <span className="text-gray-400 text-xs">থেকে</span>
+                    <span className="text-gray-500 text-sm">থেকে</span>
                     <Input 
                         placeholder="সর্বোচ্চ" 
                         value={maxPrice}
                         onChange={e => setMaxPrice(e.target.value)}
                         type="number"
-                        className="h-9 text-xs"
+                        className="h-10 text-sm"
                     />
                 </div>
-                <div className="flex gap-2 mt-3">
-                    <Button onClick={() => applyFilters()} size="sm" className="flex-1 bg-primary text-white h-8 text-xs font-semibold">
+                <div className="flex gap-2 mt-3 font-bangla">
+                    <Button onClick={() => applyFilters()} size="sm" className="flex-1 bg-primary text-white h-9 text-xs sm:text-sm font-bold">
                         ফিল্টার করুন
                     </Button>
-                    <Button onClick={clearFilters} size="sm" variant="outline" className="h-8 text-xs font-semibold border-gray-300">
+                    <Button onClick={clearFilters} size="sm" variant="outline" className="h-9 text-xs sm:text-sm font-bold border-gray-300 text-gray-700">
                         মুছে ফেলুন
                     </Button>
                 </div>
@@ -134,28 +134,36 @@ export const Shop: React.FC<ShopProps> = ({ products, categories, brands, filter
         <StorefrontLayout>
             <Head title="আমাদের পণ্য সমূহ" />
 
-            <div className="container py-6">
+            <div className="container py-4 sm:py-6">
                 {/* Breadcrumb & Sort controls */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 bg-white p-4 rounded-2xl border border-[#E3E0D8] shadow-sm">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6 bg-white p-3.5 sm:p-5 rounded-lg border border-[#E3E0D8] shadow-[0_2px_8px_rgba(0,0,0,0.04)] font-bangla">
                     <div>
-                        <span className="text-xs text-gray-400">হোম › শপ</span>
-                        <h1 className="text-base md:text-lg font-bold text-gray-800 mt-1">
+                        <span className="text-xs sm:text-sm text-gray-500">হোম › শপ</span>
+                        <h1 className="text-base sm:text-lg md:text-2xl font-black text-gray-900 mt-1">
                             {safeFilters.category ? `ক্যাটাগরি: ${safeFilters.category}` : 'আমাদের শপ'} ({products.total} টি পণ্য)
                         </h1>
                     </div>
 
-                    <div className="flex items-center gap-2 w-full sm:w-auto self-end">
+                    <div className="flex items-center gap-2.5 w-full sm:w-auto">
                         {/* Mobile Filter Trigger */}
                         <Sheet>
-                            <SheetTrigger className="md:hidden flex items-center gap-1 text-xs h-9 px-3 border border-gray-300 bg-white rounded-lg cursor-pointer">
-                                <Filter className="w-4 h-4" />
+                            <SheetTrigger className="md:hidden flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold h-10 px-4 border border-gray-200 bg-white hover:bg-gray-50 rounded-md cursor-pointer shadow-2xs shrink-0">
+                                <Filter className="w-4 h-4 text-[#009E49]" />
                                 ফিল্টার
+                                {(safeFilters.category || safeFilters.brand || safeFilters.min_price || safeFilters.max_price) && (
+                                    <span className="w-2 h-2 rounded-full bg-[#009E49]" />
+                                )}
                             </SheetTrigger>
-                            <SheetContent side="left" className="bg-white">
+                            <SheetContent side="left" className="bg-white p-5 overflow-y-auto">
                                 <SheetHeader>
-                                    <SheetTitle className="text-left">ফিল্টার প্রোডাক্ট</SheetTitle>
+                                    <SheetTitle className="text-left font-black text-lg flex items-center justify-between font-bangla">
+                                        <span>ফিল্টার প্রোডাক্ট</span>
+                                        {(safeFilters.category || safeFilters.brand || safeFilters.min_price || safeFilters.max_price) && (
+                                            <button onClick={clearFilters} className="text-xs text-red-500 font-bold">ক্লিয়ার</button>
+                                        )}
+                                    </SheetTitle>
                                 </SheetHeader>
-                                <div className="mt-6">
+                                <div className="mt-4">
                                     <FilterContent />
                                 </div>
                             </SheetContent>
@@ -163,30 +171,61 @@ export const Shop: React.FC<ShopProps> = ({ products, categories, brands, filter
 
                         {/* Sort Dropdown */}
                         <Select value={selectedSort} onValueChange={handleSortChange}>
-                            <SelectTrigger className="w-full sm:w-[180px] h-9 text-xs border-[#E3E0D8] focus:ring-primary rounded-lg bg-white">
+                            <SelectTrigger className="flex-1 sm:w-[200px] h-10 text-xs sm:text-sm border-gray-200 focus:ring-primary rounded-md bg-white shadow-2xs font-semibold">
                                 <SelectValue placeholder="সাজান" />
                             </SelectTrigger>
-                            <SelectContent className="bg-white">
-                                <SelectItem value="default" className="text-xs">ডিফল্ট</SelectItem>
-                                <SelectItem value="price_low_high" className="text-xs">মূল্য: কম থেকে বেশি</SelectItem>
-                                <SelectItem value="price_high_low" className="text-xs">মূল্য: বেশি থেকে কম</SelectItem>
-                                <SelectItem value="newest" className="text-xs">নতুন প্রোডাক্টস</SelectItem>
-                                <SelectItem value="best_selling" className="text-xs">সেরা বিক্রিত</SelectItem>
+                            <SelectContent className="bg-white rounded-md shadow-lg border-gray-100 font-bangla">
+                                <SelectItem value="default" className="text-xs sm:text-sm">ডিফল্ট</SelectItem>
+                                <SelectItem value="price_low_high" className="text-xs sm:text-sm">মূল্য: কম থেকে বেশি</SelectItem>
+                                <SelectItem value="price_high_low" className="text-xs sm:text-sm">মূল্য: বেশি থেকে কম</SelectItem>
+                                <SelectItem value="newest" className="text-xs sm:text-sm">নতুন প্রোডাক্টস</SelectItem>
+                                <SelectItem value="best_selling" className="text-xs sm:text-sm">সেরা বিক্রিত</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                 </div>
 
+                {/* Mobile Horizontal App Category Chips Bar */}
+                <div className="flex md:hidden items-center gap-1.5 overflow-x-auto no-scrollbar py-1 pb-3 mb-2 select-none font-bangla">
+                    <Link
+                        href={route('shop')}
+                        className={`shrink-0 px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-bold transition-all ${
+                            !safeFilters.category
+                                ? 'bg-[#009E49] text-white shadow-xs'
+                                : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300'
+                        }`}
+                    >
+                        সব পণ্য
+                    </Link>
+                    {categories.map(cat => {
+                        const isActive = safeFilters.category === cat.slug;
+                        return (
+                            <Link
+                                key={cat.id}
+                                href={route('shop', { ...safeFilters, category: cat.slug })}
+                                className={`shrink-0 px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
+                                    isActive
+                                        ? 'bg-[#009E49] text-white shadow-xs'
+                                        : 'bg-white border border-gray-200 text-gray-700 hover:border-gray-300'
+                                }`}
+                            >
+                                {cat.icon && <span className="text-sm">{cat.icon}</span>}
+                                <span>{cat.name}</span>
+                            </Link>
+                        );
+                    })}
+                </div>
+
                 {/* Main Shop Body */}
                 <div className="flex gap-6">
                     {/* Left Sidebar (Desktop) */}
-                    <aside className="w-[260px] shrink-0 hidden md:block bg-white border border-[#E3E0D8] p-5 rounded-2xl shadow-sm h-fit">
-                        <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
-                            <span className="font-bold text-gray-800 text-sm flex items-center gap-1">
+                    <aside className="w-[270px] shrink-0 hidden md:block bg-white border border-[#E3E0D8] p-5 rounded-lg shadow-[0_2px_10px_rgba(0,0,0,0.04)] h-fit">
+                        <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100 font-bangla">
+                            <span className="font-bold text-gray-900 text-base flex items-center gap-1.5">
                                 <SlidersHorizontal className="w-4 h-4 text-primary" /> ফিল্টার সমূহ
                             </span>
                             {(safeFilters.category || safeFilters.brand || safeFilters.min_price || safeFilters.max_price || safeFilters.q) && (
-                                <button onClick={clearFilters} className="text-xs text-red-500 hover:underline">ক্লিয়ার</button>
+                                <button onClick={clearFilters} className="text-xs text-red-500 hover:underline font-bold">ক্লিয়ার</button>
                             )}
                         </div>
                         <FilterContent />
@@ -195,17 +234,17 @@ export const Shop: React.FC<ShopProps> = ({ products, categories, brands, filter
                     {/* Products Grid Area */}
                     <div className="flex-grow space-y-8">
                         {products.data.length === 0 ? (
-                            <div className="bg-white border border-[#E3E0D8] rounded-2xl p-12 text-center shadow-sm">
+                            <div className="bg-white border border-[#E3E0D8] rounded-lg p-8 sm:p-12 text-center shadow-[0_2px_10px_rgba(0,0,0,0.04)]">
                                 <SlidersHorizontal className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                                <h3 className="text-base font-semibold text-gray-700">কোনো প্রোডাক্ট পাওয়া যায়নি!</h3>
-                                <p className="text-sm text-gray-500 mt-1 mb-4">অনুগ্রহ করে ফিল্টার পরিবর্তন বা পরিষ্কার করুন।</p>
-                                <Button onClick={clearFilters} className="bg-primary text-white hover:bg-primary/95 text-xs font-bold px-5">
+                                <h3 className="text-lg font-bold text-gray-800 font-bangla">কোনো প্রোডাক্ট পাওয়া যায়নি!</h3>
+                                <p className="text-sm sm:text-base text-gray-600 mt-1 mb-5 font-bangla">অনুগ্রহ করে ফিল্টার পরিবর্তন বা পরিষ্কার করুন।</p>
+                                <Button onClick={clearFilters} className="bg-primary text-white hover:bg-primary/95 text-sm font-bold px-6 h-11 rounded-md font-bangla">
                                     ফিল্টার পরিষ্কার করুন
                                 </Button>
                             </div>
                         ) : (
                             <>
-                                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-5">
+                                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 xs:gap-2.5 sm:gap-4 md:gap-5">
                                     {products.data.map(product => (
                                         <ProductCard key={product.id} product={product} />
                                     ))}
@@ -221,7 +260,7 @@ export const Shop: React.FC<ShopProps> = ({ products, categories, brands, filter
                                                 <Link 
                                                     key={idx}
                                                     href={link.url}
-                                                    className={`px-3 py-1.5 rounded-lg border text-xs font-semibold ${link.active ? 'bg-primary border-primary text-white' : 'border-[#E3E0D8] bg-white text-gray-700 hover:border-primary hover:text-primary transition-colors'}`}
+                                                    className={`px-3 py-1.5 rounded-md border text-xs font-semibold ${link.active ? 'bg-primary border-primary text-white' : 'border-[#E3E0D8] bg-white text-gray-700 hover:border-primary hover:text-primary transition-colors'}`}
                                                     dangerouslySetInnerHTML={{ __html: link.label }}
                                                 />
                                             );

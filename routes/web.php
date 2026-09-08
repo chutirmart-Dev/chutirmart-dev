@@ -200,3 +200,22 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| Live / Shared Hosting Storage Fallback Route
+| Serves files from storage/app/public if public/storage symlink is missing
+|--------------------------------------------------------------------------
+*/
+Route::get('storage/{path}', function (string $path) {
+    $cleanPath = str_replace(['..', '\\'], ['', '/'], $path);
+    $fullPath = storage_path('app/public/'.$cleanPath);
+
+    if (file_exists($fullPath) && is_file($fullPath)) {
+        return response()->file($fullPath, [
+            'Cache-Control' => 'public, max-age=31536000',
+        ]);
+    }
+
+    abort(404);
+})->where('path', '.*')->name('storage.fallback');

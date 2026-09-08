@@ -14,7 +14,10 @@ interface StorefrontLayoutProps {
 
 export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) => {
     const { cartCount, cartSubtotal, setIsCartOpen } = useCart();
-    const { store_settings } = usePage().props as any;
+    const { url, props } = usePage();
+    const store_settings = (props as any)?.store_settings;
+    const isCheckout = url.includes('/checkout') || (typeof window !== 'undefined' && window.location.pathname.includes('/checkout'));
+    const isProductPage = url.includes('/product/') || (typeof window !== 'undefined' && window.location.pathname.includes('/product/'));
     const [showScrollTop, setShowScrollTop] = useState(false);
     const [scrollProgress, setScrollProgress] = useState(0);
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -57,48 +60,50 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#F5F3EE] overflow-x-clip">
+        <div className="flex flex-col min-h-screen bg-[#F5F3EE] overflow-x-clip max-w-full w-full">
             {/* Header */}
             <Header />
 
             {/* Main Content Area */}
-            <main className="flex-grow pb-24 md:pb-0">
+            <main className="flex-grow pb-24 md:pb-0 w-full max-w-full min-w-0">
                 {children}
             </main>
 
             {/* Footer */}
             <Footer />
 
-            {/* Mobile Bottom Navigation */}
-            <MobileBottomNav />
+            {/* Mobile Bottom Navigation - Hidden on Checkout and Product Single */}
+            {!isCheckout && !isProductPage && <MobileBottomNav />}
 
             {/* Persistent Cart Sheet Drawer */}
             <CartSheet />
 
             {/* ── FLOATING WIDGETS ────────────────────────────────────── */}
 
-            {/* 1. Floating Cart Sidebar Button (Right Edge) - Active on Mobile & Desktop */}
-            <div 
-                onClick={() => setIsCartOpen(true)}
-                className="fixed right-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center bg-white shadow-[-4px_4px_20px_rgba(0,0,0,0.18)] rounded-l-md sm:rounded-l-lg border border-r-0 border-gray-200 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-4px] active:scale-95"
-                title="View Cart"
-            >
-                {/* Top: Red background with bag icon & count */}
-                <div className="w-14 sm:w-16 py-2.5 sm:py-3 bg-[#E2231A] text-white flex flex-col items-center justify-center gap-0.5 sm:gap-1">
-                    <ShoppingBag className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-                    <span className="text-[9px] sm:text-[10px] font-black tracking-wide leading-none">{cartCount} Items</span>
+            {/* 1. Floating Cart Sidebar Button (Right Edge) - Responsive on Mobile & Desktop, Hidden on Checkout */}
+            {!isCheckout && cartCount > 0 && (
+                <div 
+                    onClick={() => setIsCartOpen(true)}
+                    className="flex fixed right-0 top-1/2 -translate-y-1/2 z-40 flex-col items-center bg-white shadow-[-3px_4px_16px_rgba(0,0,0,0.16)] rounded-l sm:rounded-l-md border border-r-0 border-gray-200 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-3px] active:scale-95"
+                    title="View Cart"
+                >
+                    {/* Top: Red background with bag icon & count */}
+                    <div className="w-12 sm:w-16 py-2 sm:py-3 bg-[#E2231A] text-white flex flex-col items-center justify-center gap-0.5 sm:gap-1">
+                        <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <span className="text-[8.5px] sm:text-[10px] font-black tracking-wide leading-none">{cartCount} Items</span>
+                    </div>
+                    {/* Bottom: White background with subtotal */}
+                    <div className="w-12 sm:w-16 py-1 sm:py-2 flex items-center justify-center bg-white text-[#E2231A] text-[9.5px] sm:text-[11px] font-black">
+                        ৳{cartSubtotal}
+                    </div>
                 </div>
-                {/* Bottom: White background with subtotal */}
-                <div className="w-14 sm:w-16 py-1.5 sm:py-2 flex items-center justify-center bg-white text-[#E2231A] text-[10px] sm:text-[11px] font-black">
-                    ৳{cartSubtotal}
-                </div>
-            </div>
+            )}
 
             {/* 2. Scroll-To-Top Button with Circular Progress */}
             {showScrollTop && (
                 <div 
                     onClick={scrollToTop}
-                    className="fixed right-4 bottom-24 md:bottom-8 z-40 w-12 h-12 flex items-center justify-center cursor-pointer select-none active:scale-95 transition-transform duration-200"
+                    className={`fixed right-4 bottom-24 md:bottom-8 z-40 w-12 h-12 items-center justify-center cursor-pointer select-none active:scale-95 transition-transform duration-200 ${isCheckout || isProductPage ? 'hidden md:flex' : 'flex'}`}
                     title="Scroll to Top"
                 >
                     {/* SVG Progress Circle */}
@@ -135,7 +140,7 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
             )}
 
             {/* 3. Left-side Floating Contact Speed-Dial */}
-            <div className="fixed left-4 bottom-24 md:bottom-8 z-40 flex flex-col-reverse items-center gap-3">
+            <div className={`fixed left-4 bottom-24 md:bottom-8 z-40 items-center gap-3 ${isCheckout || isProductPage ? 'hidden md:flex md:flex-col-reverse' : 'flex flex-col-reverse'}`}>
 
                 {/* Expanded contact buttons — WhatsApp, Messenger, Phone */}
                 <div

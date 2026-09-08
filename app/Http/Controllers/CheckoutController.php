@@ -21,9 +21,11 @@ class CheckoutController extends Controller
     public function index()
     {
         $districts = District::orderBy('name')->get(['id', 'name', 'delivery_charge']);
+        $thanasByDistrict = Thana::orderBy('name')->get(['id', 'district_id', 'name'])->groupBy('district_id');
 
         return Inertia::render('Storefront/Checkout', [
             'districts' => $districts,
+            'thanasByDistrict' => $thanasByDistrict,
             'defaultInsideDhaka' => (float) StoreSetting::getValue('delivery_inside_dhaka', 80),
             'defaultOutsideDhaka' => (float) StoreSetting::getValue('delivery_outside_dhaka', 130),
         ]);

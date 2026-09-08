@@ -18,13 +18,35 @@ class MediaService
         ?int $maxWidth = 1600,
         int $quality = 85
     ): string {
-        $folder = trim($folder, '/');
+        // Boost memory limit during image manipulation if constrained
+        $currentMemory = ini_get('memory_limit');
+        if ($currentMemory && $currentMemory !== '-1') {
+            $val = (int) $currentMemory;
+            $unit = strtolower(substr(trim($currentMemory), -1));
+            $bytes = match ($unit) {
+                'g' => $val * 1024 * 1024 * 1024,
+                'm' => $val * 1024 * 1024,
+                'k' => $val * 1024,
+                default => $val,
+            };
+            if ($bytes < 256 * 1024 * 1024) {
+                @ini_set('memory_limit', '256M');
+            }
+        }
+
+        $folder = trim(str_replace('\\', '/', $folder), '/');
+        // Ensure destination folder physically exists on disk (crucial for Linux/cPanel)
+        $physicalFolder = storage_path('app/public/'.$folder);
+        if (! is_dir($physicalFolder)) {
+            @mkdir($physicalFolder, 0775, true);
+        }
+
         $rawBytes = null;
         $originalExt = 'webp';
 
         if ($image instanceof UploadedFile) {
             $rawBytes = file_get_contents($image->getRealPath());
-            $originalExt = strtolower($image->getClientOriginalExtension());
+            $originalExt = strtolower($image->getClientOriginalExtension() ?: 'webp');
         } elseif (is_string($image)) {
             // Check for Base64 Data URI
             if (preg_match('/^data:(image\/[a-zA-Z0-9\+\-\.]+);base64,(.*)$/s', $image, $matches)) {
@@ -66,20 +88,26 @@ class MediaService
         if (in_array($originalExt, ['svg', 'ico'])) {
             $filename = Str::random(24).'.'.$originalExt;
             $relPath = "{$folder}/{$filename}";
-            Storage::disk('public')->put($relPath, $rawBytes);
+            $saved = Storage::disk('public')->put($relPath, $rawBytes);
+            if (! $saved) {
+                @file_put_contents(storage_path('app/public/'.$relPath), $rawBytes);
+            }
 
             return $relPath;
         }
 
         // Convert raster images to optimized WebP if GD is supported
-        $optimizedData = self::convertAndOptimizeToWebp($rawBytes, $maxWidth, $quality);
+        $optimizedData = self::convertAndOptimizeToWebp($rawBytes, $maxWidth, $quality, $originalExt);
         $finalExt = $optimizedData['ext'];
         $finalBytes = $optimizedData['data'];
 
         $filename = Str::random(24).'.'.$finalExt;
         $relPath = "{$folder}/{$filename}";
 
-        Storage::disk('public')->put($relPath, $finalBytes);
+        $saved = Storage::disk('public')->put($relPath, $finalBytes);
+        if (! $saved) {
+            @file_put_contents(storage_path('app/public/'.$relPath), $finalBytes);
+        }
 
         return $relPath;
     }
@@ -87,15 +115,15 @@ class MediaService
     /**
      * Convert binary image data to WebP (with resize and transparency preservation).
      */
-    private static function convertAndOptimizeToWebp(string $rawBytes, ?int $maxWidth = 1600, int $quality = 85): array
+    private static function convertAndOptimizeToWebp(string $rawBytes, ?int $maxWidth = 1600, int $quality = 85, string $originalExt = 'webp'): array
     {
         if (! extension_loaded('gd') || ! function_exists('imagecreatefromstring')) {
-            return ['data' => $rawBytes, 'ext' => 'webp'];
+            return ['data' => $rawBytes, 'ext' => $originalExt];
         }
 
         $image = @imagecreatefromstring($rawBytes);
         if (! $image) {
-            return ['data' => $rawBytes, 'ext' => 'webp'];
+            return ['data' => $rawBytes, 'ext' => $originalExt];
         }
 
         if (! imageistruecolor($image)) {
@@ -124,9 +152,11 @@ class MediaService
             imagesavealpha($image, true);
         }
 
-        // Convert to WebP buffer
+        $supportsWebp = function_exists('imagewebp') && (! function_exists('imagetypes') || (imagetypes() & IMG_WEBP));
+
+        // Convert to WebP or JPEG buffer
         ob_start();
-        if (function_exists('imagewebp')) {
+        if ($supportsWebp) {
             imagewebp($image, null, $quality);
             $ext = 'webp';
         } else {
@@ -138,7 +168,7 @@ class MediaService
 
         return [
             'data' => $data ?: $rawBytes,
-            'ext' => $ext,
+            'ext' => $data ? $ext : $originalExt,
         ];
     }
 
@@ -192,15 +222,21 @@ class MediaService
             return self::getFallbackUrl($fallbackType);
         }
 
-        // Verify physical file exists on disk; if missing, check other common extensions
-        if (! Storage::disk('public')->exists($clean)) {
+        // Verify physical file exists on disk, checking Storage disk, storage_path, and public_path
+        $existsOnDisk = Storage::disk('public')->exists($clean)
+            || @file_exists(storage_path('app/public/'.$clean))
+            || @file_exists(public_path('storage/'.$clean));
+
+        if (! $existsOnDisk) {
             $pathInfo = pathinfo($clean);
             $dir = (isset($pathInfo['dirname']) && $pathInfo['dirname'] !== '.' && $pathInfo['dirname'] !== '') ? $pathInfo['dirname'].'/' : '';
             $filename = $pathInfo['filename'] ?? '';
             $found = null;
             foreach (['webp', 'jpg', 'jpeg', 'png', 'svg', 'ico'] as $altExt) {
                 $altCandidate = $dir.$filename.'.'.$altExt;
-                if (Storage::disk('public')->exists($altCandidate)) {
+                if (Storage::disk('public')->exists($altCandidate)
+                    || @file_exists(storage_path('app/public/'.$altCandidate))
+                    || @file_exists(public_path('storage/'.$altCandidate))) {
                     $found = $altCandidate;
                     break;
                 }
@@ -229,6 +265,8 @@ class MediaService
         }
 
         $path = trim($path);
+        // Normalize Windows backslashes to forward slashes for Linux compatibility
+        $path = str_replace('\\', '/', $path);
 
         // Strip full domain with /storage/ or localhost prefix
         if (preg_match('#^https?://[^/]+(?:/[^/]+)*/storage/(.*)$#i', $path, $m)) {
