@@ -7,9 +7,10 @@ import {
     ArrowLeft, Printer, Truck, MapPin, User, CheckCircle, 
     Save, Phone, MessageCircle, Calendar, Clock, CreditCard, 
     ShoppingBag, Package, FileText, Sparkles, Send, RefreshCw, 
-    Copy, ExternalLink, ShieldCheck, AlertCircle, CheckCircle2
+    Copy, ExternalLink, ShieldCheck, AlertCircle, CheckCircle2, Facebook
 } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
+import { OrderPrintModal } from '@/components/admin/OrderPrintModal';
 
 interface ShowProps {
     order: any;
@@ -22,11 +23,27 @@ interface ShowProps {
 }
 
 export const Show: React.FC<ShowProps> = ({ order, couriers = [] }) => {
+    const [isPrintOpen, setIsPrintOpen] = useState(false);
     const [selectedCourier, setSelectedCourier] = useState<string>(
         order.courier_name || (couriers.find(c => c.is_default)?.id || 'steadfast')
     );
     const [isSendingCourier, setIsSendingCourier] = useState(false);
     const [isTrackingCourier, setIsTrackingCourier] = useState(false);
+    const [isSendingMetaPurchase, setIsSendingMetaPurchase] = useState(false);
+
+    const handleSendMetaPurchase = () => {
+        setIsSendingMetaPurchase(true);
+        router.post(route('admin.orders.send-meta-purchase', { id: order.id }), {}, {
+            onSuccess: () => {
+                setIsSendingMetaPurchase(false);
+                toast.success('Meta CAPI Purchase Event সফলভাবে পাঠানো হয়েছে! 🎉');
+            },
+            onError: (err: any) => {
+                setIsSendingMetaPurchase(false);
+                toast.error(String(Object.values(err)[0] || 'Meta CAPI ইভেন্ট পাঠানো ব্যর্থ হয়েছে।'));
+            }
+        });
+    };
 
     const { data, setData, put, processing } = useForm({
         status: order.status,
@@ -78,7 +95,7 @@ export const Show: React.FC<ShowProps> = ({ order, couriers = [] }) => {
     };
 
     const handlePrint = () => {
-        window.print();
+        setIsPrintOpen(true);
     };
 
     const cleanPhone = order.mobile ? order.mobile.replace(/[^0-9]/g, '') : '';
@@ -539,11 +556,100 @@ export const Show: React.FC<ShowProps> = ({ order, couriers = [] }) => {
                             </form>
                         </AdminCard>
 
+                        {/* ── META FACEBOOK TRACKING CARD ── */}
+                        <AdminCard className="p-6 border border-blue-100 bg-gradient-to-b from-white to-blue-50/20 shadow-sm">
+                            <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-blue-100">
+                                <div className="flex items-center gap-2.5">
+                                    <div className="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-xs">
+                                        <Facebook className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-[14px] font-black text-[#1A1A2E]">Meta Ads Tracking</h3>
+                                        <p className="text-[11px] text-[#9096B0]">Conversions API (CAPI)</p>
+                                    </div>
+                                </div>
+
+                                {order.meta_purchase_sent ? (
+                                    <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-100 text-[#009E49] flex items-center gap-1">
+                                        <CheckCircle2 className="w-3 h-3" />
+                                        <span>প্রেরিত (Sent)</span>
+                                    </span>
+                                ) : (
+                                    <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 flex items-center gap-1">
+                                        <Clock className="w-3 h-3" />
+                                        <span>পেন্ডিং (Pending)</span>
+                                    </span>
+                                )}
+                            </div>
+
+                            <div className="space-y-3 text-xs">
+                                <div className="p-3 bg-white rounded-xl border border-blue-100 space-y-2">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-gray-500 font-semibold font-bangla">স্ট্যাটাস:</span>
+                                        <span className={`font-bold font-bangla ${order.meta_purchase_sent ? 'text-emerald-700' : 'text-amber-700'}`}>
+                                            {order.meta_purchase_sent ? 'ফেসবুকে সফলভাবে প্রেরিত ✅' : 'Completed করলে অটো যাবে'}
+                                        </span>
+                                    </div>
+
+                                    {order.meta_purchase_event_id && (
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-500 font-semibold">Event ID:</span>
+                                            <div className="flex items-center gap-1 font-mono text-[11px] text-gray-700">
+                                                <span className="truncate max-w-[150px]" title={order.meta_purchase_event_id}>
+                                                    {order.meta_purchase_event_id}
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleCopyText(order.meta_purchase_event_id, 'Meta Event ID')}
+                                                    className="text-gray-400 hover:text-blue-600 border-none bg-transparent cursor-pointer p-0.5"
+                                                    title="কপি করুন"
+                                                >
+                                                    <Copy className="w-3 h-3" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {order.meta_purchase_sent_at && (
+                                        <div className="flex justify-between items-center text-[11px] text-gray-500 pt-1 border-t border-dashed">
+                                            <span className="font-bangla">প্রেরণের সময়:</span>
+                                            <span>{new Date(order.meta_purchase_sent_at).toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={handleSendMetaPurchase}
+                                    disabled={isSendingMetaPurchase}
+                                    className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 border-none cursor-pointer disabled:opacity-50 active:scale-98 shadow-xs"
+                                >
+                                    <Facebook className={`w-3.5 h-3.5 ${isSendingMetaPurchase ? 'animate-spin' : ''}`} />
+                                    <span>
+                                        {isSendingMetaPurchase 
+                                            ? 'মেটায় পাঠানো হচ্ছে...' 
+                                            : order.meta_purchase_sent 
+                                                ? 'পুনরায় পাঠান (Resend CAPI Event)' 
+                                                : 'এখনই মেটাতে পাঠান (Send Purchase Now)'}
+                                    </span>
+                                </button>
+                            </div>
+                        </AdminCard>
+
                     </div>
 
                 </div>
 
             </div>
+
+            {isPrintOpen && (
+                <OrderPrintModal
+                    orders={[order]}
+                    isOpen={isPrintOpen}
+                    onClose={() => setIsPrintOpen(false)}
+                    autoPrint={true}
+                />
+            )}
         </AdminLayout>
     );
 };

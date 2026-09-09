@@ -89,6 +89,7 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
 }) => {
     const [query, setQuery] = useState('');
     const [isOpen, setIsOpen] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<SearchApiResponse | null>(null);
     const [recentSearches, setRecentSearches] = useState<string[]>([]);
@@ -162,11 +163,12 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
         return () => clearInterval(interval);
     }, [query, placeholders.length]);
 
-    // Handle outside click to dismiss dropdown
+    // Handle outside click to dismiss dropdown and reset focused state
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
+                setIsFocused(false);
             }
         };
 
@@ -246,6 +248,8 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
         trackSearch(clean);
         saveRecentSearch(clean);
         setIsOpen(false);
+        setIsFocused(false);
+        inputRef.current?.blur();
         if (onCloseMobile) onCloseMobile();
         router.visit(route('shop', { q: clean }));
     };
@@ -254,8 +258,18 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
     const navigateToProduct = (product: SuggestedProduct) => {
         saveRecentSearch(product.name);
         setIsOpen(false);
+        setIsFocused(false);
+        inputRef.current?.blur();
         if (onCloseMobile) onCloseMobile();
         router.visit(product.url);
+    };
+
+    // Close search dropdown and restore page view
+    const handleCloseSearch = () => {
+        setIsOpen(false);
+        setIsFocused(false);
+        inputRef.current?.blur();
+        if (onCloseMobile) onCloseMobile();
     };
 
     // Form submit handler
@@ -287,6 +301,7 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
             setSelectedIndex(prev => (prev > -1 ? prev - 1 : count - 1));
         } else if (e.key === 'Escape') {
             setIsOpen(false);
+            setIsFocused(false);
             inputRef.current?.blur();
         }
     };
@@ -419,6 +434,7 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
                     value={query}
                     onChange={e => setQuery(e.target.value)}
                     onFocus={() => {
+                        setIsFocused(true);
                         setIsOpen(true);
                         if (!results) {
                             fetchSuggestions(query);
@@ -458,14 +474,26 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
                         </div>
                     )}
 
-                    {/* Rectangular Green Search Button matching screenshot */}
+                    {/* Rectangular Green Search Button - Switches to icon-only when customer clicks search panel */}
                     <button
                         type="submit"
                         aria-label="Search"
-                        className="bg-[#009E49] hover:bg-[#007F3B] text-white px-5 sm:px-6 h-full rounded-md font-bold text-xs sm:text-sm flex items-center gap-2 transition-all duration-150 active:scale-95 shadow-xs shrink-0 select-none cursor-pointer"
+                        className={`bg-[#009E49] hover:bg-[#007F3B] text-white h-full rounded-md font-bold text-xs sm:text-sm flex items-center justify-center transition-all duration-200 active:scale-95 shadow-xs shrink-0 select-none cursor-pointer ${
+                            isFocused 
+                                ? 'w-9 sm:w-10 px-0 gap-0' 
+                                : 'px-4 sm:px-5 gap-1.5 sm:gap-2'
+                        }`}
                     >
-                        <Search className="w-4 h-4 stroke-[2.5]" />
-                        <span className="font-latin tracking-wide">Search</span>
+                        <Search className="w-4 h-4 stroke-[2.5] shrink-0" />
+                        <span 
+                            className={`font-latin tracking-wide transition-all duration-200 overflow-hidden whitespace-nowrap ${
+                                isFocused 
+                                    ? 'max-w-0 opacity-0 -ml-0' 
+                                    : 'max-w-[70px] opacity-100'
+                            }`}
+                        >
+                            Search
+                        </span>
                     </button>
                 </div>
             </form>
@@ -488,13 +516,24 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
                                                 <Clock className="w-3.5 h-3.5 text-gray-400" />
                                                 সাম্প্রতিক অনুসন্ধান
                                             </span>
-                                            <button
-                                                type="button"
-                                                onClick={clearRecentSearches}
-                                                className="text-[11px] text-gray-400 hover:text-red-500 font-normal transition-colors"
-                                            >
-                                                মুছে ফেলুন
-                                            </button>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={clearRecentSearches}
+                                                    className="text-[11px] text-gray-400 hover:text-red-500 font-normal transition-colors cursor-pointer"
+                                                >
+                                                    মুছে ফেলুন
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleCloseSearch}
+                                                    className="w-7 h-7 rounded-full bg-gray-100 hover:bg-red-50 text-gray-500 hover:text-red-600 transition-all flex items-center justify-center cursor-pointer active:scale-90"
+                                                    title="সার্চ বন্ধ করুন"
+                                                    aria-label="Close search"
+                                                >
+                                                    <X className="w-4 h-4 stroke-[2.5]" />
+                                                </button>
+                                            </div>
                                         </div>
                                         <div className="flex flex-wrap gap-1.5">
                                             {recentSearches.map((term, i) => (
@@ -515,9 +554,21 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
                                 )}
 
                                 <div>
-                                    <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 mb-2 px-1">
-                                        <TrendingUp className="w-3.5 h-3.5 text-[#009E49]" />
-                                        জনপ্রিয় সার্চ (Trending Searches)
+                                    <div className="flex items-center justify-between text-xs font-semibold text-gray-500 mb-2 px-1">
+                                        <span className="flex items-center gap-1.5">
+                                            <TrendingUp className="w-3.5 h-3.5 text-[#009E49]" />
+                                            জনপ্রিয় সার্চ (Trending Searches)
+                                        </span>
+                                        {/* Cross Button directly matching user requested location */}
+                                        <button
+                                            type="button"
+                                            onClick={handleCloseSearch}
+                                            className="w-7 h-7 rounded-full bg-gray-100 hover:bg-red-50 text-gray-500 hover:text-red-600 transition-all flex items-center justify-center cursor-pointer active:scale-90 shadow-2xs"
+                                            title="সার্চ বন্ধ করুন"
+                                            aria-label="Close search"
+                                        >
+                                            <X className="w-4 h-4 stroke-[2.5]" />
+                                        </button>
                                     </div>
                                     <div className="flex flex-wrap gap-1.5">
                                         {POPULAR_SEARCH_TERMS.map((term, i) => (
@@ -586,9 +637,20 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
                                         <ShoppingBag className="w-3.5 h-3.5 text-[#009E49]" />
                                         {isShowingPopular ? 'জনপ্রিয় পণ্য সমূহ' : `পণ্য সমূহ (${directProducts.length})`}
                                     </span>
-                                    <span className="text-[10px] text-gray-400 font-normal">
-                                        ক্লিক করে বিস্তারিত দেখুন
-                                    </span>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[10px] text-gray-400 font-normal hidden xs:inline">
+                                            ক্লিক করে বিস্তারিত দেখুন
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={handleCloseSearch}
+                                            className="w-6.5 h-6.5 rounded-full bg-gray-100 hover:bg-red-50 text-gray-500 hover:text-red-600 transition-all flex items-center justify-center cursor-pointer active:scale-90"
+                                            title="সার্চ বন্ধ করুন"
+                                            aria-label="Close search"
+                                        >
+                                            <X className="w-3.5 h-3.5 stroke-[2.5]" />
+                                        </button>
+                                    </div>
                                 </div>
 
                                 <div className="divide-y divide-gray-50">

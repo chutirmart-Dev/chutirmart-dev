@@ -20,6 +20,7 @@ interface LandingPageProps {
         cta_button_text?: string;
         sections?: any[];
         status: string;
+        facebook_pixel_id?: string;
         product?: any;
     };
     districts: Array<{
@@ -39,6 +40,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 }) => {
     const product = landingPage.product || {};
     const orderFormRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (landingPage?.facebook_pixel_id && typeof window !== 'undefined' && typeof window.fbq === 'function') {
+            try {
+                window.fbq('init', landingPage.facebook_pixel_id);
+                window.fbq('track', 'PageView');
+            } catch (e) {
+                console.warn('Landing Page custom pixel init error:', e);
+            }
+        }
+    }, [landingPage?.facebook_pixel_id]);
 
     useEffect(() => {
         if (product && product.id) {

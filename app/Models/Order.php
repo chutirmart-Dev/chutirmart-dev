@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
@@ -39,6 +40,9 @@ class Order extends Model
         'special_notes',
         'internal_notes',
         'ip_address',
+        'user_agent',
+        'fbp',
+        'fbc',
         'meta_purchase_event_id',
         'meta_purchase_sent',
         'meta_purchase_sent_at',
@@ -104,10 +108,18 @@ class Order extends Model
     public static function generateOrderNumber(): string
     {
         // Find the highest numeric suffix in CHU-{number} format
-        $latestOrderNumber = static::where('order_number', 'REGEXP', '^CHU-[0-9]+$')
-            ->where('order_number', 'NOT LIKE', 'CHU-%-%')
-            ->orderByRaw('CAST(SUBSTRING(order_number, 5) AS UNSIGNED) DESC')
-            ->value('order_number');
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+        if ($isSqlite) {
+            $latestOrderNumber = static::where('order_number', 'LIKE', 'CHU-%')
+                ->where('order_number', 'NOT LIKE', 'CHU-%-%')
+                ->latest('id')
+                ->value('order_number');
+        } else {
+            $latestOrderNumber = static::where('order_number', 'REGEXP', '^CHU-[0-9]+$')
+                ->where('order_number', 'NOT LIKE', 'CHU-%-%')
+                ->orderByRaw('CAST(SUBSTRING(order_number, 5) AS UNSIGNED) DESC')
+                ->value('order_number');
+        }
 
         $nextNumber = 101;
         if ($latestOrderNumber && preg_match('/^CHU-(\d+)$/', $latestOrderNumber, $matches)) {

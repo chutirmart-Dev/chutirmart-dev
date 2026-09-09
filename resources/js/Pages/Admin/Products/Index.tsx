@@ -128,18 +128,18 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
             <div className="space-y-6">
 
                 {/* ── Header ── */}
-                <PageHeader
-                    title="Products"
-                    subtitle={`${products.total} টি পণ্য আপনার স্টোরে আছে`}
-                    action={
-                        <Link href={route('admin.products.create')}>
-                            <button className="h-11 sm:h-12 px-5 rounded-lg bg-[#009E49] hover:bg-[#007F3B] text-white text-[13.5px] sm:text-[14px] font-bold flex items-center justify-center gap-2 transition-all shadow-xs hover:shadow-md border-none cursor-pointer active:scale-98">
-                                <Plus className="w-4.5 h-4.5 stroke-[2.5]" />
-                                <span>Add New Product</span>
-                            </button>
-                        </Link>
-                    }
-                />
+                <div className="flex items-center justify-between gap-3 mb-4 sm:mb-5">
+                    <div>
+                        <h2 className="text-[20px] sm:text-[22px] font-black text-[#1A1A2E] tracking-tight">Products</h2>
+                        <p className="text-[12px] sm:text-[13px] text-[#9096B0] mt-0.5">{products.total} টি পণ্য আপনার স্টোরে আছে</p>
+                    </div>
+                    <Link href={route('admin.products.create')} className="shrink-0">
+                        <button className="h-9 sm:h-11 px-3 sm:px-4 rounded-lg bg-[#009E49] hover:bg-[#007F3B] text-white text-xs sm:text-[13.5px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs hover:shadow-md border-none cursor-pointer active:scale-95 whitespace-nowrap">
+                            <Plus className="w-4 h-4 stroke-[2.5]" />
+                            <span>Add New Product</span>
+                        </button>
+                    </Link>
+                </div>
 
                 {/* ── Filters Bar ── */}
                 <AdminCard className="p-4">
@@ -272,47 +272,47 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                         </div>
 
                                         {/* Homepage Showcase Badges */}
-                                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                                        <div className="grid grid-cols-3 gap-1.5 pt-1">
                                             <button
                                                 type="button"
                                                 onClick={() => handleToggleFeatured(product.id, 'is_best_selling')}
                                                 disabled={togglingId === `${product.id}-is_best_selling`}
-                                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+                                                className={`h-9 px-1 rounded-lg text-[11px] font-bold border transition-all flex items-center justify-center gap-1 text-center cursor-pointer select-none active:scale-95 ${
                                                     product.is_best_selling
-                                                        ? 'bg-orange-50 text-orange-700 border-orange-300 shadow-2xs'
-                                                        : 'bg-slate-50 text-slate-400 border-slate-200'
-                                                }`}
+                                                        ? 'bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 border-orange-300 shadow-2xs font-extrabold'
+                                                        : 'bg-slate-50/80 text-slate-500 border-slate-200/90 hover:bg-slate-100'
+                                                } ${togglingId === `${product.id}-is_best_selling` ? 'opacity-60 cursor-wait' : ''}`}
                                             >
-                                                <Flame className={`w-3.5 h-3.5 ${product.is_best_selling ? 'text-orange-500 fill-orange-500' : 'text-slate-400'}`} />
-                                                <span>সর্বাধিক বিক্রিত</span>
+                                                <Flame className={`w-3.5 h-3.5 shrink-0 ${product.is_best_selling ? 'text-orange-500 fill-orange-500' : 'text-slate-400'}`} />
+                                                <span className="truncate">সর্বাধিক বিক্রিত</span>
                                             </button>
 
                                             <button
                                                 type="button"
                                                 onClick={() => handleToggleFeatured(product.id, 'is_new_arrival')}
                                                 disabled={togglingId === `${product.id}-is_new_arrival`}
-                                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+                                                className={`h-9 px-1 rounded-lg text-[11px] font-bold border transition-all flex items-center justify-center gap-1 text-center cursor-pointer select-none active:scale-95 ${
                                                     product.is_new_arrival
-                                                        ? 'bg-amber-50 text-amber-800 border-amber-300 shadow-2xs'
-                                                        : 'bg-slate-50 text-slate-400 border-slate-200'
-                                                }`}
+                                                        ? 'bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-800 border-amber-300 shadow-2xs font-extrabold'
+                                                        : 'bg-slate-50/80 text-slate-500 border-slate-200/90 hover:bg-slate-100'
+                                                } ${togglingId === `${product.id}-is_new_arrival` ? 'opacity-60 cursor-wait' : ''}`}
                                             >
-                                                <Sparkles className={`w-3.5 h-3.5 ${product.is_new_arrival ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`} />
-                                                <span>নতুন পণ্য</span>
+                                                <Sparkles className={`w-3.5 h-3.5 shrink-0 ${product.is_new_arrival ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`} />
+                                                <span className="truncate">নতুন পণ্য</span>
                                             </button>
 
                                             <button
                                                 type="button"
                                                 onClick={() => handleToggleFeatured(product.id, 'is_featured')}
                                                 disabled={togglingId === `${product.id}-is_featured`}
-                                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+                                                className={`h-9 px-1 rounded-lg text-[11px] font-bold border transition-all flex items-center justify-center gap-1 text-center cursor-pointer select-none active:scale-95 ${
                                                     product.is_featured
-                                                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-2xs'
-                                                        : 'bg-slate-50 text-slate-400 border-slate-200'
-                                                }`}
+                                                        ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-800 border-emerald-300 shadow-2xs font-extrabold'
+                                                        : 'bg-slate-50/80 text-slate-500 border-slate-200/90 hover:bg-slate-100'
+                                                } ${togglingId === `${product.id}-is_featured` ? 'opacity-60 cursor-wait' : ''}`}
                                             >
-                                                <Zap className={`w-3.5 h-3.5 ${product.is_featured ? 'text-emerald-600 fill-emerald-600' : 'text-slate-400'}`} />
-                                                <span>Just For You</span>
+                                                <Zap className={`w-3.5 h-3.5 shrink-0 ${product.is_featured ? 'text-emerald-600 fill-emerald-600' : 'text-slate-400'}`} />
+                                                <span className="truncate">Just For You</span>
                                             </button>
                                         </div>
 
@@ -400,20 +400,20 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
 
                                                 {/* Homepage Showcase Column */}
                                                 <td className="px-4 py-3.5">
-                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                    <div className="flex flex-wrap items-center gap-2">
                                                         {/* Best Selling Toggle */}
                                                         <button
                                                             type="button"
                                                             onClick={() => handleToggleFeatured(product.id, 'is_best_selling')}
                                                             disabled={togglingId === `${product.id}-is_best_selling`}
-                                                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold border transition-all cursor-pointer ${
+                                                            className={`inline-flex items-center justify-center gap-1.5 h-8.5 px-3 rounded-lg text-[11.5px] font-bold border transition-all cursor-pointer select-none active:scale-95 ${
                                                                 product.is_best_selling
-                                                                    ? 'bg-orange-50 text-orange-700 border-orange-300 shadow-2xs'
-                                                                    : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-orange-600 hover:border-orange-200 hover:bg-orange-50/50'
-                                                            }`}
+                                                                    ? 'bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 border-orange-300 shadow-2xs font-extrabold'
+                                                                    : 'bg-slate-50/80 text-slate-500 border-slate-200/90 hover:text-orange-600 hover:border-orange-200 hover:bg-orange-50/50'
+                                                            } ${togglingId === `${product.id}-is_best_selling` ? 'opacity-60 cursor-wait' : ''}`}
                                                             title={product.is_best_selling ? "Click to remove from '🔥 সর্বাধিক বিক্রিত পণ্য'" : "Click to add to '🔥 সর্বাধিক বিক্রিত পণ্য'"}
                                                         >
-                                                            <Flame className={`w-3.5 h-3.5 ${product.is_best_selling ? 'text-orange-500 fill-orange-500' : 'text-slate-400'}`} />
+                                                            <Flame className={`w-3.5 h-3.5 shrink-0 ${product.is_best_selling ? 'text-orange-500 fill-orange-500' : 'text-slate-400'}`} />
                                                             <span>সর্বাধিক বিক্রিত</span>
                                                         </button>
 
@@ -422,14 +422,14 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                                             type="button"
                                                             onClick={() => handleToggleFeatured(product.id, 'is_new_arrival')}
                                                             disabled={togglingId === `${product.id}-is_new_arrival`}
-                                                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold border transition-all cursor-pointer ${
+                                                            className={`inline-flex items-center justify-center gap-1.5 h-8.5 px-3 rounded-lg text-[11.5px] font-bold border transition-all cursor-pointer select-none active:scale-95 ${
                                                                 product.is_new_arrival
-                                                                    ? 'bg-amber-50 text-amber-800 border-amber-300 shadow-2xs'
-                                                                    : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-amber-600 hover:border-amber-200 hover:bg-amber-50/50'
-                                                            }`}
+                                                                    ? 'bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-800 border-amber-300 shadow-2xs font-extrabold'
+                                                                    : 'bg-slate-50/80 text-slate-500 border-slate-200/90 hover:text-amber-600 hover:border-amber-200 hover:bg-amber-50/50'
+                                                            } ${togglingId === `${product.id}-is_new_arrival` ? 'opacity-60 cursor-wait' : ''}`}
                                                             title={product.is_new_arrival ? "Click to remove from '✨ নতুন পণ্য সমূহ'" : "Click to add to '✨ নতুন পণ্য সমূহ'"}
                                                         >
-                                                            <Sparkles className={`w-3.5 h-3.5 ${product.is_new_arrival ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`} />
+                                                            <Sparkles className={`w-3.5 h-3.5 shrink-0 ${product.is_new_arrival ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`} />
                                                             <span>নতুন পণ্য</span>
                                                         </button>
 
@@ -438,14 +438,14 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                                             type="button"
                                                             onClick={() => handleToggleFeatured(product.id, 'is_featured')}
                                                             disabled={togglingId === `${product.id}-is_featured`}
-                                                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold border transition-all cursor-pointer ${
+                                                            className={`inline-flex items-center justify-center gap-1.5 h-8.5 px-3 rounded-lg text-[11.5px] font-bold border transition-all cursor-pointer select-none active:scale-95 ${
                                                                 product.is_featured
-                                                                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300 shadow-2xs'
-                                                                    : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50/50'
-                                                            }`}
+                                                                    ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-800 border-emerald-300 shadow-2xs font-extrabold'
+                                                                    : 'bg-slate-50/80 text-slate-500 border-slate-200/90 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50/50'
+                                                            } ${togglingId === `${product.id}-is_featured` ? 'opacity-60 cursor-wait' : ''}`}
                                                             title={product.is_featured ? "Click to remove from '⚡ Just For You'" : "Click to add to '⚡ Just For You'"}
                                                         >
-                                                            <Zap className={`w-3.5 h-3.5 ${product.is_featured ? 'text-emerald-600 fill-emerald-600' : 'text-slate-400'}`} />
+                                                            <Zap className={`w-3.5 h-3.5 shrink-0 ${product.is_featured ? 'text-emerald-600 fill-emerald-600' : 'text-slate-400'}`} />
                                                             <span>Just For You</span>
                                                         </button>
                                                     </div>

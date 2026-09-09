@@ -7,9 +7,9 @@ import {
     AlertCircle, CheckCircle2, XCircle, Trash2, FileQuestion, ShoppingCart,
     Truck, Send, RefreshCw, Copy, ExternalLink, CheckSquare, Square,
     ChevronDown, ChevronLeft, ChevronRight, BarChart2, X, Loader2, TrendingUp, RotateCcw, Package, ShieldCheck,
-    Phone, MessageSquare, MapPin, ArrowRight
+    Phone, MessageSquare, MapPin, ArrowRight, Printer, Calendar
 } from 'lucide-react';
-
+import { OrderPrintModal, OrderPrintData } from '@/components/admin/OrderPrintModal';
 import { toast, Toaster } from 'sonner';
 
 
@@ -339,10 +339,20 @@ const CustomerSuccessModal: React.FC<{
 
 
 
+const PERIOD_OPTIONS = [
+    { value: 'today', label: 'Today Order', bangla: 'আজকের অর্ডার', icon: '📅' },
+    { value: 'yesterday', label: 'Yesterday Order', bangla: 'গতকালকের অর্ডার', icon: '⏳' },
+    { value: '7_days', label: '7 Days Order', bangla: 'বিগত ৭ দিন', icon: '🗓️' },
+    { value: '30_days', label: '30 Days Order', bangla: 'বিগত ৩০ দিন', icon: '📆' },
+    { value: '1_year', label: '1 Year Order', bangla: 'বিগত ১ বছর', icon: '📊' },
+    { value: 'all', label: 'All Orders', bangla: 'সব সময়', icon: '🌐' },
+];
+
 interface IndexProps {
     orders: { data: any[]; links: any[]; total: number; };
     status: string;
-    filters: { q?: string; };
+    filters: { q?: string; period?: string; };
+    selectedPeriod?: string;
     couriers?: Array<{
         id: string;
         name: string;
@@ -360,7 +370,7 @@ interface IndexProps {
     };
 }
 
-export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, couriers = [], stats }) => {
+export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, selectedPeriod = 'all', couriers = [], stats }) => {
     const [searchQuery, setSearchQuery] = useState(filters.q || '');
     const [isSearching, setIsSearching] = useState(false);
     const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -371,6 +381,46 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
     const [rowCourierMap, setRowCourierMap] = useState<Record<number, string>>({});
     // Customer stats modal
     const [statsModal, setStatsModal] = useState<{ mobile: string; name: string; courier?: string } | null>(null);
+
+    // Period filter state
+    const [periodOpen, setPeriodOpen] = useState(false);
+    const periodRef = useRef<HTMLDivElement>(null);
+    const [printModalData, setPrintModalData] = useState<OrderPrintData[] | null>(null);
+
+    const currentPeriod = selectedPeriod || filters.period || 'all';
+    const activePeriodObj = PERIOD_OPTIONS.find(p => p.value === currentPeriod) || PERIOD_OPTIONS[5];
+
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (periodRef.current && !periodRef.current.contains(e.target as Node)) {
+                setPeriodOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    const handleSelectPeriod = (newPeriod: string) => {
+        setPeriodOpen(false);
+        router.get(route('admin.orders.index', { status }), {
+            ...filters,
+            period: newPeriod,
+            q: searchQuery || undefined,
+        }, { preserveState: true, preserveScroll: true });
+    };
+
+    const handleQuickPrint = (order: any) => {
+        setPrintModalData([order]);
+    };
+
+    const handleBulkPrint = () => {
+        const selected = orders.data.filter(o => selectedOrders.includes(o.id));
+        if (selected.length === 0) {
+            toast.error('অনুগ্রহ করে অন্তত একটি অর্ডার সিলেক্ট করুন।');
+            return;
+        }
+        setPrintModalData(selected);
+    };
 
     // Mobile Status Tabs Carousel logic
     const statusTabsRef = useRef<HTMLDivElement>(null);
@@ -453,9 +503,13 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
 
     const triggerSearch = (queryVal: string) => {
         setIsSearching(true);
+        const params: Record<string, string> = {};
+        if (queryVal.trim()) params.q = queryVal.trim();
+        if (currentPeriod && currentPeriod !== 'all') params.period = currentPeriod;
+
         router.get(
             route('admin.orders.index', { status }),
-            queryVal.trim() ? { q: queryVal.trim() } : {},
+            params,
             {
                 preserveState: true,
                 preserveScroll: true,
@@ -634,18 +688,16 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
             <Head title="Order Management & Courier Shipping | ChutirMart" />
 
             <div className="w-full max-w-full space-y-6">
-                <PageHeader
-                    title="Order Management"
-                    subtitle="Track customer orders, manage statuses, and dispatch parcels to couriers in real time."
-                    action={
-                        <Link href={route('admin.orders.create')}>
-                            <button className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#009E49] text-white text-xs font-semibold shadow-xs hover:bg-[#007F3B] hover:shadow-sm active:scale-98 transition-all border-none cursor-pointer select-none">
-                                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                                <span>Create Order</span>
-                            </button>
-                        </Link>
-                    }
-                />
+                {/* ── Header ── */}
+                <div className="flex items-center justify-between gap-3 mb-4 sm:mb-5">
+                    <h2 className="text-[20px] sm:text-[22px] font-black text-[#1A1A2E] tracking-tight">Order Management</h2>
+                    <Link href={route('admin.orders.create')} className="shrink-0">
+                        <button className="h-9 sm:h-11 px-3.5 sm:px-4 rounded-lg bg-[#009E49] hover:bg-[#007F3B] text-white text-xs sm:text-[13.5px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs hover:shadow-md border-none cursor-pointer active:scale-95 whitespace-nowrap">
+                            <Plus className="w-4 h-4 stroke-[2.5]" />
+                            <span>Create Order</span>
+                        </button>
+                    </Link>
+                </div>
 
                 {/* ── Mobile Status Carousel (Touch Swipe + Drag + Arrow Controls) ── */}
                 <div className="md:hidden relative group select-none">
@@ -748,7 +800,7 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                     })}
                 </div>
 
-                {/* ── Search & Bulk Action Bar ── */}
+                {/* ── Search & Filter Bar ── */}
                 <div className="flex flex-col sm:flex-row gap-3">
                     <div className="flex-1">
                         <form onSubmit={handleSearchSubmit} className="relative">
@@ -780,38 +832,102 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                         </form>
                     </div>
 
-                    {/* Bulk Courier Dispatch Action Bar */}
-                    {selectedOrders.length > 0 && (
-                        <div className="flex flex-wrap items-center justify-between gap-2 bg-emerald-50 border border-emerald-300 p-2 sm:p-1.5 sm:px-3 rounded-lg animate-in fade-in duration-150">
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs font-black text-emerald-900 bg-emerald-200/70 px-2 py-0.5 rounded-md">
-                                    {selectedOrders.length} Selected
-                                </span>
-                                <button
-                                    type="button"
-                                    onClick={() => setSelectedOrders([])}
-                                    className="text-[11px] text-slate-500 hover:text-slate-800 underline bg-transparent border-none cursor-pointer p-0"
-                                >
-                                    Clear
-                                </button>
+                    {/* Period Filter Dropdown */}
+                    <div ref={periodRef} className="relative select-none w-full sm:w-auto shrink-0">
+                        <button
+                            type="button"
+                            onClick={() => setPeriodOpen(prev => !prev)}
+                            className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2.5 h-11 px-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 text-[14px] sm:text-[14.5px] font-bold shadow-2xs hover:border-[#009E49]/40 transition-all cursor-pointer active:scale-98"
+                        >
+                            <div className="flex items-center gap-2 min-w-0">
+                                <Calendar className="w-4.5 h-4.5 text-[#009E49] shrink-0" />
+                                <span className="text-[16px]">{activePeriodObj.icon}</span>
+                                <span className="truncate">{activePeriodObj.label}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <CourierSelect
-                                    value={selectedBulkCourier}
-                                    onChange={val => setSelectedBulkCourier(val)}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={handleBulkSendCourier}
-                                    className="h-8 px-3 rounded-lg bg-[#009E49] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-[#007F3B] transition-colors border-none cursor-pointer shrink-0"
-                                >
-                                    <Send className="w-3.5 h-3.5" />
-                                    <span>Send to Courier</span>
-                                </button>
+                            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ${periodOpen ? 'rotate-180 text-[#009E49]' : ''}`} />
+                        </button>
+
+                        {periodOpen && (
+                            <div className="absolute left-0 sm:left-auto sm:right-0 top-[calc(100%+8px)] z-50 w-full sm:w-76 bg-white rounded-2xl border border-slate-200 shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-150">
+                                <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 mb-1">
+                                    <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                                        সময়কাল ফিল্টার
+                                    </span>
+                                    <span className="text-[11px] font-extrabold text-[#009E49] bg-[#009E49]/10 px-2 py-0.5 rounded-full">
+                                        Filter
+                                    </span>
+                                </div>
+                                <div className="space-y-1">
+                                    {PERIOD_OPTIONS.map((opt) => {
+                                        const isSelected = opt.value === currentPeriod;
+                                        return (
+                                            <button
+                                                key={opt.value}
+                                                type="button"
+                                                onClick={() => handleSelectPeriod(opt.value)}
+                                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer border-none ${
+                                                    isSelected
+                                                        ? 'bg-[#009E49] text-white font-black shadow-md shadow-[#009E49]/20'
+                                                        : 'text-slate-800 hover:bg-slate-100/80 hover:text-[#009E49]'
+                                                }`}
+                                            >
+                                                <span className="flex items-center gap-2.5">
+                                                    <span className="text-[18px] shrink-0">{opt.icon}</span>
+                                                    <span className="text-[14px] font-bold">{opt.label}</span>
+                                                </span>
+                                                <span className={`text-[12px] font-semibold ${isSelected ? 'text-emerald-100 font-bold' : 'text-slate-500'}`}>
+                                                    {opt.bangla}
+                                                </span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
+
+                {/* Bulk Actions Bar */}
+                {selectedOrders.length > 0 && (
+                    <div className="flex flex-wrap items-center justify-between gap-2 bg-emerald-50 border border-emerald-300 p-2 sm:p-1.5 sm:px-3 rounded-lg animate-in fade-in duration-150">
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-black text-emerald-900 bg-emerald-200/70 px-2 py-0.5 rounded-md">
+                                {selectedOrders.length} Selected
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setSelectedOrders([])}
+                                className="text-[11px] text-slate-500 hover:text-slate-800 underline bg-transparent border-none cursor-pointer p-0"
+                            >
+                                Clear
+                            </button>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {/* Bulk Print Button */}
+                            <button
+                                type="button"
+                                onClick={handleBulkPrint}
+                                className="h-8 px-3 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all cursor-pointer shrink-0 active:scale-95"
+                            >
+                                <Printer className="w-3.5 h-3.5 text-[#009E49]" />
+                                <span>Print Memos ({selectedOrders.length})</span>
+                            </button>
+
+                            <CourierSelect
+                                value={selectedBulkCourier}
+                                onChange={val => setSelectedBulkCourier(val)}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleBulkSendCourier}
+                                className="h-8 px-3 rounded-lg bg-[#009E49] text-white text-xs font-bold flex items-center gap-1.5 hover:bg-[#007F3B] transition-colors border-none cursor-pointer shrink-0 active:scale-95"
+                            >
+                                <Send className="w-3.5 h-3.5" />
+                                <span>Send to Courier</span>
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* ── Orders Container ── */}
                 <AdminCard className="overflow-hidden border-slate-200/80">
@@ -1039,12 +1155,20 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                                             </div>
 
                                             {/* Card Action Footer */}
-                                            <div className="pt-2.5 mt-2.5 border-t border-slate-100 flex items-center justify-end">
+                                            <div className="pt-2.5 mt-2.5 border-t border-slate-100 grid grid-cols-2 gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleQuickPrint(order)}
+                                                    className="w-full h-10 rounded-md bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-[13px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs hover:shadow-sm active:scale-[0.99] cursor-pointer"
+                                                >
+                                                    <Printer className="w-4 h-4 text-[#009E49]" />
+                                                    <span>Print Memo</span>
+                                                </button>
                                                 <Link
                                                     href={route('admin.orders.show', { id: order.id })}
-                                                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-[#009E49] hover:text-white text-[#009E49] text-[12px] font-bold transition-colors no-underline"
+                                                    className="w-full h-10 rounded-md bg-[#009E49] hover:bg-[#007F3B] text-white text-[13px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs hover:shadow-md active:scale-[0.99] no-underline"
                                                 >
-                                                    <Eye className="w-3.5 h-3.5" />
+                                                    <Eye className="w-4 h-4 stroke-[2.2]" />
                                                     <span>View Details</span>
                                                     <ArrowRight className="w-3.5 h-3.5 ml-0.5" />
                                                 </Link>
@@ -1251,6 +1375,14 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                                                                     <RefreshCw className={`w-3.5 h-3.5 ${isSubmittingCourier === order.id ? 'animate-spin' : ''}`} />
                                                                 </button>
                                                             )}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleQuickPrint(order)}
+                                                                className="p-2 rounded-xl bg-slate-100 hover:bg-[#009E49]/10 text-slate-600 hover:text-[#009E49] shadow-2xs border border-slate-200 cursor-pointer transition-all duration-150 active:scale-95"
+                                                                title="Print Order Memo & Shipping Label"
+                                                            >
+                                                                <Printer className="w-4 h-4 stroke-[2]" />
+                                                            </button>
                                                             <Link href={route('admin.orders.show', { id: order.id })}>
                                                                 <IconBtn color="orange" title="View Order Details">
                                                                     <Eye className="w-4 h-4" />
@@ -1278,6 +1410,16 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, c
                     customerName={statsModal.name}
                     courierName={statsModal.courier}
                     onClose={() => setStatsModal(null)}
+                />
+            )}
+
+            {/* ── Order Memo & Shipping Label Print Modal ── */}
+            {printModalData && (
+                <OrderPrintModal
+                    orders={printModalData}
+                    isOpen={!!printModalData}
+                    onClose={() => setPrintModalData(null)}
+                    autoPrint={true}
                 />
             )}
         </AdminLayout>

@@ -149,6 +149,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/orders/{status?}', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/detail/{id}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::put('/orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update');
+        Route::post('/orders/{id}/send-meta-purchase', [AdminOrderController::class, 'sendMetaPurchase'])->name('orders.send-meta-purchase');
 
         // Courier Actions
         Route::post('/orders/{id}/courier/send', [AdminCourierController::class, 'sendOrder'])->name('orders.courier.send');
@@ -169,6 +170,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/messages', [AdminStoreController::class, 'messages'])->name('messages.index');
         Route::get('/help', [AdminStoreController::class, 'help'])->name('help.index');
         Route::get('/integrations', [AdminStoreController::class, 'integrations'])->name('integrations.index');
+        Route::post('/integrations/test-meta-capi', [AdminStoreController::class, 'testMetaCapi'])->name('integrations.test-meta-capi');
 
         Route::get('/banners', [AdminStoreController::class, 'banners'])->name('banners.index');
         Route::post('/banners', [AdminStoreController::class, 'storeBanner'])->name('banners.store');

@@ -6,6 +6,7 @@ use App\Jobs\SendMetaPurchaseEvent;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
+use App\Services\ConversionTrackingService;
 use App\Services\Courier\CourierManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,11 +17,27 @@ class AdminOrderController extends Controller
     public function index(Request $request)
     {
         $status = $request->route('status');
+        $period = $request->input('period', 'all');
 
         $query = Order::query();
 
         if ($status && $status !== 'all') {
             $query->where('status', $status);
+        }
+
+        $applyPeriod = function ($q) use ($period) {
+            match ($period) {
+                'today' => $q->whereDate('created_at', today()),
+                'yesterday' => $q->whereDate('created_at', today()->subDay()),
+                '7_days' => $q->where('created_at', '>=', now()->subDays(7)),
+                '30_days' => $q->where('created_at', '>=', now()->subDays(30)),
+                '1_year' => $q->where('created_at', '>=', now()->subDays(365)),
+                default => null,
+            };
+        };
+
+        if ($period && $period !== 'all') {
+            $applyPeriod($query);
         }
 
         if ($request->filled('q')) {
@@ -41,28 +58,33 @@ class AdminOrderController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        // Calculate some count stats
-        $totalOrders = Order::count();
-        $processingCount = Order::where('status', 'processing')->count();
-        $onHoldCount = Order::where('status', 'on_hold')->count();
-        $completeCount = Order::where('status', 'complete')->count();
-        $cancelledCount = Order::where('status', 'cancelled')->count();
-        $trashCount = Order::where('status', 'trash')->count();
-        $incompleteCount = Order::where('status', 'incomplete')->count();
+        // Calculate count stats with period filter
+        $statQuery = function (?string $st = null) use ($applyPeriod, $period) {
+            $q = Order::query();
+            if ($st) {
+                $q->where('status', $st);
+            }
+            if ($period && $period !== 'all') {
+                $applyPeriod($q);
+            }
+
+            return $q->count();
+        };
 
         return Inertia::render('Admin/Orders/Index', [
             'orders' => $orders,
             'status' => $status ?? 'all',
-            'filters' => $request->only(['q']),
+            'filters' => $request->only(['q', 'period']),
+            'selectedPeriod' => $period,
             'couriers' => CourierManager::getSupportedCouriers(),
             'stats' => [
-                'all' => $totalOrders,
-                'processing' => $processingCount,
-                'on_hold' => $onHoldCount,
-                'complete' => $completeCount,
-                'cancelled' => $cancelledCount,
-                'trash' => $trashCount,
-                'incomplete' => $incompleteCount,
+                'all' => $statQuery(),
+                'processing' => $statQuery('processing'),
+                'on_hold' => $statQuery('on_hold'),
+                'complete' => $statQuery('complete'),
+                'cancelled' => $statQuery('cancelled'),
+                'trash' => $statQuery('trash'),
+                'incomplete' => $statQuery('incomplete'),
             ],
         ]);
     }
@@ -206,9 +228,33 @@ class AdminOrderController extends Controller
 
         // Trigger Meta Conversions API (CAPI) Purchase event asynchronously if transitioned to 'complete'
         if ($oldStatus !== 'complete' && $request->status === 'complete' && ! $order->meta_purchase_sent) {
-            SendMetaPurchaseEvent::dispatch($order->fresh());
+            $queueConnection = (config('queue.default') === 'database' && app()->isLocal()) ? 'sync' : null;
+            $job = SendMetaPurchaseEvent::dispatch($order->fresh());
+            if ($queueConnection) {
+                $job->onConnection($queueConnection);
+            }
         }
 
         return back()->with('success', 'অর্ডার স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে।');
+    }
+
+    public function sendMetaPurchase(string $id, ConversionTrackingService $service)
+    {
+        $order = Order::findOrFail($id);
+
+        try {
+            // Force reset flag to allow admin manual resend/dispatch
+            $order->meta_purchase_sent = false;
+            $service->trackPurchase($order);
+            $order->refresh();
+
+            if ($order->meta_purchase_sent) {
+                return back()->with('success', "Meta CAPI: Order #{$order->order_number} এর Purchase ইভেন্ট সফলভাবে ফেসবুকে পাঠানো হয়েছে! 🎉 (Event ID: {$order->meta_purchase_event_id})");
+            }
+
+            return back()->with('error', 'মেটা CAPI-তে পাঠানো যায়নি। অনুগ্রহ করে Integration সেটিংস থেকে Pixel ID ও Access Token চেক করুন।');
+        } catch (\Throwable $e) {
+            return back()->with('error', 'মেটা ইভেন্ট পাঠানোর সময় ত্রুটি: '.$e->getMessage());
+        }
     }
 }

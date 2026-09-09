@@ -40,7 +40,7 @@ return [
         'access_token' => env('META_ACCESS_TOKEN'),
         'test_event_code' => env('META_TEST_EVENT_CODE'),
         'api_version' => env('META_API_VERSION', 'v21.0'),
-        'verify_ssl' => env('META_VERIFY_SSL', true),
+        'verify_ssl' => env('META_VERIFY_SSL', env('APP_ENV') === 'production'),
     ],
 
     'gtm' => [

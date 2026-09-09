@@ -9,6 +9,7 @@ import {
     Zap, Sparkles, Building, Globe, Check, Layers
 } from 'lucide-react';
 import { toast, Toaster } from 'sonner';
+import axios from 'axios';
 
 interface IntegrationsProps {
     settings: Record<string, string>;
@@ -26,6 +27,8 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
     const [activeCourierTab, setActiveCourierTab] = useState<string>('steadfast');
     const [testingCourier, setTestingCourier] = useState<string | null>(null);
     const [testResult, setTestResult] = useState<{ courier: string; success: boolean; message: string } | null>(null);
+    const [isTestingCapi, setIsTestingCapi] = useState(false);
+    const [capiTestResult, setCapiTestResult] = useState<{ success: boolean; message: string; fbtrace_id?: string } | null>(null);
 
     const { data, setData, put, processing } = useForm({
         // General settings
@@ -50,6 +53,7 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
         facebook_pixel_id: settings.facebook_pixel_id || '',
         facebook_access_token: settings.facebook_access_token || '',
         facebook_test_event_code: settings.facebook_test_event_code || '',
+        facebook_purchase_trigger: settings.facebook_purchase_trigger || 'admin_confirmed',
         gtm_container_id: settings.gtm_container_id || '',
         sms_api_key: settings.sms_api_key || '',
         sms_sender_id: settings.sms_sender_id || '',
@@ -102,6 +106,34 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
             onSuccess: () => toast.success('Integrations updated successfully! 🎉'),
             onError: () => toast.error('Failed to save integration settings.')
         });
+    };
+
+    const handleTestMetaCapi = async () => {
+        if (!data.facebook_pixel_id || !data.facebook_access_token) {
+            toast.error('প্রথমে Facebook Pixel ID এবং Conversions API Access Token ইনপুট করুন।');
+            return;
+        }
+        setIsTestingCapi(true);
+        setCapiTestResult(null);
+        try {
+            const res = await axios.post(route('admin.integrations.test-meta-capi'), {
+                pixel_id: data.facebook_pixel_id,
+                access_token: data.facebook_access_token,
+                test_event_code: data.facebook_test_event_code,
+            });
+            setCapiTestResult(res.data);
+            if (res.data.success) {
+                toast.success(res.data.message || 'Meta CAPI সফলভাবে সংযুক্ত হয়েছে! 🎉');
+            } else {
+                toast.error(res.data.message || 'Meta CAPI কানেকশন এরর');
+            }
+        } catch (err: any) {
+            const msg = err.response?.data?.message || err.message || 'কানেকশন টেস্টে ত্রুটি ঘটেছে';
+            setCapiTestResult({ success: false, message: msg });
+            toast.error(msg);
+        } finally {
+            setIsTestingCapi(false);
+        }
     };
 
     const handleTestConnection = async (courierId: string) => {
@@ -583,6 +615,20 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
                             <p className="text-[10px] text-gray-400 mt-1">Leave empty in production so events register as live conversions.</p>
                         </div>
                         <div>
+                            <FieldLabel>Purchase Event ট্রিগার মোড (Trigger Mode)</FieldLabel>
+                            <select
+                                value={data.facebook_purchase_trigger}
+                                onChange={e => setData('facebook_purchase_trigger', e.target.value)}
+                                className="w-full h-11 px-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:bg-white focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 outline-none transition-all font-bangla"
+                            >
+                                <option value="admin_confirmed">অ্যাডমিন প্যানেল থেকে কনফার্ম/Completed করলে (Recommended for COD)</option>
+                                <option value="instant_checkout">চেকআউটে প্লেস করার সাথে সাথে তাৎক্ষণিক (Instant Tracking)</option>
+                            </select>
+                            <p className="text-[10px] text-emerald-700 mt-1 font-medium font-bangla">
+                                💡 <strong>admin_confirmed:</strong> ক্যাশ অন ডেলিভারিতে ফেক বা ক্যান্সেল অর্ডার ফিল্টার করতে সেরা।
+                            </p>
+                        </div>
+                        <div>
                             <FieldLabel>Google Tag Manager (GTM) Container ID</FieldLabel>
                             <AdminInput 
                                 placeholder="e.g. GTM-XXXXXXX" 
@@ -591,6 +637,44 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
                             />
                             <p className="text-[10px] text-gray-400 mt-1">Loads GTM container across storefront pages automatically.</p>
                         </div>
+                    </div>
+
+                    {/* Meta CAPI Test Action Bar */}
+                    <div className="mt-5 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                            <button
+                                type="button"
+                                disabled={isTestingCapi || !data.facebook_pixel_id || !data.facebook_access_token}
+                                onClick={handleTestMetaCapi}
+                                className="h-9 px-4 rounded-lg font-bold text-xs bg-blue-50/80 hover:bg-blue-100 text-blue-700 border border-blue-200/80 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-98"
+                            >
+                                {isTestingCapi ? (
+                                    <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                    <Facebook className="w-3.5 h-3.5 text-blue-600" />
+                                )}
+                                <span>{isTestingCapi ? 'টেস্ট রিকোয়েস্ট পাঠানো হচ্ছে...' : 'Meta CAPI কানেকশন টেস্ট করুন'}</span>
+                            </button>
+                            <span className="text-[11px] text-gray-400 font-bangla hidden sm:inline">
+                                (মেটা গ্রাফ এপিআই-তে একটি টেস্ট ইভেন্ট পাঠাবে)
+                            </span>
+                        </div>
+
+                        {capiTestResult && (
+                            <div className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 ${
+                                capiTestResult.success 
+                                    ? 'bg-emerald-50 text-[#009E49] border border-emerald-200' 
+                                    : 'bg-red-50 text-red-600 border border-red-200'
+                            }`}>
+                                <span>{capiTestResult.success ? '✔' : '✖'}</span>
+                                <span>{capiTestResult.message}</span>
+                                {capiTestResult.fbtrace_id && (
+                                    <span className="text-[10px] text-gray-400 font-mono hidden md:inline">
+                                        [Trace: {capiTestResult.fbtrace_id}]
+                                    </span>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </AdminCard>
 

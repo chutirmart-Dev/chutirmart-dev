@@ -85,17 +85,21 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
             {!isCheckout && !isConfirmation && cartCount > 0 && (
                 <div 
                     onClick={() => setIsCartOpen(true)}
-                    className="flex fixed right-0 top-1/2 -translate-y-1/2 z-40 flex-col items-center bg-white shadow-[-3px_4px_16px_rgba(0,0,0,0.16)] rounded-l sm:rounded-l-md border border-r-0 border-gray-200 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-3px] active:scale-95"
+                    className="flex fixed right-0 top-1/2 -translate-y-1/2 z-40 flex-col items-center bg-white shadow-[-4px_6px_20px_rgba(0,0,0,0.18)] rounded-l-xl border border-r-0 border-gray-200/90 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-3px] active:scale-95 group"
                     title="View Cart"
+                    role="button"
+                    aria-label={`View cart: ${cartCount} items, total ৳${Math.round(cartSubtotal).toLocaleString()}`}
                 >
                     {/* Top: Red background with bag icon & count */}
-                    <div className="w-12 sm:w-16 py-2 sm:py-3 bg-[#E2231A] text-white flex flex-col items-center justify-center gap-0.5 sm:gap-1">
-                        <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
-                        <span className="text-[8.5px] sm:text-[10px] font-black tracking-wide leading-none">{cartCount} Items</span>
+                    <div className="w-14 sm:w-16 py-2.5 sm:py-3 bg-[#E2231A] group-hover:bg-[#c61e16] text-white flex flex-col items-center justify-center gap-1 transition-colors px-1">
+                        <ShoppingBag className="w-4.5 h-4.5 sm:w-5 sm:h-5 drop-shadow-xs" />
+                        <span className="text-[10px] sm:text-[11px] font-black tracking-tight leading-none whitespace-nowrap font-latin">
+                            {cartCount} {cartCount === 1 ? 'Item' : 'Items'}
+                        </span>
                     </div>
-                    {/* Bottom: White background with subtotal */}
-                    <div className="w-12 sm:w-16 py-1 sm:py-2 flex items-center justify-center bg-white text-[#E2231A] text-[9.5px] sm:text-[11px] font-black">
-                        ৳{cartSubtotal}
+                    {/* Bottom: White background with clean formatted subtotal */}
+                    <div className="w-14 sm:w-16 py-1.5 sm:py-2 flex items-center justify-center bg-white text-[#E2231A] text-[11px] sm:text-[12px] font-black font-latin tracking-tight whitespace-nowrap px-1 border-t border-gray-100">
+                        ৳{Math.round(cartSubtotal).toLocaleString()}
                     </div>
                 </div>
             )}

@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Trash2, Plus, Minus, CreditCard, Truck, ShoppingBag, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { Trash2, Plus, Minus, CreditCard, Truck, ShoppingBag, ChevronDown, CheckCircle2, User, Phone, MapPin, Building2, Navigation } from 'lucide-react';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { useCart } from '@/context/CartContext';
 import axios from 'axios';
@@ -299,86 +299,106 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-20 md:pb-0">
                     
                     {/* Left Column: Product Overview and Delivery Address */}
                     <div className="lg:col-span-7 space-y-6">
                         {/* 1. Ordered Products List Card */}
-                        <div className="bg-white border border-gray-200/90 rounded-lg p-5 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-4">
-                            <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3">
-                                <div className="w-1 h-5 bg-[#009E49] rounded-full" />
-                                <h2 className="text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
-                                    অর্ডারকৃত পণ্যসমূহ
-                                </h2>
+                        <div className="bg-white border border-gray-200/90 rounded-xl p-3 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-3.5 sm:space-y-4">
+                            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                                <div className="flex items-center gap-2 sm:gap-2.5">
+                                    <div className="w-1 h-4 sm:h-5 bg-[#009E49] rounded-full" />
+                                    <h2 className="text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
+                                        অর্ডারকৃত পণ্যসমূহ
+                                    </h2>
+                                </div>
+                                <span className="text-xs sm:text-sm font-bold text-gray-500 font-latin bg-gray-100 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shrink-0">
+                                    {cartCount} {cartCount === 1 ? 'item' : 'items'}
+                                </span>
                             </div>
-                            <div className="space-y-3">
+                            <div className="space-y-2.5 sm:space-y-3">
                                 {cartItems.map((item, index) => (
-                                    <div key={item.id} className="bg-gray-50/60 border border-gray-200/80 rounded-md p-3 sm:p-4 flex items-center gap-3 shadow-2xs">
+                                    <div 
+                                        key={`${item.id}-${index}`} 
+                                        className="bg-white hover:bg-gray-50/50 border border-gray-200/85 rounded-xl p-2.5 sm:p-3.5 flex gap-2.5 sm:gap-3.5 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.03)] relative"
+                                    >
                                         {/* Product Image */}
-                                        <img 
-                                            src={item.image} 
-                                            alt={item.name} 
-                                            className="w-15 h-15 sm:w-18 sm:h-18 object-cover rounded-md border border-gray-200 shrink-0 bg-white" 
-                                            onError={e => {
-                                                (e.target as HTMLImageElement).src = '/storage/defaults/default-product.svg';
-                                            }}
-                                        />
+                                        <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-lg border border-gray-150 overflow-hidden shrink-0 bg-gray-50 flex items-center justify-center self-start">
+                                            <img 
+                                                src={item.image} 
+                                                alt={item.name} 
+                                                className="w-full h-full object-cover" 
+                                                onError={e => {
+                                                    (e.target as HTMLImageElement).src = '/storage/defaults/default-product.svg';
+                                                }}
+                                            />
+                                        </div>
 
                                         {/* Details & Controls */}
-                                        <div className="flex-1 min-w-0 space-y-1.5">
-                                            {/* Product Title & Variant */}
-                                            <div>
-                                                <h4 className="text-sm sm:text-base font-medium text-gray-900 line-clamp-2 leading-snug font-bangla">{item.name}</h4>
-                                                {item.variant_info && (
-                                                    <span className="text-xs text-[#009E49] font-bold block mt-0.5">
-                                                        {item.variant_info.label || item.variant_info.value || 'Variant selected'}
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            {/* Bottom row matching user reference: Qty: [ - 1 + ]  ৳ 490 */}
-                                            <div className="flex items-center justify-between gap-2 pt-0.5">
-                                                <div className="flex items-center gap-2 font-latin">
-                                                    <span className="text-xs sm:text-sm text-gray-600 font-bold">Qty:</span>
-                                                    
-                                                    {/* Stepper matching Pop up Cart (CartSheet) reference exactly */}
-                                                    <div className="inline-flex items-center bg-gray-100 border border-gray-200/80 rounded-full p-0.5 h-8 sm:h-9">
-                                                        <button 
-                                                            type="button" 
-                                                            onClick={() => updateQuantity(index, item.quantity - 1)} 
-                                                            className="w-7 sm:w-8 h-full flex items-center justify-center rounded-full bg-white shadow-2xs hover:bg-gray-50 active:scale-90 text-gray-700 text-xs sm:text-sm font-black transition-transform cursor-pointer"
-                                                            title="Decrease"
-                                                        >
-                                                            <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
-                                                        </button>
-                                                        <span className="px-2 text-sm sm:text-base font-black text-gray-900 min-w-[22px] text-center">
-                                                            {item.quantity}
+                                        <div className="flex-1 min-w-0 flex flex-col justify-between gap-1.5 sm:gap-2">
+                                            {/* Top Row: Product Title & Delete Button */}
+                                            <div className="flex items-start justify-between gap-1.5 sm:gap-2">
+                                                <div className="min-w-0 flex-1 pr-1">
+                                                    <h4 className="text-xs sm:text-sm md:text-base font-semibold text-gray-900 line-clamp-2 leading-snug font-bangla" title={item.name}>
+                                                        {item.name}
+                                                    </h4>
+                                                    {item.variant_info && (
+                                                        <span className="text-[10px] sm:text-xs text-[#009E49] font-bold inline-block mt-0.5 bg-emerald-50 px-1.5 py-0.5 rounded font-bangla">
+                                                            {item.variant_info.label || item.variant_info.value || 'Variant selected'}
                                                         </span>
-                                                        <button 
-                                                            type="button" 
-                                                            onClick={() => updateQuantity(index, item.quantity + 1)} 
-                                                            className="w-7 sm:w-8 h-full flex items-center justify-center rounded-full bg-white shadow-2xs hover:bg-gray-50 active:scale-90 text-[#009E49] text-xs sm:text-sm font-black transition-transform cursor-pointer"
-                                                            title="Increase"
-                                                        >
-                                                            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                                                        </button>
-                                                    </div>
-
-                                                    {/* Total Price */}
-                                                    <span className="text-sm sm:text-base font-black text-gray-950 font-latin ml-1 whitespace-nowrap">
-                                                        ৳{item.price * item.quantity}
-                                                    </span>
+                                                    )}
                                                 </div>
 
-                                                {/* Delete button */}
+                                                {/* Delete button: modern, clean, non-intrusive */}
                                                 <button 
                                                     type="button" 
                                                     onClick={() => removeFromCart(index)} 
-                                                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-red-50 hover:bg-red-500 text-red-500 hover:text-white border border-red-200 hover:border-red-500 transition-all flex items-center justify-center cursor-pointer shadow-2xs shrink-0 active:scale-90"
-                                                    title="Remove Item"
+                                                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 active:bg-red-100 transition-all flex items-center justify-center cursor-pointer shrink-0 active:scale-90"
+                                                    title="পণ্যটি মুছে ফেলুন"
+                                                    aria-label="Remove Item"
                                                 >
-                                                    <Trash2 className="w-4 h-4" />
+                                                    <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                                 </button>
+                                            </div>
+
+                                            {/* Bottom row: Stepper on Left, Total Price on Right */}
+                                            <div className="flex items-center justify-between gap-2 font-latin pt-0.5">
+                                                {/* Stepper with compact mobile footprint */}
+                                                <div className="inline-flex items-center bg-gray-100/90 hover:bg-gray-100 border border-gray-200/80 rounded-full p-0.5 h-7 sm:h-8 shrink-0">
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => updateQuantity(index, item.quantity - 1)} 
+                                                        className="w-6 sm:w-7 h-full flex items-center justify-center rounded-full bg-white shadow-2xs hover:bg-gray-50 active:scale-90 text-gray-700 text-xs font-black transition-transform cursor-pointer"
+                                                        title="Decrease"
+                                                        aria-label="Decrease quantity"
+                                                    >
+                                                        <Minus className="w-3 h-3 stroke-[2.5]" />
+                                                    </button>
+                                                    <span className="px-1.5 sm:px-2 text-xs sm:text-sm font-black text-gray-900 min-w-[18px] text-center">
+                                                        {item.quantity}
+                                                    </span>
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => updateQuantity(index, item.quantity + 1)} 
+                                                        className="w-6 sm:w-7 h-full flex items-center justify-center rounded-full bg-white shadow-2xs hover:bg-gray-50 active:scale-90 text-[#009E49] text-xs font-black transition-transform cursor-pointer"
+                                                        title="Increase"
+                                                        aria-label="Increase quantity"
+                                                    >
+                                                        <Plus className="w-3 h-3 stroke-[2.5]" />
+                                                    </button>
+                                                </div>
+
+                                                {/* Total Price & Unit calculation */}
+                                                <div className="text-right shrink-0 flex flex-col items-end justify-center">
+                                                    <span className="text-xs xs:text-sm sm:text-base font-black text-[#009E49] whitespace-nowrap block leading-tight">
+                                                        ৳{Number((item.price * item.quantity).toFixed(2)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}
+                                                    </span>
+                                                    {item.quantity > 1 && (
+                                                        <span className="text-[10px] sm:text-xs text-gray-400 block font-medium whitespace-nowrap leading-none mt-0.5">
+                                                            (৳{Number(item.price.toFixed(2)).toLocaleString('en-US')} × {item.quantity})
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -387,66 +407,82 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                         </div>
 
                         {/* 2. Delivery Address Card (Modern & Clean Design) */}
-                        <div className="bg-white border border-gray-200/90 rounded-lg p-5 sm:p-7 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-5">
+                        <div className="bg-white border border-gray-200/90 rounded-xl p-4 sm:p-7 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4 sm:space-y-5">
                             {/* Header with vertical accent bar */}
-                            <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3.5">
-                                <div className="w-1 h-5 bg-[#009E49] rounded-full" />
-                                <h2 className="text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
-                                    ডেলিভারি ঠিকানা
-                                </h2>
+                            <div className="flex items-center justify-between border-b border-gray-100 pb-3.5">
+                                <div className="flex items-center gap-2.5 sm:gap-3">
+                                    <div className="w-1.5 h-6 bg-[#009E49] rounded-full" />
+                                    <h2 className="text-lg sm:text-xl font-black text-gray-950 font-bangla tracking-tight">
+                                        ডেলিভারি ঠিকানা
+                                    </h2>
+                                </div>
+                                <span className="text-xs sm:text-[13px] font-semibold text-[#009E49] bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-md font-bangla flex items-center gap-1">
+                                    <span>সঠিক তথ্য দিন</span>
+                                </span>
                             </div>
                             
                             <div className="space-y-4">
                                 {/* Row 1: Name and Mobile */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                                     {/* Name Input */}
                                     <div>
-                                        <input 
-                                            id="customer_name" 
-                                            placeholder="আপনার নাম *" 
-                                            value={data.customer_name} 
-                                            onChange={e => setData('customer_name', e.target.value)} 
-                                            className={`w-full h-12 px-4 rounded-md border ${errors.customer_name ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 transition-all font-bangla`}
-                                            required
-                                        />
-                                        {errors.customer_name && <p className="text-red-500 text-xs mt-1 font-bangla">{errors.customer_name}</p>}
+                                        <div className="relative">
+                                            <div className="absolute inset-y-0 left-0 pl-3.5 sm:pl-4 flex items-center pointer-events-none text-gray-400">
+                                                <User className="w-5 h-5" />
+                                            </div>
+                                            <input 
+                                                id="customer_name" 
+                                                placeholder="আপনার নাম *" 
+                                                value={data.customer_name} 
+                                                onChange={e => setData('customer_name', e.target.value)} 
+                                                className={`w-full h-13 sm:h-14 pl-11 sm:pl-12 pr-4 rounded-lg border ${errors.customer_name ? 'border-red-500 bg-red-50/20 ring-2 ring-red-500/10' : 'border-gray-300 bg-white hover:border-gray-400'} text-base sm:text-[16.5px] font-semibold text-gray-900 placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:border-[#009E49] focus:ring-4 focus:ring-[#009E49]/12 transition-all font-bangla shadow-xs`}
+                                                required
+                                            />
+                                        </div>
+                                        {errors.customer_name && <p className="text-red-500 text-xs sm:text-sm mt-1.5 font-bangla">{errors.customer_name}</p>}
                                     </div>
 
                                     {/* Mobile Input with 88 Prefix */}
                                     <div>
-                                        <div className={`flex rounded-md border ${errors.mobile ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} overflow-hidden h-12 focus-within:border-[#009E49] focus-within:ring-2 focus-within:ring-[#009E49]/15 transition-all`}>
-                                            <div className="px-4 bg-gray-50/80 border-r border-gray-300 flex items-center justify-center text-[15px] font-bold text-gray-700 font-latin select-none">
-                                                88
+                                        <div className={`flex rounded-lg border ${errors.mobile ? 'border-red-500 bg-red-50/20 ring-2 ring-red-500/10' : 'border-gray-300 bg-white hover:border-gray-400'} overflow-hidden h-13 sm:h-14 focus-within:border-[#009E49] focus-within:ring-4 focus-within:ring-[#009E49]/12 transition-all shadow-xs`}>
+                                            <div className="px-3.5 sm:px-4 bg-gray-50/90 border-r border-gray-200/90 flex items-center justify-center gap-1.5 text-base sm:text-[16.5px] font-bold text-gray-700 font-latin select-none shrink-0">
+                                                <Phone className="w-4.5 h-4.5 text-gray-400" />
+                                                <span>88</span>
                                             </div>
                                             <input 
                                                 id="mobile" 
                                                 placeholder="আপনার মোবাইল নম্বর *" 
                                                 value={data.mobile} 
                                                 onChange={e => setData('mobile', e.target.value)} 
-                                                className="flex-1 px-4 h-full border-none bg-transparent text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal focus:outline-none font-bangla"
+                                                className="flex-1 px-3.5 sm:px-4 h-full border-none bg-transparent text-base sm:text-[16.5px] font-semibold text-gray-900 placeholder:text-gray-400 placeholder:font-normal focus:outline-none font-bangla"
                                                 type="tel"
                                                 required
                                             />
                                         </div>
-                                        {errors.mobile && <p className="text-red-500 text-xs mt-1 font-bangla">{errors.mobile}</p>}
+                                        {errors.mobile && <p className="text-red-500 text-xs sm:text-sm mt-1.5 font-bangla">{errors.mobile}</p>}
                                     </div>
                                 </div>
 
                                 {/* Row 2: Full Detailed Address */}
                                 <div>
-                                    <input 
-                                        id="address" 
-                                        placeholder="জেলা, থানা, বাড়ি/ফ্ল্যাট নম্বর, রোড, এলাকা *" 
-                                        value={data.address} 
-                                        onChange={e => setData('address', e.target.value)} 
-                                        className={`w-full h-12 px-4 rounded-md border ${errors.address ? 'border-red-500 bg-red-50/20' : 'border-gray-300 bg-white'} text-[15px] font-medium text-gray-900 placeholder:text-gray-600 placeholder:font-normal focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 transition-all font-bangla`}
-                                        required
-                                    />
-                                    {errors.address && <p className="text-red-500 text-xs mt-1 font-bangla">{errors.address}</p>}
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3.5 sm:pl-4 flex items-center pointer-events-none text-gray-400">
+                                            <MapPin className="w-5 h-5" />
+                                        </div>
+                                        <input 
+                                            id="address" 
+                                            placeholder="জেলা, থানা, বাড়ি/ফ্ল্যাট নম্বর, রোড, এলাকা *" 
+                                            value={data.address} 
+                                            onChange={e => setData('address', e.target.value)} 
+                                            className={`w-full h-13 sm:h-14 pl-11 sm:pl-12 pr-4 rounded-lg border ${errors.address ? 'border-red-500 bg-red-50/20 ring-2 ring-red-500/10' : 'border-gray-300 bg-white hover:border-gray-400'} text-base sm:text-[16.5px] font-semibold text-gray-900 placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:border-[#009E49] focus:ring-4 focus:ring-[#009E49]/12 transition-all font-bangla shadow-xs`}
+                                            required
+                                        />
+                                    </div>
+                                    {errors.address && <p className="text-red-500 text-xs sm:text-sm mt-1.5 font-bangla">{errors.address}</p>}
                                 </div>
 
                                 {/* Row 3: District and Thana searchable dropdowns */}
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
                                     {/* District Searchable Dropdown */}
                                     <div>
                                         <SearchableSelect
@@ -460,8 +496,9 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                             placeholder="জেলা সিলেক্ট করুন *"
                                             searchPlaceholder="জেলা খুঁজুন (যেমন: ঢাকা, Mymensingh)..."
                                             error={errors.district}
+                                            icon={<Building2 className="w-5 h-5 text-gray-400" />}
                                         />
-                                        {errors.district && <p className="text-red-500 text-xs mt-1 font-bangla">{errors.district}</p>}
+                                        {errors.district && <p className="text-red-500 text-xs sm:text-sm mt-1.5 font-bangla">{errors.district}</p>}
                                     </div>
 
                                     {/* Thana Searchable Dropdown */}
@@ -484,6 +521,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                             searchPlaceholder="থানা খুঁজুন (যেমন: ত্রিশাল, Trishal)..."
                                             disabled={!data.district || isLoadingThanas}
                                             allowCustom={true}
+                                            icon={<Navigation className="w-5 h-5 text-gray-400" />}
                                             onDisabledClick={() => {
                                                 if (!data.district) {
                                                     toast.info('অনুগ্রহ করে প্রথমে আপনার জেলা নির্বাচন করুন।');
@@ -529,7 +567,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                         </div>
 
                         {/* 2. Coupon Validation & Order Summary */}
-                        <div className="bg-white border border-gray-200/90 rounded-lg p-5 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-4">
+                        <div className="bg-white border border-gray-200/90 rounded-xl p-3.5 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-4">
                             <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3">
                                 <div className="w-1 h-5 bg-[#009E49] rounded-full" />
                                 <h2 className="text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
@@ -622,10 +660,10 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                 <Button 
                                     type="submit" 
                                     disabled={processing} 
-                                    className="w-full bg-[#009E49] hover:bg-[#007F3B] active:scale-[0.98] text-white h-14 text-base sm:text-lg font-extrabold rounded-md shadow-[0_4px_16px_rgba(0,158,73,0.3)] border-none flex items-center justify-center gap-2 transition-all font-bangla uppercase tracking-wide cursor-pointer"
+                                    className="w-full bg-[#009E49] hover:bg-[#007F3B] active:scale-[0.98] text-white h-12 sm:h-14 text-sm sm:text-base md:text-lg font-extrabold rounded-lg shadow-[0_4px_16px_rgba(0,158,73,0.3)] border-none flex items-center justify-center gap-2 transition-all font-bangla uppercase tracking-wide cursor-pointer px-3"
                                 >
-                                    <ShoppingBag className="w-5 h-5" />
-                                    {processing ? 'অর্ডার প্রসেস হচ্ছে...' : 'অর্ডার কনফার্ম করুন 🛍️'}
+                                    <ShoppingBag className="w-4.5 h-4.5 sm:w-5 sm:h-5 shrink-0" />
+                                    <span className="truncate">{processing ? 'অর্ডার প্রসেস হচ্ছে...' : 'অর্ডার কনফার্ম করুন 🛍️'}</span>
                                 </Button>
                             </div>
                         </div>
@@ -645,10 +683,10 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                             form="checkout-form" 
                             disabled={processing || isOriginalButtonVisible} 
                             onClick={handleSubmit} 
-                            className="w-full bg-[#009E49] hover:bg-[#007F3B] active:scale-[0.98] text-white h-14 text-base font-extrabold rounded-md shadow-[0_4px_20px_rgba(0,158,73,0.35)] border-none flex items-center justify-center gap-2 transition-all font-bangla uppercase tracking-wide cursor-pointer pointer-events-auto"
+                            className="w-full bg-[#009E49] hover:bg-[#007F3B] active:scale-[0.98] text-white h-12 sm:h-14 text-sm sm:text-base font-extrabold rounded-lg shadow-[0_4px_20px_rgba(0,158,73,0.35)] border-none flex items-center justify-center gap-2 transition-all font-bangla uppercase tracking-wide cursor-pointer pointer-events-auto px-3"
                         >
-                            <ShoppingBag className="w-5 h-5" />
-                            {processing ? 'অর্ডার প্রসেস হচ্ছে...' : 'অর্ডার কনফার্ম করুন 🛍️'}
+                            <ShoppingBag className="w-4.5 h-4.5 sm:w-5 sm:h-5 shrink-0" />
+                            <span className="truncate">{processing ? 'অর্ডার প্রসেস হচ্ছে...' : 'অর্ডার কনফার্ম করুন 🛍️'}</span>
                         </Button>
                     </div>
                 </form>

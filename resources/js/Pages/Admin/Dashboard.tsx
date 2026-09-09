@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Head, Link } from '@inertiajs/react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Head, Link, router } from '@inertiajs/react';
 import AdminLayout from '@/layouts/AdminLayout';
 import {
     TrendingUp, ShoppingBag, Users, ShoppingCart,
@@ -8,8 +8,17 @@ import {
     Tag, FolderTree, ArrowRight, Truck, Wallet, AlertCircle, Eye,
     Layers, Settings, Clock, ArrowUpRight, Award, ShieldCheck,
     BarChart3, SlidersHorizontal, Check, MoreVertical,
-    UserPlus, Plus, XCircle
+    UserPlus, Plus, XCircle, Calendar, ChevronDown
 } from 'lucide-react';
+
+const PERIOD_OPTIONS = [
+    { value: 'today', label: 'Today Order', bangla: 'আজকের অর্ডার', icon: '📅' },
+    { value: 'yesterday', label: 'Yesterday Order', bangla: 'গতকালকের অর্ডার', icon: '⏳' },
+    { value: '7_days', label: '7 Days Order', bangla: 'বিগত ৭ দিন', icon: '🗓️' },
+    { value: '30_days', label: '30 Days Order', bangla: 'বিগত ৩০ দিন', icon: '📆' },
+    { value: '1_year', label: '1 Year Order', bangla: 'বিগত ১ বছর', icon: '📊' },
+    { value: 'all', label: 'All Time Orders', bangla: 'সর্বমোট অর্ডার', icon: '🌐' },
+];
 
 interface DashboardProps {
     stats: {
@@ -32,6 +41,7 @@ interface DashboardProps {
     chartData: any[];
     suggestions: any[];
     topProducts: any[];
+    selectedPeriod?: string;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -40,9 +50,30 @@ export const Dashboard: React.FC<DashboardProps> = ({
     lowStock,
     chartData,
     suggestions,
-    topProducts
+    topProducts,
+    selectedPeriod = 'all',
 }) => {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+    const [periodOpen, setPeriodOpen] = useState(false);
+    const periodRef = useRef<HTMLDivElement>(null);
+
+    const currentPeriod = selectedPeriod || 'all';
+    const activePeriodObj = PERIOD_OPTIONS.find(p => p.value === currentPeriod) || PERIOD_OPTIONS[5];
+
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (periodRef.current && !periodRef.current.contains(e.target as Node)) {
+                setPeriodOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    const handleSelectPeriod = (newPeriod: string) => {
+        setPeriodOpen(false);
+        router.get(route('admin.dashboard'), { period: newPeriod }, { preserveState: true, preserveScroll: true });
+    };
 
     // ── Chart maths (Responsive wave graph with crisp typography) ──────────────
     const W = 600, H = 180;
@@ -201,6 +232,72 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <Head title="Admin Dashboard" />
 
             <div className="space-y-5 sm:space-y-6 w-full max-w-full">
+
+                {/* ── Dashboard Header with Time Period Filter Dropdown ── */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+                    <div>
+                        <h2 className="text-[18px] sm:text-[20px] font-black text-[#1A1A2E] tracking-tight">
+                            Dashboard Overview
+                        </h2>
+                        <p className="text-[11.5px] sm:text-[12px] text-slate-500 mt-0.5">
+                            ফিল্টার: <span className="font-bold text-[#009E49]">{activePeriodObj.label} ({activePeriodObj.bangla})</span> এর অর্ডার ও আয় পরিসংখ্যান
+                        </p>
+                    </div>
+
+                    {/* Dropdown Selector */}
+                    <div ref={periodRef} className="relative select-none w-full sm:w-auto">
+                        <button
+                            type="button"
+                            onClick={() => setPeriodOpen(prev => !prev)}
+                            className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2.5 h-11 sm:h-11 px-4 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/90 text-slate-800 text-[14px] sm:text-[14.5px] font-bold shadow-2xs hover:border-[#009E49]/40 transition-all cursor-pointer active:scale-98"
+                        >
+                            <div className="flex items-center gap-2 min-w-0">
+                                <Calendar className="w-4.5 h-4.5 text-[#009E49] shrink-0" />
+                                <span className="text-[16px]">{activePeriodObj.icon}</span>
+                                <span className="truncate">{activePeriodObj.label}</span>
+                            </div>
+                            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ${periodOpen ? 'rotate-180 text-[#009E49]' : ''}`} />
+                        </button>
+
+                        {periodOpen && (
+                            <div className="absolute left-0 sm:left-auto sm:right-0 top-[calc(100%+8px)] z-50 w-full sm:w-76 bg-white rounded-2xl border border-slate-200 shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-150">
+                                <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 mb-1">
+                                    <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                                        সময়কাল নির্বাচন করুন
+                                    </span>
+                                    <span className="text-[11px] font-extrabold text-[#009E49] bg-[#009E49]/10 px-2 py-0.5 rounded-full">
+                                        Filter
+                                    </span>
+                                </div>
+                                <div className="space-y-1">
+                                    {PERIOD_OPTIONS.map((opt) => {
+                                        const isSelected = opt.value === currentPeriod;
+                                        return (
+                                            <button
+                                                key={opt.value}
+                                                type="button"
+                                                onClick={() => handleSelectPeriod(opt.value)}
+                                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer border-none ${
+                                                    isSelected
+                                                        ? 'bg-[#009E49] text-white font-black shadow-md shadow-[#009E49]/20'
+                                                        : 'text-slate-800 hover:bg-slate-100/80 hover:text-[#009E49]'
+                                                }`}
+                                            >
+                                                <span className="flex items-center gap-2.5">
+                                                    <span className="text-[18px] shrink-0">{opt.icon}</span>
+                                                    <span className="text-[14px] font-bold">{opt.label}</span>
+                                                </span>
+                                                <span className={`text-[12px] font-semibold ${isSelected ? 'text-emerald-100 font-bold' : 'text-slate-500'}`}>
+                                                    {opt.bangla}
+                                                </span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
                 {/* ── TOP SECTION 1: 4 Stat Cards (2 Columns on Mobile, 4 on Desktop with Smooth Modern Styling) ── */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5 pt-1 sm:pt-2">

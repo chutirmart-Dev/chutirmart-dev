@@ -29,7 +29,7 @@ export const Header: React.FC = () => {
     };
 
     return (
-        <header className="bg-white sticky top-0 z-40 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.06)] border-b border-gray-100/80 transition-shadow">
+        <header className="bg-white sticky top-0 z-40 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.08),0_2px_6px_-1px_rgba(0,0,0,0.04)] border-b border-gray-100/90 transition-shadow">
             {/* Top Bar / Brand section */}
             <div className="container py-2 sm:py-3 md:py-4 flex items-center justify-between gap-1.5 xs:gap-2.5 sm:gap-4">
                 {/* Left Section: Mobile Hamburger Button + Logo */}

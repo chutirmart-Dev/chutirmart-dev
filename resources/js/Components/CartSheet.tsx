@@ -122,18 +122,18 @@ export const CartSheet: React.FC = () => {
                 ) : (
                     <>
                         {/* Line Items List (Card-based, spacious, mobile-perfect) */}
-                        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5 sm:space-y-3 bg-[#F8F9FA]">
+                        <div className="flex-1 overflow-y-auto p-2.5 sm:p-4 space-y-2 sm:space-y-3 bg-[#F8F9FA]">
                             {cartItems.map((item, index) => (
                                 <div 
                                     key={`${item.id}-${index}`} 
-                                    className="bg-white border border-gray-200/80 rounded-lg p-3 sm:p-3.5 flex items-center gap-3 relative shadow-[0_1px_4px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] transition-shadow"
+                                    className="bg-white border border-gray-200/80 rounded-xl p-2.5 sm:p-3.5 flex gap-2.5 sm:gap-3.5 transition-shadow shadow-[0_1px_4px_rgba(0,0,0,0.03)] hover:shadow-[0_4px_12px_rgba(0,0,0,0.06)] relative"
                                 >
                                     {/* Product Thumbnail */}
-                                    <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-md border border-gray-100 shrink-0 bg-gray-50 overflow-hidden flex items-center justify-center">
+                                    <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-lg border border-gray-150 shrink-0 bg-gray-50 overflow-hidden flex items-center justify-center self-start">
                                         <img 
                                             src={item.image} 
                                             alt={item.name} 
-                                            className="w-full h-full object-cover rounded-md" 
+                                            className="w-full h-full object-cover" 
                                             onError={e => {
                                                 (e.target as HTMLImageElement).src = '/storage/defaults/default-product.svg';
                                             }}
@@ -141,62 +141,76 @@ export const CartSheet: React.FC = () => {
                                     </div>
 
                                     {/* Product Info & Quantity Row */}
-                                    <div className="flex-1 min-w-0 pr-1 flex flex-col justify-center">
-                                        <h4 className="text-sm sm:text-base font-medium text-gray-900 line-clamp-2 leading-snug font-bangla">
-                                            {item.name}
-                                        </h4>
-                                        {item.variant_info && (
-                                            <span className="text-xs text-[#009E49] font-bold mt-0.5 inline-block w-fit bg-emerald-50 px-2 py-0.5 rounded font-bangla">
-                                                {item.variant_info.label || item.variant_info.value || 'Variant selected'}
-                                            </span>
-                                        )}
-                                        <div className="flex items-center justify-between gap-2 mt-2 font-latin">
+                                    <div className="flex-1 min-w-0 flex flex-col justify-between gap-1.5 sm:gap-2">
+                                        {/* Top: Title & Delete Button */}
+                                        <div className="flex items-start justify-between gap-1.5 sm:gap-2">
+                                            <div className="min-w-0 flex-1 pr-1">
+                                                <h4 className="text-xs sm:text-sm font-semibold text-gray-900 line-clamp-2 leading-snug font-bangla" title={item.name}>
+                                                    {item.name}
+                                                </h4>
+                                                {item.variant_info && (
+                                                    <span className="text-[10px] sm:text-xs text-[#009E49] font-bold inline-block mt-0.5 bg-emerald-50 px-1.5 py-0.5 rounded font-bangla">
+                                                        {item.variant_info.label || item.variant_info.value || 'Variant selected'}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {/* Delete button: sleek, clean, modern */}
+                                            <button 
+                                                onClick={() => removeFromCart(index)}
+                                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 active:bg-red-100 active:scale-90 transition-all flex items-center justify-center cursor-pointer shrink-0"
+                                                title="Remove Item"
+                                                type="button"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                            </button>
+                                        </div>
+
+                                        {/* Bottom: Stepper & Price */}
+                                        <div className="flex items-center justify-between gap-2 font-latin pt-0.5">
                                             {/* Quantity Stepper */}
-                                            <div className="inline-flex items-center bg-gray-100 border border-gray-200/80 rounded-full p-0.5 h-8 sm:h-9">
+                                            <div className="inline-flex items-center bg-gray-100/90 hover:bg-gray-100 border border-gray-200/80 rounded-full p-0.5 h-7 sm:h-8 shrink-0">
                                                 <button 
                                                     onClick={() => updateQuantity(index, item.quantity - 1)}
-                                                    className="w-7 sm:w-8 h-full flex items-center justify-center rounded-full bg-white shadow-2xs hover:bg-gray-50 active:scale-90 text-gray-700 text-xs sm:text-sm font-black transition-transform cursor-pointer"
+                                                    className="w-6 sm:w-7 h-full flex items-center justify-center rounded-full bg-white shadow-2xs hover:bg-gray-50 active:scale-90 text-gray-700 text-xs font-black transition-transform cursor-pointer"
                                                     title="Decrease"
                                                     type="button"
                                                 >
-                                                    <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+                                                    <Minus className="w-3 h-3 stroke-[2.5]" />
                                                 </button>
-                                                <span className="px-2 text-sm font-black text-gray-900 min-w-[22px] text-center">
+                                                <span className="px-1.5 sm:px-2 text-xs sm:text-sm font-black text-gray-900 min-w-[18px] text-center">
                                                     {item.quantity}
                                                 </span>
                                                 <button 
                                                     onClick={() => updateQuantity(index, item.quantity + 1)}
-                                                    className="w-7 sm:w-8 h-full flex items-center justify-center rounded-full bg-white shadow-2xs hover:bg-gray-50 active:scale-90 text-[#009E49] text-xs sm:text-sm font-black transition-transform cursor-pointer"
+                                                    className="w-6 sm:w-7 h-full flex items-center justify-center rounded-full bg-white shadow-2xs hover:bg-gray-50 active:scale-90 text-[#009E49] text-xs font-black transition-transform cursor-pointer"
                                                     title="Increase"
                                                     type="button"
                                                 >
-                                                    <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                                                    <Plus className="w-3 h-3 stroke-[2.5]" />
                                                 </button>
                                             </div>
 
-                                            {/* Price info: ৳490 */}
-                                            <span className="font-black text-[#009E49] text-sm sm:text-base whitespace-nowrap">
-                                                ৳{(item.price * item.quantity).toLocaleString()}
-                                            </span>
+                                            {/* Price info */}
+                                            <div className="text-right shrink-0">
+                                                <span className="font-black text-[#009E49] text-xs xs:text-sm sm:text-base whitespace-nowrap block leading-tight">
+                                                    ৳{(item.price * item.quantity).toLocaleString()}
+                                                </span>
+                                                {item.quantity > 1 && (
+                                                    <span className="text-[10px] sm:text-xs text-gray-400 block font-medium whitespace-nowrap leading-none mt-0.5">
+                                                        ৳{item.price.toLocaleString()} × {item.quantity}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-                                    
-                                    {/* Delete button */}
-                                    <button 
-                                        onClick={() => removeFromCart(index)}
-                                        className="self-start sm:self-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 active:scale-90 transition-all flex items-center justify-center cursor-pointer shrink-0"
-                                        title="Remove Item"
-                                        type="button"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
                                 </div>
                             ))}
                         </div>
 
                         {/* Modern App Sticky Footer */}
                         <div 
-                            className="border-t border-gray-100 p-4 sm:p-5 bg-white space-y-3.5 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] shrink-0"
+                            className="border-t border-gray-100 p-3 sm:p-5 bg-white space-y-3 sm:space-y-3.5 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] shrink-0"
                             style={{ paddingBottom: 'max(1rem, env(safe-area-inset-bottom, 16px))' }}
                         >
                             {/* Coupon Code Accordion */}
@@ -227,8 +241,8 @@ export const CartSheet: React.FC = () => {
                                             <form onSubmit={handleApplyCoupon} className="flex gap-2">
                                                 <Input 
                                                     placeholder="Enter Coupon Code" 
-                                                    value={couponCode}
-                                                    onChange={e => setCouponCode(e.target.value)}
+                                                    value={couponCode} 
+                                                    onChange={e => setCouponCode(e.target.value)} 
                                                     className="h-11 text-sm rounded-md border-gray-300"
                                                 />
                                                 <Button 
@@ -262,16 +276,18 @@ export const CartSheet: React.FC = () => {
                             {/* Checkout Action Button */}
                             <Button 
                                 onClick={handleCheckout} 
-                                className="w-full bg-[#E2231A] hover:bg-[#c61e16] active:scale-[0.98] text-white h-13 sm:h-14 text-base font-extrabold rounded-md shadow-[0_4px_16px_rgba(226,35,26,0.3)] border-none flex items-center justify-between px-5 transition-all font-latin cursor-pointer"
+                                className="w-full bg-[#E2231A] hover:bg-[#c61e16] active:scale-[0.98] text-white h-12 sm:h-14 text-sm sm:text-base font-extrabold rounded-lg shadow-[0_4px_16px_rgba(226,35,26,0.3)] border-none flex items-center justify-between px-3 sm:px-4.5 transition-all font-latin cursor-pointer overflow-hidden group"
                                 type="button"
                             >
-                                <div className="flex items-center gap-2">
-                                    <ShoppingBag className="w-5 h-5" />
-                                    <span>Proceed to Checkout</span>
+                                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 pr-1">
+                                    <ShoppingBag className="w-4.5 h-4.5 sm:w-5 sm:h-5 shrink-0" />
+                                    <span className="truncate text-xs xs:text-sm sm:text-base font-extrabold tracking-wide">
+                                        Proceed to Checkout
+                                    </span>
                                 </div>
-                                <div className="flex items-center gap-1.5 bg-black/15 px-3 py-1.5 rounded text-sm sm:text-base font-black">
+                                <div className="flex items-center gap-1 sm:gap-1.5 bg-black/20 group-hover:bg-black/25 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm font-black shrink-0 transition-colors">
                                     <span>৳{finalTotal.toLocaleString()}</span>
-                                    <ArrowRight className="w-4 h-4" />
+                                    <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
                                 </div>
                             </Button>
 

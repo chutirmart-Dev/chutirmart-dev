@@ -5,30 +5,65 @@ namespace App\Http\Controllers;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // 1. Stat Cards Metrics
-        $totalSales = Order::where('status', 'complete')->count();
-        $totalRevenue = (float) Order::where('status', 'complete')->sum('total');
-        $totalOrders = Order::count();
-        $totalOrdersAmount = (float) Order::sum('total');
-        $totalDeliveryCharge = (float) Order::sum('delivery_charge');
-        $totalCustomers = Customer::count();
+        $period = $request->input('period', 'all');
+
+        $applyPeriod = function ($query) use ($period) {
+            match ($period) {
+                'today' => $query->whereDate('created_at', today()),
+                'yesterday' => $query->whereDate('created_at', today()->subDay()),
+                '7_days' => $query->where('created_at', '>=', now()->subDays(7)),
+                '30_days' => $query->where('created_at', '>=', now()->subDays(30)),
+                '1_year' => $query->where('created_at', '>=', now()->subDays(365)),
+                default => null,
+            };
+        };
+
+        // 1. Stat Cards Metrics with Period filter
+        $salesQuery = Order::where('status', 'complete');
+        $applyPeriod($salesQuery);
+        $totalSales = $salesQuery->count();
+        $totalRevenue = (float) $salesQuery->sum('total');
+
+        $ordersQuery = Order::query();
+        $applyPeriod($ordersQuery);
+        $totalOrders = $ordersQuery->count();
+        $totalOrdersAmount = (float) $ordersQuery->sum('total');
+        $totalDeliveryCharge = (float) $ordersQuery->sum('delivery_charge');
+
+        $customersQuery = Customer::query();
+        $applyPeriod($customersQuery);
+        $totalCustomers = $customersQuery->count();
 
         // Incomplete / Abandoned rate
-        $incompleteOrdersCount = Order::whereIn('status', ['incomplete', 'cancelled'])->count();
+        $incompleteQuery = Order::whereIn('status', ['incomplete', 'cancelled']);
+        $applyPeriod($incompleteQuery);
+        $incompleteOrdersCount = $incompleteQuery->count();
         $incompleteRate = $totalOrders > 0 ? round(($incompleteOrdersCount / $totalOrders) * 100, 1) : 0.0;
 
         // 2. Orders Summary Widget counts
-        $processingCount = Order::where('status', 'processing')->count();
-        $onHoldCount = Order::where('status', 'on_hold')->count();
-        $completeCount = Order::where('status', 'complete')->count();
-        $cancelledCount = Order::where('status', 'cancelled')->count();
+        $processingQuery = Order::where('status', 'processing');
+        $applyPeriod($processingQuery);
+        $processingCount = $processingQuery->count();
+
+        $onHoldQuery = Order::where('status', 'on_hold');
+        $applyPeriod($onHoldQuery);
+        $onHoldCount = $onHoldQuery->count();
+
+        $completeQuery = Order::where('status', 'complete');
+        $applyPeriod($completeQuery);
+        $completeCount = $completeQuery->count();
+
+        $cancelledQuery = Order::where('status', 'cancelled');
+        $applyPeriod($cancelledQuery);
+        $cancelledCount = $cancelledQuery->count();
 
         // 3. Inventory Alerts
         $lowStockProducts = Product::where('status', 'active')
@@ -112,6 +147,7 @@ class DashboardController extends Controller
             'chartData' => $chartData,
             'suggestions' => $suggestions,
             'topProducts' => $topProducts,
+            'selectedPeriod' => $period,
         ]);
     }
 }

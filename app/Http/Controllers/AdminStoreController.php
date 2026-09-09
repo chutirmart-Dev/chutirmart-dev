@@ -6,6 +6,7 @@ use App\Models\Banner;
 use App\Models\LandingPage;
 use App\Models\Product;
 use App\Models\StoreSetting;
+use App\Services\ConversionTrackingService;
 use App\Services\Courier\CourierManager;
 use App\Services\MediaService;
 use Illuminate\Http\Request;
@@ -347,5 +348,22 @@ class AdminStoreController extends Controller
             'settings' => $settings,
             'couriers' => CourierManager::getSupportedCouriers(),
         ]);
+    }
+
+    public function testMetaCapi(Request $request, ConversionTrackingService $trackingService)
+    {
+        $request->validate([
+            'pixel_id' => 'nullable|string',
+            'access_token' => 'nullable|string',
+            'test_event_code' => 'nullable|string',
+        ]);
+
+        $result = $trackingService->testConnection(
+            $request->input('pixel_id'),
+            $request->input('access_token'),
+            $request->input('test_event_code')
+        );
+
+        return response()->json($result);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendMetaPurchaseEvent;
 use App\Models\Coupon;
 use App\Models\Customer;
 use App\Models\District;
@@ -14,6 +15,8 @@ use App\Models\Thana;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class CheckoutController extends Controller
@@ -201,6 +204,10 @@ class CheckoutController extends Controller
                 }
                 $customer->save();
 
+                $metaEventId = (string) Str::uuid();
+                $fbp = $request->cookie('_fbp');
+                $fbc = $request->cookie('_fbc') ?: ($request->has('fbclid') ? 'fb.1.'.time().'.'.$request->query('fbclid') : null);
+
                 // Save Order
                 $order = Order::create([
                     'order_number' => $orderNumber,
@@ -222,6 +229,11 @@ class CheckoutController extends Controller
                     'status' => 'processing',
                     'special_notes' => trim(($request->email ? "[Email: {$request->email}] " : '').$request->special_notes),
                     'ip_address' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                    'fbp' => $fbp,
+                    'fbc' => $fbc,
+                    'meta_purchase_event_id' => $metaEventId,
+                    'meta_purchase_sent' => false,
                 ]);
 
                 // Save Order Items and Deduct Stock
@@ -251,6 +263,23 @@ class CheckoutController extends Controller
                     }
                 }
             });
+
+            // Dispatch Meta CAPI Purchase event asynchronously only if instant_checkout mode is enabled
+            $purchaseTrigger = StoreSetting::getValue('facebook_purchase_trigger', 'admin_confirmed');
+            if ($purchaseTrigger === 'instant_checkout') {
+                try {
+                    $createdOrder = Order::where('order_number', $orderNumber)->first();
+                    if ($createdOrder) {
+                        $queueConnection = (config('queue.default') === 'database' && app()->isLocal()) ? 'sync' : null;
+                        $job = SendMetaPurchaseEvent::dispatch($createdOrder);
+                        if ($queueConnection) {
+                            $job->onConnection($queueConnection);
+                        }
+                    }
+                } catch (\Throwable $metaEx) {
+                    Log::warning('Meta CAPI dispatch error on order placement: '.$metaEx->getMessage());
+                }
+            }
 
             return redirect()->route('order.confirmation', ['orderNumber' => $orderNumber]);
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class OrderController extends Controller
@@ -13,6 +14,11 @@ class OrderController extends Controller
         $order = Order::where('order_number', $orderNumber)
             ->with(['items.product.images' => fn ($q) => $q->where('is_main', true)])
             ->firstOrFail();
+
+        if (! $order->meta_purchase_event_id) {
+            $order->meta_purchase_event_id = (string) Str::uuid();
+            $order->saveQuietly();
+        }
 
         return Inertia::render('Storefront/OrderConfirmation', [
             'order' => $order,

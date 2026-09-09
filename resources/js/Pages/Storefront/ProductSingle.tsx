@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { trackViewContent } from '@/lib/gtm';
 import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { ProductCard } from '@/components/ProductCard';
@@ -86,8 +86,10 @@ export const ProductSingle: React.FC<ProductSingleProps> = ({ product, attribute
         }
     }, [product?.id]);
 
-    const whatsAppNumber = "8801700000000"; // default fallback or from settings
-    const callNumber = "01700-000000";
+    const { props: pageProps } = usePage();
+    const store_settings = (pageProps as any)?.store_settings;
+    const whatsAppNumber = store_settings?.whatsapp_number?.replace(/\D/g, '') || "8801700000000";
+    const callNumber = store_settings?.phone || store_settings?.contact_number || store_settings?.whatsapp_number || "01700000000";
 
     const handleQuantityChange = (type: 'inc' | 'dec') => {
         if (type === 'dec' && quantity > 1) {
@@ -373,23 +375,14 @@ export const ProductSingle: React.FC<ProductSingleProps> = ({ product, attribute
                             </button>
                         </div>
 
-                        {/* Quick Order (WhatsApp & Call) Row */}
-                        <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-                            <a 
-                                href={whatsappUrl} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                className="h-11.5 sm:h-12 inline-flex items-center justify-center gap-1.5 sm:gap-2 bg-[#25D366] hover:bg-[#20ba56] text-white rounded text-xs sm:text-sm font-bold shadow-xs active:scale-[0.99] transition-all font-bangla border border-[#1ebc57]"
-                            >
-                                <MessageCircle className="w-4.5 h-4.5 fill-white stroke-none" />
-                                হোয়াটসঅ্যাপে অর্ডার
-                            </a>
+                        {/* Direct Call Quick Order Button (Full Width, Modern & Clean) */}
+                        <div>
                             <a 
                                 href={`tel:${callNumber}`} 
-                                className="h-11.5 sm:h-12 inline-flex items-center justify-center gap-1.5 sm:gap-2 bg-white hover:bg-gray-50 text-gray-800 border border-gray-250 hover:border-gray-300 rounded text-xs sm:text-sm font-bold shadow-2xs active:scale-[0.99] transition-all font-bangla"
+                                className="w-full h-12.5 sm:h-13 bg-white hover:bg-emerald-50/70 active:scale-[0.99] text-gray-900 hover:text-[#009E49] border-2 border-[#009E49] text-[15px] sm:text-base font-bold rounded flex items-center justify-center gap-2.5 font-bangla shadow-xs hover:shadow transition-all cursor-pointer group"
                             >
-                                <Phone className="w-4.5 h-4.5 text-[#009E49]" />
-                                সরাসরি কল করুন
+                                <Phone className="w-5 h-5 text-[#009E49] group-hover:scale-110 transition-transform stroke-[2.2]" />
+                                <span>সরাসরি কল করুন</span>
                             </a>
                         </div>
 

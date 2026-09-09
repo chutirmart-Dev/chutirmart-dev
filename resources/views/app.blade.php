@@ -7,15 +7,75 @@
 
         <title inertia>{{ config('app.name', 'ChutirMart') }}</title>
 
-        <!-- Dynamic Favicon -->
+        <!-- Dynamic Favicon & Analytics -->
         @php
             $favicon = \App\Models\StoreSetting::getValue('favicon');
             $gtmContainerId = config('services.gtm.container_id') ?: \App\Models\StoreSetting::getValue('gtm_container_id');
+            $facebookPixelId = config('services.meta.pixel_id') ?: \App\Models\StoreSetting::getValue('facebook_pixel_id');
         @endphp
         @if($favicon)
             <link rel="icon" href="{{ $favicon }}" type="image/x-icon">
             <link rel="shortcut icon" href="{{ $favicon }}" type="image/x-icon">
         @endif
+
+        <!-- Meta Facebook Pixel Code -->
+        @if($facebookPixelId)
+        <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        @php
+            $authUserData = [];
+            if (auth()->check()) {
+                $authUser = auth()->user();
+                if (!empty($authUser->email)) {
+                    $authUserData['em'] = hash('sha256', strtolower(trim($authUser->email)));
+                }
+                $phone = $authUser->mobile ?? $authUser->phone ?? null;
+                if (!empty($phone)) {
+                    $cleanedPhone = preg_replace('/\D+/', '', $phone);
+                    if (str_starts_with($cleanedPhone, '01') && strlen($cleanedPhone) === 11) {
+                        $cleanedPhone = '88'.$cleanedPhone;
+                    } elseif (str_starts_with($cleanedPhone, '1') && strlen($cleanedPhone) === 10) {
+                        $cleanedPhone = '880'.$cleanedPhone;
+                    }
+                    $authUserData['ph'] = hash('sha256', $cleanedPhone);
+                }
+                if (!empty($authUser->name)) {
+                    $nameParts = preg_split('/\s+/', trim($authUser->name), 2);
+                    $authUserData['fn'] = hash('sha256', strtolower($nameParts[0]));
+                    if (!empty($nameParts[1])) {
+                        $authUserData['ln'] = hash('sha256', strtolower($nameParts[1]));
+                    }
+                }
+            }
+        @endphp
+        @if(!empty($authUserData))
+        fbq('init', '{{ $facebookPixelId }}', {!! json_encode($authUserData) !!});
+        @else
+        fbq('init', '{{ $facebookPixelId }}');
+        @endif
+
+        @php
+            $facebookTestCode = config('services.meta.test_event_code') ?: \App\Models\StoreSetting::getValue('facebook_test_event_code');
+        @endphp
+        @if(!empty($facebookTestCode))
+        window.fbTestEventCode = '{{ $facebookTestCode }}';
+        fbq('track', 'PageView', {}, { test_event_code: '{{ $facebookTestCode }}' });
+        @else
+        fbq('track', 'PageView');
+        @endif
+        </script>
+        <noscript><img height="1" width="1" style="display:none"
+        src="https://www.facebook.com/tr?id={{ $facebookPixelId }}&ev=PageView&noscript=1"
+        /></noscript>
+        @endif
+        <!-- End Meta Facebook Pixel Code -->
 
         <!-- Google Tag Manager -->
         @if($gtmContainerId)

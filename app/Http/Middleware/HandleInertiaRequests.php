@@ -16,6 +16,19 @@ class HandleInertiaRequests extends Middleware
     protected $rootView = 'app';
 
     /**
+     * Handle the incoming request.
+     */
+    public function handle(Request $request, \Closure $next)
+    {
+        if ($request->filled('fbclid') && ! $request->hasCookie('_fbc')) {
+            $fbclid = $request->query('fbclid');
+            cookie()->queue(cookie('_fbc', 'fb.1.'.time().'.'.$fbclid, 60 * 24 * 90, '/', null, false, false));
+        }
+
+        return parent::handle($request, $next);
+    }
+
+    /**
      * Determine the current asset version.
      */
     public function version(Request $request): ?string
@@ -59,6 +72,7 @@ class HandleInertiaRequests extends Middleware
                 'refund_policy' => $settings['refund_policy'] ?? null,
                 'gtm_container_id' => config('services.gtm.container_id') ?: ($settings['gtm_container_id'] ?? null),
                 'facebook_pixel_id' => config('services.meta.pixel_id') ?: ($settings['facebook_pixel_id'] ?? null),
+                'facebook_purchase_trigger' => $settings['facebook_purchase_trigger'] ?? 'admin_confirmed',
             ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
