@@ -215,21 +215,21 @@ export const Home: React.FC<HomeProps> = ({
                     </Link>
                 </div>
 
-                <div className="relative px-7 xs:px-8 sm:px-10 md:px-12">
+                <div className="relative px-6 xs:px-7 sm:px-10 md:px-12">
                     <Carousel 
                         setApi={setCategoryApi}
-                        opts={{ align: 'start', loop: categories.length > 5 }} 
+                        opts={{ align: 'start', loop: categories.length > 3 }} 
                         className="w-full"
                     >
                         <CarouselContent 
-                            wrapperClassName="overflow-hidden py-1.5 -my-1.5 px-2 -mx-2"
-                            className="-ml-2 sm:-ml-3 md:-ml-4 flex items-center"
+                            wrapperClassName="overflow-hidden py-1.5 -my-1.5 px-1 -mx-1"
+                            className="-ml-1.5 sm:-ml-3 md:-ml-4 flex items-center"
                         >
                             {categories.map(cat => (
-                                <CarouselItem key={cat.id} className="pl-2 sm:pl-3 md:pl-4 basis-[30%] xs:basis-[28%] sm:basis-1/5 md:basis-1/6 shrink-0">
+                                <CarouselItem key={cat.id} className="pl-1.5 sm:pl-3 md:pl-4 basis-1/3 sm:basis-1/5 md:basis-1/6 shrink-0">
                                     <Link 
                                         href={route('shop', { category: cat.slug })}
-                                        className="flex flex-col items-center justify-center group select-none"
+                                        className="flex flex-col items-center justify-center group select-none w-full"
                                     >
                                         {/* Rounded Square Card for Icon */}
                                         <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-white rounded-2xl border border-gray-150 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex items-center justify-center hover:shadow-[0_8px_24px_rgba(0,158,73,0.12)] hover:border-[#009E49]/40 transition-all duration-300 transform group-hover:scale-105 active:scale-95">
@@ -238,8 +238,11 @@ export const Home: React.FC<HomeProps> = ({
                                             </span>
                                         </div>
                                         
-                                        {/* Category Name Centered BELOW the Card with clean wrap */}
-                                        <span className="text-[11px] xs:text-[13px] sm:text-sm font-bold text-gray-800 text-center line-clamp-2 min-h-[2rem] flex items-center justify-center mt-1.5 group-hover:text-[#009E49] transition-colors font-bangla leading-tight px-0.5">
+                                        {/* Category Name Centered BELOW the Card - Single line & smaller font */}
+                                        <span 
+                                            className="text-[10px] xs:text-[11.5px] sm:text-xs md:text-sm font-bold text-gray-800 text-center truncate whitespace-nowrap w-full mt-1.5 group-hover:text-[#009E49] transition-colors font-bangla leading-tight px-0.5"
+                                            title={cat.name}
+                                        >
                                             {cat.name}
                                         </span>
                                     </Link>
