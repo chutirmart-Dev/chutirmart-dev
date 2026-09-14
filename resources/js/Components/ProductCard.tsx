@@ -104,7 +104,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 <div className="mt-2 xs:mt-2.5">
                     {isInCart ? (
                         <div 
-                            className="w-full h-10 xs:h-11 sm:h-11 rounded-lg bg-gradient-to-r from-[#E2231A] via-[#EA2E24] to-[#E2231A] text-white p-1 xs:p-1.5 flex items-center justify-between shadow-[0_2px_8px_rgba(226,35,26,0.22)] border border-red-500/20 select-none transition-all duration-200"
+                            className="w-full h-10 xs:h-11 sm:h-11 rounded-lg bg-gradient-to-r from-[#E2231A] via-[#EA2E24] to-[#E2231A] text-white p-1 xs:p-1.5 grid grid-cols-3 gap-1 xs:gap-1.5 shadow-[0_2px_8px_rgba(226,35,26,0.22)] border border-red-500/20 select-none transition-all duration-200"
                         >
                             <button
                                 onClick={(e) => {
@@ -112,14 +112,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                     e.stopPropagation();
                                     updateQuantity(cartItemIndex, currentQuantity - 1);
                                 }}
-                                className="w-8 xs:w-9 h-8 xs:h-9 rounded-md bg-white/20 hover:bg-white/30 active:scale-90 text-white flex items-center justify-center transition-all cursor-pointer border-none shrink-0"
+                                className="w-full h-full rounded-md bg-white/20 hover:bg-white/30 active:scale-90 text-white flex items-center justify-center transition-all cursor-pointer border-none"
                                 type="button"
                                 aria-label="Decrease quantity"
                             >
                                 <Minus className="w-4 h-4 stroke-[2.8]" />
                             </button>
 
-                            <div className="flex-1 h-8 xs:h-9 mx-1 xs:mx-1.5 bg-white rounded-md flex items-center justify-center shadow-xs">
+                            <div className="w-full h-full bg-white rounded-md flex items-center justify-center shadow-xs">
                                 <span className="text-sm xs:text-base font-black text-[#E2231A] font-latin leading-none">
                                     {currentQuantity}
                                 </span>
@@ -131,7 +131,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                     e.stopPropagation();
                                     updateQuantity(cartItemIndex, currentQuantity + 1);
                                 }}
-                                className="w-8 xs:w-9 h-8 xs:h-9 rounded-md bg-white/20 hover:bg-white/30 active:scale-90 text-white flex items-center justify-center transition-all cursor-pointer border-none shrink-0"
+                                className="w-full h-full rounded-md bg-white/20 hover:bg-white/30 active:scale-90 text-white flex items-center justify-center transition-all cursor-pointer border-none"
                                 type="button"
                                 aria-label="Increase quantity"
                             >
