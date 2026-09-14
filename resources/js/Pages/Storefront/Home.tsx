@@ -215,18 +215,18 @@ export const Home: React.FC<HomeProps> = ({
                     </Link>
                 </div>
 
-                <div className="relative">
+                <div className="relative px-7 xs:px-8 sm:px-10 md:px-12">
                     <Carousel 
                         setApi={setCategoryApi}
                         opts={{ align: 'start', loop: categories.length > 5 }} 
                         className="w-full"
                     >
                         <CarouselContent 
-                            wrapperClassName="overflow-hidden py-1.5 -my-1.5 px-3 -mx-3"
+                            wrapperClassName="overflow-hidden py-1.5 -my-1.5 px-2 -mx-2"
                             className="-ml-2 sm:-ml-3 md:-ml-4 flex items-center"
                         >
                             {categories.map(cat => (
-                                <CarouselItem key={cat.id} className="pl-2 sm:pl-3 md:pl-4 basis-[28%] xs:basis-1/4 sm:basis-1/5 md:basis-1/6 shrink-0">
+                                <CarouselItem key={cat.id} className="pl-2 sm:pl-3 md:pl-4 basis-[30%] xs:basis-[28%] sm:basis-1/5 md:basis-1/6 shrink-0">
                                     <Link 
                                         href={route('shop', { category: cat.slug })}
                                         className="flex flex-col items-center justify-center group select-none"
@@ -239,7 +239,7 @@ export const Home: React.FC<HomeProps> = ({
                                         </div>
                                         
                                         {/* Category Name Centered BELOW the Card with clean wrap */}
-                                        <span className="text-[11px] xs:text-[13px] sm:text-sm font-bold text-gray-800 text-center line-clamp-2 min-h-[2rem] flex items-center justify-center mt-1.5 group-hover:text-[#009E49] transition-colors font-bangla leading-tight px-1">
+                                        <span className="text-[11px] xs:text-[13px] sm:text-sm font-bold text-gray-800 text-center line-clamp-2 min-h-[2rem] flex items-center justify-center mt-1.5 group-hover:text-[#009E49] transition-colors font-bangla leading-tight px-0.5">
                                             {cat.name}
                                         </span>
                                     </Link>
@@ -248,23 +248,23 @@ export const Home: React.FC<HomeProps> = ({
                         </CarouselContent>
                     </Carousel>
 
-                    {/* Navigation Buttons: Perfectly centered with the icon cards across all devices */}
-                    <div className="pointer-events-none absolute top-0 left-0 right-0 h-14 xs:h-16 sm:h-18 md:h-20 flex items-center justify-between z-20">
+                    {/* Navigation Buttons: Perfectly centered with icon cards in side gutters, never clipping or overlapping */}
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-14 xs:h-16 sm:h-18 md:h-20 flex items-center justify-between z-20">
                         <button
                             type="button"
                             onClick={() => categoryApi?.scrollPrev()}
-                            className="pointer-events-auto -ml-2 xs:-ml-2.5 sm:-ml-3.5 md:-ml-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-[0_3px_10px_rgba(0,158,73,0.35)] w-7.5 h-7.5 xs:w-8 xs:h-8 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+                            className="pointer-events-auto ml-0.5 xs:ml-1 sm:ml-1.5 md:ml-2 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-[0_3px_10px_rgba(0,158,73,0.35)] w-7 h-7 xs:w-8 xs:h-8 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all flex items-center justify-center shrink-0"
                             aria-label="Previous categories"
                         >
-                            <ChevronLeft className="w-4 h-4 xs:w-4.5 xs:h-4.5 stroke-[2.6]" />
+                            <ChevronLeft className="w-3.5 h-3.5 xs:w-4 xs:h-4 stroke-[2.6]" />
                         </button>
                         <button
                             type="button"
                             onClick={() => categoryApi?.scrollNext()}
-                            className="pointer-events-auto -mr-2 xs:-mr-2.5 sm:-mr-3.5 md:-mr-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-[0_3px_10px_rgba(0,158,73,0.35)] w-7.5 h-7.5 xs:w-8 xs:h-8 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+                            className="pointer-events-auto mr-0.5 xs:mr-1 sm:mr-1.5 md:mr-2 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-[0_3px_10px_rgba(0,158,73,0.35)] w-7 h-7 xs:w-8 xs:h-8 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all flex items-center justify-center shrink-0"
                             aria-label="Next categories"
                         >
-                            <ChevronRight className="w-4 h-4 xs:w-4.5 xs:h-4.5 stroke-[2.6]" />
+                            <ChevronRight className="w-3.5 h-3.5 xs:w-4 xs:h-4 stroke-[2.6]" />
                         </button>
                     </div>
                 </div>
