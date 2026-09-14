@@ -203,24 +203,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 <div 
                     key={cartToast.id}
                     onClick={() => setCartToast(null)}
-                    className="fixed top-3 xs:top-4 left-1/2 -translate-x-1/2 z-[9999] w-[92vw] max-w-[440px] bg-[#ECFDF5] border border-emerald-400 text-emerald-950 rounded-2xl p-3.5 xs:p-4 shadow-[0_14px_40px_rgba(0,158,73,0.2),0_4px_16px_rgba(0,0,0,0.08)] flex items-center gap-3.5 cursor-pointer pointer-events-auto select-none animate-in fade-in slide-in-from-top-3 duration-300"
+                    className="fixed top-3 xs:top-4 left-1/2 -translate-x-1/2 z-[9999] w-[92vw] max-w-[440px] bg-[#ECFDF5] border border-emerald-400/90 text-emerald-950 rounded-2xl p-3 xs:p-3.5 shadow-[0_14px_40px_rgba(0,158,73,0.22),0_4px_16px_rgba(0,0,0,0.08)] flex items-center gap-3 cursor-pointer pointer-events-auto select-none animate-in fade-in slide-in-from-top-3 duration-300"
                     title="Click to dismiss"
                 >
-                    <div className="w-8 h-8 xs:w-9 xs:h-9 rounded-full bg-[#009E49] text-white flex items-center justify-center shrink-0 shadow-sm">
+                    {/* Left: Checkmark Icon */}
+                    <div className="w-8 h-8 xs:w-9 xs:h-9 rounded-full bg-[#009E49] text-white flex items-center justify-center shrink-0 shadow-xs">
                         <Check className="w-5 h-5 stroke-[3]" />
                     </div>
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                            <span className="font-black text-[#009E49] text-[15px] xs:text-[17px] leading-tight font-latin tracking-tight">
-                                Added to cart!
-                            </span>
-                            <span className="bg-[#009E49] text-white text-xs xs:text-[13px] font-black px-2.5 py-0.5 rounded-full font-bangla shrink-0 shadow-2xs">
-                                {cartToast.quantity} টি
-                            </span>
-                        </div>
-                        <p className="text-xs xs:text-sm font-bold text-emerald-950 mt-1 line-clamp-1 leading-snug font-bangla">
+
+                    {/* Middle: Title & Product Name */}
+                    <div className="flex-1 min-w-0 pr-1">
+                        <h4 className="font-black text-[#009E49] text-[15px] xs:text-[17px] leading-tight font-latin tracking-tight">
+                            Added to cart!
+                        </h4>
+                        <p className="text-xs xs:text-[13.5px] font-semibold text-emerald-950 mt-0.5 line-clamp-1 leading-snug font-bangla">
                             {cartToast.name}
                         </p>
+                    </div>
+
+                    {/* Right: Modern Clean Counter Box (Dedicated Side Column) */}
+                    <div className="shrink-0 flex items-center justify-center bg-white border border-emerald-300 rounded-xl px-2.5 xs:px-3 py-1.5 shadow-xs">
+                        <span className="text-xs xs:text-sm font-black text-[#009E49] font-bangla whitespace-nowrap">
+                            {cartToast.quantity} টি
+                        </span>
                     </div>
                 </div>
             )}
