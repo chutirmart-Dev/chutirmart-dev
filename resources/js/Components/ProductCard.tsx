@@ -112,19 +112,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                     e.stopPropagation();
                                     updateQuantity(cartItemIndex, currentQuantity - 1);
                                 }}
-                                className="w-7 xs:w-8 h-7 xs:h-8 rounded-md bg-white/20 hover:bg-white/30 active:scale-90 text-white flex items-center justify-center transition-all cursor-pointer border-none shrink-0"
+                                className="w-8 xs:w-9 h-8 xs:h-9 rounded-md bg-white/20 hover:bg-white/30 active:scale-90 text-white flex items-center justify-center transition-all cursor-pointer border-none shrink-0"
                                 type="button"
                                 aria-label="Decrease quantity"
                             >
-                                <Minus className="w-3.5 h-3.5 stroke-[2.8]" />
+                                <Minus className="w-4 h-4 stroke-[2.8]" />
                             </button>
 
-                            <div className="flex-1 flex items-center justify-center gap-1 font-latin min-w-0 px-0.5 whitespace-nowrap">
-                                <span className="text-sm xs:text-base font-black tracking-wide text-white drop-shadow-xs leading-none">
+                            <div className="flex-1 h-8 xs:h-9 mx-1 xs:mx-1.5 bg-white rounded-md flex items-center justify-center shadow-xs">
+                                <span className="text-sm xs:text-base font-black text-[#E2231A] font-latin leading-none">
                                     {currentQuantity}
-                                </span>
-                                <span className="text-[10.5px] xs:text-[11.5px] font-semibold text-white/95 whitespace-nowrap tracking-tight leading-none">
-                                    in cart
                                 </span>
                             </div>
 
@@ -134,11 +131,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                                     e.stopPropagation();
                                     updateQuantity(cartItemIndex, currentQuantity + 1);
                                 }}
-                                className="w-7 xs:w-8 h-7 xs:h-8 rounded-md bg-white/20 hover:bg-white/30 active:scale-90 text-white flex items-center justify-center transition-all cursor-pointer border-none shrink-0"
+                                className="w-8 xs:w-9 h-8 xs:h-9 rounded-md bg-white/20 hover:bg-white/30 active:scale-90 text-white flex items-center justify-center transition-all cursor-pointer border-none shrink-0"
                                 type="button"
                                 aria-label="Increase quantity"
                             >
-                                <Plus className="w-3.5 h-3.5 stroke-[2.8]" />
+                                <Plus className="w-4 h-4 stroke-[2.8]" />
                             </button>
                         </div>
                     ) : (
