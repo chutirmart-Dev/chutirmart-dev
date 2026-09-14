@@ -43,12 +43,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             >
                 {/* Discount % badge */}
                 {discountPercentage > 0 ? (
-                    <div className="absolute top-2 left-2 z-10 bg-[#009E49] text-white font-black text-[11px] xs:text-[12px] sm:text-xs px-2 py-0.5 rounded-md leading-none shadow-2xs font-latin">
+                    <div className="absolute top-2.5 left-2.5 xs:top-3 xs:left-3 z-10 bg-[#009E49] text-white font-bold text-[11px] xs:text-[11.5px] sm:text-xs px-2.5 py-1 xs:px-3 xs:py-1 rounded-full inline-flex items-center justify-center leading-none shadow-sm font-latin tracking-tight">
                         Save {discountPercentage}%
                     </div>
                 ) : (
                     isNew && (
-                        <div className="absolute top-2 left-2 z-10 bg-[#E2231A] text-white font-black text-[11px] xs:text-[12px] sm:text-xs px-2 py-0.5 rounded-md leading-none shadow-2xs font-latin">
+                        <div className="absolute top-2.5 left-2.5 xs:top-3 xs:left-3 z-10 bg-[#E2231A] text-white font-bold text-[11px] xs:text-[11.5px] sm:text-xs px-2.5 py-1 xs:px-3 xs:py-1 rounded-full inline-flex items-center justify-center leading-none shadow-sm font-latin tracking-tight">
                             NEW
                         </div>
                     )
