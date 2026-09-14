@@ -651,22 +651,22 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                 </h2>
                             </div>
                             <div className="space-y-3 font-bangla">
-                                <div className="grid grid-cols-1 xs:grid-cols-2 gap-2.5 sm:gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                                     {/* Cash on Delivery */}
-                                    <div className="border-2 border-[#009E49] bg-emerald-50/40 rounded-md p-3 sm:p-4 flex items-center justify-between cursor-pointer transition-all shadow-2xs">
-                                        <div className="flex items-center gap-2">
+                                    <div className="border-2 border-[#009E49] bg-emerald-50/40 rounded-lg p-3 sm:p-4 flex items-center justify-between cursor-pointer transition-all shadow-2xs">
+                                        <div className="flex items-center gap-2.5 min-w-0">
                                             <div className="w-4 h-4 rounded-full border-2 border-[#009E49] flex items-center justify-center shrink-0">
                                                 <div className="w-2 h-2 rounded-full bg-[#009E49]" />
                                             </div>
-                                            <span className="text-xs xs:text-sm sm:text-base font-bold text-gray-950">ক্যাশ অন ডেলিভারি</span>
+                                            <span className="text-sm sm:text-base font-bold text-gray-950 whitespace-nowrap">ক্যাশ অন ডেলিভারি</span>
                                         </div>
-                                        <span className="text-[#009E49] font-black text-xs xs:text-sm">✔</span>
+                                        <span className="text-[#009E49] font-black text-xs xs:text-sm shrink-0 ml-2">✔</span>
                                     </div>
 
                                     {/* Online Payment */}
-                                    <div className="border border-gray-200 opacity-60 rounded-md p-3 sm:p-4 flex items-center gap-2 bg-gray-50/50 cursor-not-allowed">
+                                    <div className="border border-gray-200 opacity-60 rounded-lg p-3 sm:p-4 flex items-center gap-2.5 bg-gray-50/50 cursor-not-allowed">
                                         <div className="w-4 h-4 rounded-full border border-gray-300 shrink-0" />
-                                        <span className="text-xs xs:text-sm sm:text-base font-bold text-gray-600">অনলাইন পেমেন্ট</span>
+                                        <span className="text-sm sm:text-base font-bold text-gray-600 whitespace-nowrap">অনলাইন পেমেন্ট</span>
                                     </div>
                                 </div>
                             </div>
