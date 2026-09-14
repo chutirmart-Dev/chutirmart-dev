@@ -175,6 +175,28 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
                     </CarouselContent>
                 </Carousel>
 
+                {/* Side Navigation Buttons matching store branding, vertically centered */}
+                {canSlide && (
+                    <>
+                        <button
+                            type="button"
+                            onClick={handlePrev}
+                            className="absolute -left-1.5 xs:-left-2 sm:-left-3 md:-left-4 top-[32%] sm:top-[35%] -translate-y-1/2 z-20 w-7 h-7 xs:w-8 xs:h-8 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-[0_2px_8px_rgba(0,158,73,0.35)] flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+                            aria-label="Previous products"
+                        >
+                            <ChevronLeft className="w-3.5 h-3.5 xs:w-4 xs:h-4 stroke-[2.5]" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleNext}
+                            className="absolute -right-1.5 xs:-right-2 sm:-right-3 md:-right-4 top-[32%] sm:top-[35%] -translate-y-1/2 z-20 w-7 h-7 xs:w-8 xs:h-8 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-[0_2px_8px_rgba(0,158,73,0.35)] flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95"
+                            aria-label="Next products"
+                        >
+                            <ChevronRight className="w-3.5 h-3.5 xs:w-4 xs:h-4 stroke-[2.5]" />
+                        </button>
+                    </>
+                )}
+
                 {/* Bottom slider dots in Branding Color */}
                 {scrollSnaps.length > 1 && (
                     <div className="flex items-center justify-center gap-1.5 mt-2.5 sm:mt-6 select-none">

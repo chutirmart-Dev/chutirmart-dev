@@ -139,8 +139,8 @@ export const Home: React.FC<HomeProps> = ({
                             {/* Smooth Navigation Controls */}
                             {activeSliders.length > 1 && (
                                 <>
-                                    <CarouselPrevious className="left-3 sm:left-4 z-20 w-8 h-8 sm:w-9 sm:h-9 bg-white/85 hover:bg-white text-gray-800 border border-black/5 shadow-md backdrop-blur-xs transition-all hover:scale-105 active:scale-95 hidden md:inline-flex" />
-                                    <CarouselNext className="right-3 sm:right-4 z-20 w-8 h-8 sm:w-9 sm:h-9 bg-white/85 hover:bg-white text-gray-800 border border-black/5 shadow-md backdrop-blur-xs transition-all hover:scale-105 active:scale-95 hidden md:inline-flex" />
+                                    <CarouselPrevious className="flex left-2 xs:left-3 sm:left-4 z-20 w-7.5 h-7.5 xs:w-8.5 xs:h-8.5 sm:w-9 sm:h-9 bg-white/90 hover:bg-white text-gray-800 border border-black/10 shadow-md backdrop-blur-xs transition-all hover:scale-105 active:scale-95 inset-y-auto bottom-auto my-0 top-1/2 -translate-y-1/2 [&_svg]:size-3.5 xs:[&_svg]:size-4 [&_svg]:stroke-[2.5]" />
+                                    <CarouselNext className="flex right-2 xs:right-3 sm:right-4 z-20 w-7.5 h-7.5 xs:w-8.5 xs:h-8.5 sm:w-9 sm:h-9 bg-white/90 hover:bg-white text-gray-800 border border-black/10 shadow-md backdrop-blur-xs transition-all hover:scale-105 active:scale-95 inset-y-auto bottom-auto my-0 top-1/2 -translate-y-1/2 [&_svg]:size-3.5 xs:[&_svg]:size-4 [&_svg]:stroke-[2.5]" />
 
                                     {/* Smooth Slider Pagination Dots */}
                                     <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/30 backdrop-blur-md">
@@ -195,8 +195,8 @@ export const Home: React.FC<HomeProps> = ({
 
             {/* Featured Categories Row */}
             <section className="container py-3 sm:py-6 select-none">
-                {/* Header with Title and Prev/Next controls */}
-                <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex flex-wrap items-center justify-between gap-y-1.5 gap-x-2">
+                {/* Header with Title and View All */}
+                <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex items-center justify-between gap-y-1.5 gap-x-2">
                     <div className="relative">
                         <h2 className="text-sm xs:text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
                             <span className="text-sm sm:text-lg">🛍️</span>
@@ -206,35 +206,13 @@ export const Home: React.FC<HomeProps> = ({
                         <div className="absolute -bottom-2 sm:-bottom-2.5 md:-bottom-3 left-0 h-[2.5px] sm:h-[3px] w-8 sm:w-12 bg-[#009E49] rounded-full" />
                     </div>
 
-                    <div className="flex items-center gap-2.5 sm:gap-3.5 ml-auto">
-                        {/* Header Navigation Arrows (Desktop & Tablet) */}
-                        <div className="hidden md:flex items-center gap-1.5">
-                            <button
-                                type="button"
-                                onClick={() => categoryApi?.scrollPrev()}
-                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-200 bg-white hover:bg-[#009E49] hover:text-white hover:border-[#009E49] flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95 text-gray-700"
-                                aria-label="Previous categories"
-                            >
-                                <ChevronLeft className="w-4 h-4 stroke-[2.2]" />
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => categoryApi?.scrollNext()}
-                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-200 bg-white hover:bg-[#009E49] hover:text-white hover:border-[#009E49] flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95 text-gray-700"
-                                aria-label="Next categories"
-                            >
-                                <ChevronRight className="w-4 h-4 stroke-[2.2]" />
-                            </button>
-                        </div>
-
-                        <Link 
-                            href={route('shop')}
-                            className="text-[11px] xs:text-xs sm:text-[13px] font-bold text-[#009E49] hover:text-[#008038] tracking-wide flex items-center gap-1 sm:gap-1.5 transition-colors group font-bangla"
-                        >
-                            <span>সবগুলো দেখুন</span>
-                            <span className="text-xs sm:text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
-                        </Link>
-                    </div>
+                    <Link 
+                        href={route('shop')}
+                        className="text-[11px] xs:text-xs sm:text-[13px] font-bold text-[#009E49] hover:text-[#008038] tracking-wide flex items-center gap-1 sm:gap-1.5 transition-colors group font-bangla ml-auto"
+                    >
+                        <span>সবগুলো দেখুন</span>
+                        <span className="text-xs sm:text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
+                    </Link>
                 </div>
 
                 <Carousel 
@@ -265,9 +243,9 @@ export const Home: React.FC<HomeProps> = ({
                         ))}
                     </CarouselContent>
 
-                    {/* Circular Navigation Buttons matching Reference Image */}
-                    <CarouselPrevious className="flex -left-2 sm:-left-3 md:-left-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-md w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all items-center justify-center top-1/2 -translate-y-1/2" />
-                    <CarouselNext className="flex -right-2 sm:-right-3 md:-right-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-md w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all items-center justify-center top-1/2 -translate-y-1/2" />
+                    {/* Circular Navigation Buttons matching Reference Image, vertically centered with Icon Cards */}
+                    <CarouselPrevious className="flex -left-1.5 xs:-left-2 sm:-left-3 md:-left-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-[0_2px_8px_rgba(0,158,73,0.35)] w-7 h-7 xs:w-8 xs:h-8 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all items-center justify-center inset-y-auto bottom-auto my-0 top-[28px] xs:top-[32px] sm:top-[36px] md:top-[40px] -translate-y-1/2 [&_svg]:size-3.5 xs:[&_svg]:size-4 [&_svg]:stroke-[2.5]" />
+                    <CarouselNext className="flex -right-1.5 xs:-right-2 sm:-right-3 md:-right-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-[0_2px_8px_rgba(0,158,73,0.35)] w-7 h-7 xs:w-8 xs:h-8 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all items-center justify-center inset-y-auto bottom-auto my-0 top-[28px] xs:top-[32px] sm:top-[36px] md:top-[40px] -translate-y-1/2 [&_svg]:size-3.5 xs:[&_svg]:size-4 [&_svg]:stroke-[2.5]" />
                 </Carousel>
             </section>
 
