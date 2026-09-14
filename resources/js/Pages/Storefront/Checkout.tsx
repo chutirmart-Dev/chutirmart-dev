@@ -420,7 +420,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                                 <div className="inline-flex items-center bg-gray-100/90 hover:bg-gray-100 border border-gray-200/80 rounded-full p-0.5 h-7 sm:h-8 shrink-0">
                                                     <button 
                                                         type="button" 
-                                                        onClick={() => updateQuantity(index, item.quantity - 1)} 
+                                                        onClick={() => updateQuantity(index, item.quantity - 1, false)} 
                                                         className="w-6 sm:w-7 h-full flex items-center justify-center rounded-full bg-white shadow-2xs hover:bg-gray-50 active:scale-90 text-gray-700 text-xs font-black transition-transform cursor-pointer"
                                                         title="Decrease"
                                                         aria-label="Decrease quantity"
@@ -432,7 +432,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                                     </span>
                                                     <button 
                                                         type="button" 
-                                                        onClick={() => updateQuantity(index, item.quantity + 1)} 
+                                                        onClick={() => updateQuantity(index, item.quantity + 1, false)} 
                                                         className="w-6 sm:w-7 h-full flex items-center justify-center rounded-full bg-white shadow-2xs hover:bg-gray-50 active:scale-90 text-[#009E49] text-xs font-black transition-transform cursor-pointer"
                                                         title="Increase"
                                                         aria-label="Increase quantity"
