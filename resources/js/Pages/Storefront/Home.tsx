@@ -198,7 +198,7 @@ export const Home: React.FC<HomeProps> = ({
                 {/* Header with Title and View All */}
                 <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex items-center justify-between gap-y-1.5 gap-x-2">
                     <div className="relative">
-                        <h2 className="text-sm xs:text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
+                        <h2 className="text-base xs:text-[17px] sm:text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
                             <span className="text-sm sm:text-lg">🛍️</span>
                             <span>ক্যাটাগরি সমূহ</span>
                         </h2>
@@ -301,7 +301,7 @@ export const Home: React.FC<HomeProps> = ({
                     {/* Header matching Reference Image 2 */}
                     <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex flex-wrap items-center justify-between gap-y-1.5 gap-x-2">
                         <div className="relative min-w-0">
-                            <h2 className="text-sm xs:text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight truncate font-bangla">
+                            <h2 className="text-base xs:text-[17px] sm:text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight truncate font-bangla">
                                 <span className="text-sm sm:text-lg">⚡</span>
                                 <span>আপনার জন্য পণ্য</span>
                             </h2>
@@ -344,7 +344,7 @@ export const Home: React.FC<HomeProps> = ({
                 {/* Header matching Reference Image */}
                 <div className="relative border-b border-gray-200/90 pb-2.5 sm:pb-3 mb-4 sm:mb-6 flex items-center justify-between">
                     <div className="relative">
-                        <h2 className="text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
+                        <h2 className="text-base xs:text-[17px] sm:text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
                             <span className="text-base sm:text-lg">💬</span>
                             <span>গ্রাহকদের মতামত ও রিভিউ</span>
                         </h2>
