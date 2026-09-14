@@ -43,7 +43,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             >
                 {/* Discount % badge */}
                 {discountPercentage > 0 ? (
-                    <div className="absolute top-2.5 right-2.5 xs:top-3 xs:right-3 z-10 bg-[#F7F5FF] text-[#5B47FB] border border-dashed border-[#5B47FB] font-bold text-[11px] xs:text-xs sm:text-[12.5px] px-2.5 py-1 xs:px-3 xs:py-1 rounded-md sm:rounded-lg inline-flex items-center justify-center leading-none font-latin shadow-2xs">
+                    <div className="absolute top-2.5 right-2.5 xs:top-3 xs:right-3 z-10 bg-[#F0FDF4] text-[#009E49] border border-dashed border-[#009E49] font-bold text-[11px] xs:text-xs sm:text-[12.5px] px-2.5 py-1 xs:px-3 xs:py-1 rounded-md sm:rounded-lg inline-flex items-center justify-center leading-none font-latin shadow-2xs">
                         -{discountPercentage}%
                     </div>
                 ) : (
