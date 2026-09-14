@@ -112,8 +112,7 @@ export const ProductSingle: React.FC<ProductSingleProps> = ({ product, attribute
             toast.error('দুঃখিত, এই পণ্যটি স্টক আউট');
             return;
         }
-        addToCart(product, quantity, selectedVariant, true);
-        toast.success('পণ্যটি কার্টে যোগ করা হয়েছে! 🛒');
+        addToCart(product, quantity, selectedVariant, false);
     };
 
     const handleBuyNow = () => {

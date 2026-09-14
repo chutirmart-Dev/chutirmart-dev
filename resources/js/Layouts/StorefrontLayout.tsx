@@ -88,42 +88,25 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
 
             {/* ── FLOATING WIDGETS ────────────────────────────────────── */}
 
-            {/* 1. Floating Cart — Mobile: pill badge bottom-right above nav | Desktop: right-edge sidebar */}
+            {/* 1. Floating Cart Sidebar Button (Right Edge) - Docked on right edge for both Mobile & Desktop */}
             {!isCheckout && !isConfirmation && cartCount > 0 && (
-                <>
-                    {/* Mobile pill — visible on small screens only, above bottom nav */}
-                    <div
-                        onClick={() => setIsCartOpen(true)}
-                        className="md:hidden fixed right-3 bottom-[72px] xs:bottom-[76px] z-40 flex items-center gap-2 bg-[#E2231A] text-white rounded-full px-3.5 py-2 shadow-[0_4px_20px_rgba(226,35,26,0.45)] cursor-pointer select-none active:scale-95 transition-all duration-200 hover:bg-[#c61e16]"
-                        role="button"
-                        aria-label={`View cart: ${cartCount} items`}
-                    >
-                        <ShoppingBag className="w-4.5 h-4.5 shrink-0" />
-                        <div className="flex flex-col leading-none">
-                            <span className="text-[10px] font-black font-latin">{cartCount} {cartCount === 1 ? 'Item' : 'Items'}</span>
-                            <span className="text-[11px] font-black font-latin">৳{Math.round(cartSubtotal).toLocaleString()}</span>
-                        </div>
+                <div
+                    onClick={() => setIsCartOpen(true)}
+                    className="fixed right-0 top-[52%] xs:top-[55%] -translate-y-1/2 z-40 flex flex-col items-center bg-white shadow-[-4px_6px_20px_rgba(0,0,0,0.22)] rounded-l-xl border border-r-0 border-gray-200/90 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-3px] active:scale-95 group"
+                    title="View Cart"
+                    role="button"
+                    aria-label={`View cart: ${cartCount} items, total ৳${Math.round(cartSubtotal).toLocaleString()}`}
+                >
+                    <div className="w-12 xs:w-13 sm:w-15 md:w-16 py-2 sm:py-2.5 bg-[#E2231A] group-hover:bg-[#c61e16] text-white flex flex-col items-center justify-center gap-0.5 sm:gap-1 transition-colors px-1">
+                        <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 drop-shadow-xs" />
+                        <span className="text-[9px] xs:text-[9.5px] sm:text-[10.5px] font-black tracking-tight leading-none whitespace-nowrap font-latin">
+                            {cartCount} {cartCount === 1 ? 'Item' : 'Items'}
+                        </span>
                     </div>
-
-                    {/* Desktop sidebar — hidden on mobile */}
-                    <div
-                        onClick={() => setIsCartOpen(true)}
-                        className="hidden md:flex fixed right-0 top-[62%] -translate-y-1/2 z-40 flex-col items-center bg-white shadow-[-4px_6px_20px_rgba(0,0,0,0.18)] rounded-l-xl border border-r-0 border-gray-200/90 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-3px] active:scale-95 group"
-                        title="View Cart"
-                        role="button"
-                        aria-label={`View cart: ${cartCount} items, total ৳${Math.round(cartSubtotal).toLocaleString()}`}
-                    >
-                        <div className="w-13 sm:w-15 md:w-16 py-2 sm:py-2.5 bg-[#E2231A] group-hover:bg-[#c61e16] text-white flex flex-col items-center justify-center gap-0.5 sm:gap-1 transition-colors px-1">
-                            <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 drop-shadow-xs" />
-                            <span className="text-[9.5px] sm:text-[10.5px] font-black tracking-tight leading-none whitespace-nowrap font-latin">
-                                {cartCount} {cartCount === 1 ? 'Item' : 'Items'}
-                            </span>
-                        </div>
-                        <div className="w-13 sm:w-15 md:w-16 py-1 sm:py-1.5 flex items-center justify-center bg-white text-[#E2231A] text-[10px] sm:text-[11.5px] font-black font-latin tracking-tight whitespace-nowrap px-1 border-t border-gray-100">
-                            ৳{Math.round(cartSubtotal).toLocaleString()}
-                        </div>
+                    <div className="w-12 xs:w-13 sm:w-15 md:w-16 py-1 sm:py-1.5 flex items-center justify-center bg-white text-[#E2231A] text-[9.5px] xs:text-[10px] sm:text-[11.5px] font-black font-latin tracking-tight whitespace-nowrap px-1 border-t border-gray-100">
+                        ৳{Math.round(cartSubtotal).toLocaleString()}
                     </div>
-                </>
+                </div>
             )}
 
             {/* 2. Scroll-To-Top Button with Circular Progress */}

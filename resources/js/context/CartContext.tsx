@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { trackAddToCart } from '@/lib/gtm';
+import { toast } from 'sonner';
+import { Check } from 'lucide-react';
 
 export interface CartItem {
     id: number;
@@ -66,7 +68,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('chutirmart_cart', JSON.stringify(items));
     };
 
-    const addToCart = (product: any, quantity: number, variant: any = null, openDrawer: boolean = true) => {
+    const addToCart = (product: any, quantity: number, variant: any = null, openDrawer: boolean = false) => {
         const existingIndex = cartItems.findIndex(item =>
             item.product_id === product.id &&
             (
@@ -109,6 +111,24 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Dispatch GTM & Meta AddToCart event
         trackAddToCart(product, quantity, variant);
+
+        // Dismiss previous toast and show clean top toast message matching reference
+        toast.dismiss();
+        toast.custom(() => (
+            <div className="w-[92vw] max-w-sm sm:max-w-md bg-[#ECFDF5] border border-emerald-300 text-emerald-950 rounded-2xl p-3 sm:p-3.5 shadow-[0_10px_30px_rgba(0,0,0,0.12)] flex items-start gap-3 pointer-events-auto select-none">
+                <div className="w-6 h-6 rounded-full bg-[#009E49] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                </div>
+                <div className="flex-1 min-w-0">
+                    <div className="font-extrabold text-[#009E49] text-sm sm:text-base leading-tight font-latin">
+                        Added to cart!
+                    </div>
+                    <div className="text-xs sm:text-[13px] font-semibold text-emerald-950 mt-1 line-clamp-2 leading-snug font-bangla">
+                        {product.name}
+                    </div>
+                </div>
+            </div>
+        ), { duration: 3000 });
 
         if (openDrawer) {
             setIsCartOpen(true);
