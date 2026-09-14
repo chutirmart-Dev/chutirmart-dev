@@ -88,7 +88,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
         items: [] as any[],
         coupon_code: '',
         special_notes: '',
-        agree: false,
+        agree: true,
     });
 
     useEffect(() => {
