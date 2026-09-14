@@ -224,6 +224,14 @@ Route::get('storage/{path}', function (string $path) {
     $cleanPath = str_replace(['..', '\\'], ['', '/'], $path);
     $fullPath = storage_path('app/public/'.$cleanPath);
 
+    // Security: only serve allowed media file extensions
+    $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico', 'bmp', 'avif', 'pdf', 'mp4', 'webm', 'ogg', 'mp3', 'wav'];
+    $ext = strtolower(pathinfo($cleanPath, PATHINFO_EXTENSION));
+
+    if (! in_array($ext, $allowedExtensions, true)) {
+        abort(404);
+    }
+
     if (file_exists($fullPath) && is_file($fullPath)) {
         return response()->file($fullPath, [
             'Cache-Control' => 'public, max-age=31536000',

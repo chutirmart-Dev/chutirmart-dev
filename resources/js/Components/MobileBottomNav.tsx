@@ -29,41 +29,43 @@ export const MobileBottomNav: React.FC = () => {
     return (
         <>
             <nav 
-                className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200/80 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] flex items-center justify-around py-0.5 xs:py-1 px-0.5 xs:px-1" 
-                style={{ paddingBottom: 'max(0.35rem, env(safe-area-inset-bottom, 6px))' }}
+                className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/97 backdrop-blur-md border-t border-gray-200/80 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] flex items-center justify-around" 
+                style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom, 8px))', paddingTop: '6px' }}
             >
                 {/* Home */}
                 <Link 
                     href={route('home')} 
                     prefetch 
-                    className={`flex-1 flex flex-col items-center justify-center py-0.5 xs:py-1 transition-all active:scale-90 ${isHome ? 'text-[#009E49] font-bold' : 'text-gray-500 hover:text-gray-900'}`}
+                    className={`flex-1 flex flex-col items-center justify-center gap-0.5 pt-0.5 pb-1 transition-all active:scale-90 relative ${isHome ? 'text-[#009E49]' : 'text-gray-500 hover:text-gray-900'}`}
                 >
-                    <Home className={`w-3.5 h-3.5 xs:w-4.5 xs:h-4.5 stroke-[2] ${isHome ? 'text-[#009E49]' : ''}`} />
-                    <span className="text-[8px] xs:text-[9.5px] mt-0.5 font-semibold font-bangla leading-none">হোম</span>
+                    <Home className={`w-[22px] h-[22px] xs:w-6 xs:h-6 stroke-[2] ${isHome ? 'text-[#009E49]' : ''}`} />
+                    <span className={`text-[10px] xs:text-[11px] font-bold font-bangla leading-none ${isHome ? 'text-[#009E49]' : 'text-gray-500'}`}>হোম</span>
+                    {isHome && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-[2.5px] bg-[#009E49] rounded-full" />}
                 </Link>
 
                 {/* Shop */}
                 <Link 
                     href={route('shop')} 
                     prefetch 
-                    className={`flex-1 flex flex-col items-center justify-center py-0.5 xs:py-1 transition-all active:scale-90 ${isShop ? 'text-[#009E49] font-bold' : 'text-gray-500 hover:text-gray-900'}`}
+                    className={`flex-1 flex flex-col items-center justify-center gap-0.5 pt-0.5 pb-1 transition-all active:scale-90 relative ${isShop ? 'text-[#009E49]' : 'text-gray-500 hover:text-gray-900'}`}
                 >
-                    <Store className={`w-3.5 h-3.5 xs:w-4.5 xs:h-4.5 stroke-[2] ${isShop ? 'text-[#009E49]' : ''}`} />
-                    <span className="text-[8px] xs:text-[9.5px] mt-0.5 font-semibold font-bangla leading-none">শপ</span>
+                    <Store className={`w-[22px] h-[22px] xs:w-6 xs:h-6 stroke-[2] ${isShop ? 'text-[#009E49]' : ''}`} />
+                    <span className={`text-[10px] xs:text-[11px] font-bold font-bangla leading-none ${isShop ? 'text-[#009E49]' : 'text-gray-500'}`}>শপ</span>
+                    {isShop && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-5 h-[2.5px] bg-[#009E49] rounded-full" />}
                 </Link>
 
                 {/* Cart (Elevated Center) */}
-                <div className="relative -top-2.5 xs:-top-3.5 sm:-top-4 shrink-0 px-0.5 xs:px-1">
+                <div className="relative -top-4 xs:-top-5 shrink-0 px-1 xs:px-1.5">
                     <button 
                         onClick={() => setIsCartOpen(true)}
                         type="button"
-                        className="w-10 h-10 xs:w-12 xs:h-12 rounded-full bg-[#E2231A] text-white flex items-center justify-center shadow-lg shadow-red-500/30 border-2 xs:border-[3px] border-white active:scale-90 transition-transform cursor-pointer focus:outline-none"
+                        className="w-13 h-13 xs:w-14 xs:h-14 rounded-full bg-[#E2231A] text-white flex items-center justify-center shadow-[0_6px_20px_rgba(226,35,26,0.45)] border-[3px] xs:border-4 border-white active:scale-90 transition-transform cursor-pointer focus:outline-none"
                         aria-label="View shopping cart"
                     >
-                        <ShoppingCart className="w-4 h-4 xs:w-5 xs:h-5 stroke-[2.2]" />
+                        <ShoppingCart className="w-5.5 h-5.5 xs:w-6 xs:h-6 stroke-[2.2]" />
                         {cartCount > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 bg-[#009E49] text-white text-[8px] xs:text-[9px] font-black w-3.5 h-3.5 xs:w-4.5 xs:h-4.5 rounded-full flex items-center justify-center border xs:border-2 border-white shadow-2xs font-latin">
-                                {cartCount}
+                            <span className="absolute -top-0.5 -right-0.5 bg-[#009E49] text-white text-[9px] xs:text-[10px] font-black w-4.5 h-4.5 xs:w-5 xs:h-5 rounded-full flex items-center justify-center border-2 border-white shadow-xs font-latin">
+                                {cartCount > 99 ? '99+' : cartCount}
                             </span>
                         )}
                     </button>
@@ -73,79 +75,63 @@ export const MobileBottomNav: React.FC = () => {
                 <button 
                     onClick={() => setIsTrackOpen(true)}
                     type="button"
-                    className="flex-1 flex flex-col items-center justify-center py-0.5 xs:py-1 text-gray-500 hover:text-gray-900 focus:outline-none active:scale-90 transition-all cursor-pointer"
+                    className="flex-1 flex flex-col items-center justify-center gap-0.5 pt-0.5 pb-1 text-gray-500 hover:text-gray-900 focus:outline-none active:scale-90 transition-all cursor-pointer"
                 >
-                    <Box className="w-3.5 h-3.5 xs:w-4.5 xs:h-4.5 stroke-[2]" />
-                    <span className="text-[8px] xs:text-[9.5px] mt-0.5 font-semibold font-bangla leading-none">ট্র্যাকিং</span>
+                    <Box className="w-[22px] h-[22px] xs:w-6 xs:h-6 stroke-[2]" />
+                    <span className="text-[10px] xs:text-[11px] font-bold font-bangla leading-none">ট্র্যাকিং</span>
                 </button>
 
                 {/* Menu */}
                 <button 
                     onClick={() => setIsMenuOpen(true)}
                     type="button"
-                    className="flex-1 flex flex-col items-center justify-center py-0.5 xs:py-1 text-gray-500 hover:text-gray-900 focus:outline-none active:scale-90 transition-all cursor-pointer"
+                    className="flex-1 flex flex-col items-center justify-center gap-0.5 pt-0.5 pb-1 text-gray-500 hover:text-gray-900 focus:outline-none active:scale-90 transition-all cursor-pointer"
                 >
-                    <Menu className="w-3.5 h-3.5 xs:w-4.5 xs:h-4.5 stroke-[2]" />
-                    <span className="text-[8px] xs:text-[9.5px] mt-0.5 font-semibold font-bangla leading-none">মেনু</span>
+                    <Menu className="w-[22px] h-[22px] xs:w-6 xs:h-6 stroke-[2]" />
+                    <span className="text-[10px] xs:text-[11px] font-bold font-bangla leading-none">মেনু</span>
                 </button>
             </nav>
 
-            {/* Mobile Categories Menu Slide-Up Drawer */}
+            {/* Mobile Categories Menu Slide-Up Drawer — Modern App Style */}
             {isMenuOpen && (
-                <div className="fixed inset-0 z-50 md:hidden flex flex-col justify-end bg-black/40">
-                    <div className="bg-white rounded-t-2xl max-h-[75vh] flex flex-col animate-in slide-in-from-bottom duration-300">
-                        <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                            <span className="font-bold text-gray-800">ক্যাটাগরি সমূহ</span>
-                            <button onClick={() => setIsMenuOpen(false)} className="text-gray-400 p-1">
-                                <X className="w-5 h-5" />
+                <div className="fixed inset-0 z-50 md:hidden flex flex-col justify-end bg-black/50">
+                    <div className="bg-white rounded-t-3xl max-h-[80vh] flex flex-col animate-in slide-in-from-bottom duration-300">
+                        {/* Drag handle */}
+                        <div className="flex justify-center pt-3 pb-1">
+                            <div className="w-10 h-1 bg-gray-300 rounded-full" />
+                        </div>
+                        <div className="px-4 pb-3 border-b border-gray-100 flex items-center justify-between">
+                            <span className="font-bold text-gray-900 text-base font-bangla">ক্যাটাগরি সমূহ</span>
+                            <button onClick={() => setIsMenuOpen(false)} className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 active:scale-95 transition-transform">
+                                <X className="w-4 h-4" />
                             </button>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3.5">
-                            <Link 
-                                href={route('shop')} 
-                                onClick={() => setIsMenuOpen(false)}
-                                className="flex items-center justify-between py-2 text-sm text-gray-700 font-medium border-b border-gray-50"
-                            >
-                                সব পণ্য
-                                <ArrowRight className="w-4 h-4 text-gray-400" />
-                            </Link>
-                            <Link 
-                                href={route('shop', { category: 'home-kitchen' })} 
-                                onClick={() => setIsMenuOpen(false)}
-                                className="flex items-center justify-between py-2 text-sm text-gray-700 font-medium border-b border-gray-50"
-                            >
-                                রান্নাঘর ও গৃহস্থালী
-                                <ArrowRight className="w-4 h-4 text-gray-400" />
-                            </Link>
-                            <Link 
-                                href={route('shop', { category: 'smart-gadgets' })} 
-                                onClick={() => setIsMenuOpen(false)}
-                                className="flex items-center justify-between py-2 text-sm text-gray-700 font-medium border-b border-gray-50"
-                            >
-                                স্মার্ট গ্যাজেটস
-                                <ArrowRight className="w-4 h-4 text-gray-400" />
-                            </Link>
-                            <Link 
-                                href={route('shop', { category: 'summer-products' })} 
-                                onClick={() => setIsMenuOpen(false)}
-                                className="flex items-center justify-between py-2 text-sm text-gray-700 font-medium border-b border-gray-50"
-                            >
-                                সামার কালেকশন ☀️
-                                <ArrowRight className="w-4 h-4 text-gray-400" />
-                            </Link>
-                            <Link 
-                                href={route('shop', { category: 'offer-products' })} 
-                                onClick={() => setIsMenuOpen(false)}
-                                className="flex items-center justify-between py-2 text-sm text-gray-700 font-medium border-b border-gray-50"
-                            >
-                                অফার প্রোডাক্টস 🎁
-                                <ArrowRight className="w-4 h-4 text-gray-400" />
-                            </Link>
+                        <div className="flex-1 overflow-y-auto py-2">
+                            {[
+                                { href: route('shop'), label: 'সব পণ্য', emoji: '🛍️' },
+                                { href: route('shop', { category: 'home-kitchen' }), label: 'রান্নাঘর ও গৃহস্থালী', emoji: '🏠' },
+                                { href: route('shop', { category: 'smart-gadgets' }), label: 'স্মার্ট গ্যাজেটস', emoji: '📱' },
+                                { href: route('shop', { category: 'summer-products' }), label: 'সামার কালেকশন', emoji: '☀️' },
+                                { href: route('shop', { category: 'offer-products' }), label: 'অফার প্রোডাক্টস', emoji: '🎁' },
+                            ].map(item => (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 active:bg-gray-100 transition-colors"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-xl w-7 text-center">{item.emoji}</span>
+                                        <span className="text-[15px] font-semibold text-gray-800 font-bangla">{item.label}</span>
+                                    </div>
+                                    <ArrowRight className="w-4 h-4 text-gray-400" />
+                                </Link>
+                            ))}
                         </div>
-                        <div className="p-4 bg-gray-50 flex items-center justify-around border-t border-gray-100">
-                            <Link href={route('about')} onClick={() => setIsMenuOpen(false)} className="text-xs font-semibold text-gray-600">আমাদের সম্পর্কে</Link>
+                        <div className="px-5 py-4 bg-gray-50 flex items-center justify-around border-t border-gray-100">
+                            <Link href={route('about')} onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-600 font-bangla">আমাদের সম্পর্কে</Link>
                             <span className="text-gray-300">|</span>
-                            <Link href={route('terms')} onClick={() => setIsMenuOpen(false)} className="text-xs font-semibold text-gray-600">শর্তাবলী ও নিয়মনীতি</Link>
+                            <Link href={route('terms')} onClick={() => setIsMenuOpen(false)} className="text-sm font-semibold text-gray-600 font-bangla">শর্তাবলী ও নিয়মনীতি</Link>
                         </div>
                     </div>
                 </div>

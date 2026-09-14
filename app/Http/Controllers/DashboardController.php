@@ -65,26 +65,32 @@ class DashboardController extends Controller
         $applyPeriod($cancelledQuery);
         $cancelledCount = $cancelledQuery->count();
 
-        // 3. Inventory Alerts
+        // 3. Inventory Alerts — use per-product low_stock_threshold (default 5 if null)
         $lowStockProducts = Product::where('status', 'active')
-            ->where('stock_quantity', '<=', 10)
+            ->whereRaw('stock_quantity <= COALESCE(low_stock_threshold, 5)')
             ->with(['images' => fn ($q) => $q->where('is_main', true)])
             ->get();
 
-        // 4. Chart data: last 6 months revenue
-        $chartData = Order::select(
-            DB::raw('MONTH(created_at) as month_num'),
-            DB::raw('MONTHNAME(created_at) as month'),
-            DB::raw('SUM(CASE WHEN status="complete" THEN total ELSE 0 END) as sales'),
-            DB::raw('SUM(CASE WHEN status="complete" THEN subtotal * 0.7 ELSE 0 END) as purchases')
-        )
-            ->where('created_at', '>=', now()->subMonths(6))
-            ->groupBy(DB::raw('MONTH(created_at)'), DB::raw('MONTHNAME(created_at)'))
-            ->orderBy('month_num', 'asc')
-            ->get();
+        // 4. Chart data: last 6 months revenue (MySQL only; SQLite fallback uses mock)
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
 
-        if ($chartData->isEmpty() || $chartData->sum('sales') == 0) {
-            $monthLabels = ['June', 'July', 'August', 'September', 'October', '03:30 PM'];
+        if (! $isSqlite) {
+            $chartData = Order::select(
+                DB::raw('MONTH(created_at) as month_num'),
+                DB::raw('MONTHNAME(created_at) as month'),
+                DB::raw('SUM(CASE WHEN status="complete" THEN total ELSE 0 END) as sales'),
+                DB::raw('SUM(CASE WHEN status="complete" THEN subtotal * 0.7 ELSE 0 END) as purchases')
+            )
+                ->where('created_at', '>=', now()->subMonths(6))
+                ->groupBy(DB::raw('MONTH(created_at)'), DB::raw('MONTHNAME(created_at)'))
+                ->orderBy('month_num', 'asc')
+                ->get();
+        } else {
+            $chartData = collect();
+        }
+
+        if ($chartData->isEmpty() || (is_object($chartData) && $chartData->sum('sales') == 0) || (is_array($chartData) && array_sum(array_column($chartData, 'sales')) == 0)) {
+            $monthLabels = ['June', 'July', 'August', 'September', 'October', 'November'];
             $salesFigures = [2850, 5600, 3400, 6800, 8792, 7650];
             $mockData = [];
             foreach ($monthLabels as $idx => $mLabel) {

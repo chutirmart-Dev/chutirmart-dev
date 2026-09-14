@@ -33,7 +33,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
     return (
         <div 
-            className="group flex flex-col h-full bg-white rounded-lg overflow-hidden border border-gray-200/80 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.09)] hover:border-gray-300/90 transition-all duration-300 ease-out relative select-none [transform:translateZ(0)] isolate"
+            className="group flex flex-col h-full bg-white rounded-xl overflow-hidden border border-gray-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.1)] hover:border-gray-300/90 transition-all duration-300 ease-out relative select-none [transform:translateZ(0)] isolate"
         >
             {/* Image box with badges - click navigates to product single */}
             <Link 
@@ -43,12 +43,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             >
                 {/* Discount % badge */}
                 {discountPercentage > 0 ? (
-                    <div className="absolute top-2 left-2 z-10 bg-[#009E49] text-white font-black text-[10.5px] xs:text-[11.5px] sm:text-xs px-2 py-0.5 rounded-md leading-none shadow-2xs font-latin">
+                    <div className="absolute top-2 left-2 z-10 bg-[#009E49] text-white font-black text-[11px] xs:text-[12px] sm:text-xs px-2 py-0.5 rounded-md leading-none shadow-2xs font-latin">
                         Save {discountPercentage}%
                     </div>
                 ) : (
                     isNew && (
-                        <div className="absolute top-2 left-2 z-10 bg-[#E2231A] text-white font-black text-[10.5px] xs:text-[11.5px] sm:text-xs px-2 py-0.5 rounded-md leading-none shadow-2xs font-latin">
+                        <div className="absolute top-2 left-2 z-10 bg-[#E2231A] text-white font-black text-[11px] xs:text-[12px] sm:text-xs px-2 py-0.5 rounded-md leading-none shadow-2xs font-latin">
                             NEW
                         </div>
                     )
@@ -66,7 +66,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </Link>
 
             {/* Product Details */}
-            <div className="p-2 xs:p-2.5 sm:p-3 flex flex-col flex-grow justify-between border-t border-gray-100/90">
+            <div className="p-2.5 xs:p-3 sm:p-3.5 flex flex-col flex-grow justify-between border-t border-gray-100/90">
                 {/* Product Name and Price grouped with fixed height title so all 2-column cards align symmetrically */}
                 <div>
                     <Link 
@@ -75,7 +75,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         className="block focus:outline-none"
                     >
                         <h3 
-                            className="text-[13px] xs:text-[14px] sm:text-[15px] font-medium text-gray-900 leading-snug line-clamp-2 h-[2.7em] group-hover:text-[#009E49] transition-colors font-bangla"
+                            className="text-[14px] xs:text-[15px] sm:text-[15px] font-medium text-gray-900 leading-snug line-clamp-2 h-[2.7em] group-hover:text-[#009E49] transition-colors font-bangla"
                             style={{
                                 display: '-webkit-box',
                                 WebkitLineClamp: 2,
@@ -88,8 +88,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         </h3>
                     </Link>
                     
-                    <div className="mt-1 xs:mt-1.5 flex flex-wrap items-baseline gap-1.5 font-latin">
-                        <span className="text-[15px] xs:text-[16px] sm:text-lg font-black text-[#E2231A] leading-none">
+                    <div className="mt-1.5 xs:mt-2 flex flex-wrap items-baseline gap-1.5 font-latin">
+                        <span className="text-[16px] xs:text-[17px] sm:text-lg font-black text-[#E2231A] leading-none">
                             ৳{Number(currentPrice).toLocaleString()}
                         </span>
                         {originalPrice && parseFloat(originalPrice) > parseFloat(currentPrice) && (
@@ -145,7 +145,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                         <button 
                             onClick={handleAdd}
                             type="button"
-                            className="w-full h-9 xs:h-9.5 sm:h-10 rounded-md bg-gradient-to-r from-[#E2231A] via-[#EA2E24] to-[#E2231A] hover:brightness-105 active:scale-[0.98] text-white font-extrabold text-xs xs:text-[13px] sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-200 ease-out shadow-[0_2px_8px_rgba(226,35,26,0.22)] hover:shadow-[0_4px_14px_rgba(226,35,26,0.32)] border border-red-500/20 cursor-pointer group/btn select-none"
+                            className="w-full h-10 xs:h-11 sm:h-11 rounded-lg bg-gradient-to-r from-[#E2231A] via-[#EA2E24] to-[#E2231A] hover:brightness-105 active:scale-[0.98] text-white font-extrabold text-xs xs:text-[13px] sm:text-sm flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-200 ease-out shadow-[0_2px_8px_rgba(226,35,26,0.22)] hover:shadow-[0_4px_14px_rgba(226,35,26,0.32)] border border-red-500/20 cursor-pointer group/btn select-none"
                         >
                             <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.4] transition-transform duration-200 group-hover/btn:scale-110" />
                             <span className="font-latin tracking-wide leading-none">Add To Cart</span>

@@ -130,9 +130,14 @@ class Order extends Model
             }
         }
 
-        // Guarantee uniqueness
+        // Guarantee uniqueness (max 1000 iterations to prevent infinite loop)
+        $iterations = 0;
         while (static::where('order_number', 'CHU-'.$nextNumber)->exists()) {
             $nextNumber++;
+            if (++$iterations >= 1000) {
+                $nextNumber = time(); // Fallback: use timestamp-based number
+                break;
+            }
         }
 
         return 'CHU-'.$nextNumber;

@@ -135,6 +135,19 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Mobile: slightly larger base for better Bangla readability */
+@media (max-width: 640px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+/* Suppress tap highlight on all interactive elements for native-app feel */
+a, button, [role="button"], input, select, textarea {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
 @layer base {
   * {
     @apply border-[hsl(var(--border))];

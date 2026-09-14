@@ -25,6 +25,13 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
     const [chatMessage, setChatMessage] = useState('');
     const [isContactOpen, setIsContactOpen] = useState(false);
 
+    // Reset chat message when contact panel closes
+    const handleCloseContact = () => {
+        setIsContactOpen(false);
+        if (!isContactOpen) return;
+        setChatMessage('');
+    };
+
     // WhatsApp Configuration from settings
     const rawNumber = store_settings?.whatsapp_number || '8801700000000';
     // Ensure country code formatting for wa.me link
@@ -81,27 +88,42 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
 
             {/* ── FLOATING WIDGETS ────────────────────────────────────── */}
 
-            {/* 1. Floating Cart Sidebar Button (Right Edge) - Responsive on Mobile & Desktop, Hidden on Checkout & Confirmation */}
+            {/* 1. Floating Cart — Mobile: pill badge bottom-right above nav | Desktop: right-edge sidebar */}
             {!isCheckout && !isConfirmation && cartCount > 0 && (
-                <div 
-                    onClick={() => setIsCartOpen(true)}
-                    className="hidden md:flex fixed right-0 top-[62%] -translate-y-1/2 z-40 flex-col items-center bg-white shadow-[-4px_6px_20px_rgba(0,0,0,0.18)] rounded-l-xl border border-r-0 border-gray-200/90 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-3px] active:scale-95 group"
-                    title="View Cart"
-                    role="button"
-                    aria-label={`View cart: ${cartCount} items, total ৳${Math.round(cartSubtotal).toLocaleString()}`}
-                >
-                    {/* Top: Red background with bag icon & count */}
-                    <div className="w-13 sm:w-15 md:w-16 py-2 sm:py-2.5 bg-[#E2231A] group-hover:bg-[#c61e16] text-white flex flex-col items-center justify-center gap-0.5 sm:gap-1 transition-colors px-1">
-                        <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 drop-shadow-xs" />
-                        <span className="text-[9.5px] sm:text-[10.5px] font-black tracking-tight leading-none whitespace-nowrap font-latin">
-                            {cartCount} {cartCount === 1 ? 'Item' : 'Items'}
-                        </span>
+                <>
+                    {/* Mobile pill — visible on small screens only, above bottom nav */}
+                    <div
+                        onClick={() => setIsCartOpen(true)}
+                        className="md:hidden fixed right-3 bottom-[72px] xs:bottom-[76px] z-40 flex items-center gap-2 bg-[#E2231A] text-white rounded-full px-3.5 py-2 shadow-[0_4px_20px_rgba(226,35,26,0.45)] cursor-pointer select-none active:scale-95 transition-all duration-200 hover:bg-[#c61e16]"
+                        role="button"
+                        aria-label={`View cart: ${cartCount} items`}
+                    >
+                        <ShoppingBag className="w-4.5 h-4.5 shrink-0" />
+                        <div className="flex flex-col leading-none">
+                            <span className="text-[10px] font-black font-latin">{cartCount} {cartCount === 1 ? 'Item' : 'Items'}</span>
+                            <span className="text-[11px] font-black font-latin">৳{Math.round(cartSubtotal).toLocaleString()}</span>
+                        </div>
                     </div>
-                    {/* Bottom: White background with clean formatted subtotal */}
-                    <div className="w-13 sm:w-15 md:w-16 py-1 sm:py-1.5 flex items-center justify-center bg-white text-[#E2231A] text-[10px] sm:text-[11.5px] font-black font-latin tracking-tight whitespace-nowrap px-1 border-t border-gray-100">
-                        ৳{Math.round(cartSubtotal).toLocaleString()}
+
+                    {/* Desktop sidebar — hidden on mobile */}
+                    <div
+                        onClick={() => setIsCartOpen(true)}
+                        className="hidden md:flex fixed right-0 top-[62%] -translate-y-1/2 z-40 flex-col items-center bg-white shadow-[-4px_6px_20px_rgba(0,0,0,0.18)] rounded-l-xl border border-r-0 border-gray-200/90 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-3px] active:scale-95 group"
+                        title="View Cart"
+                        role="button"
+                        aria-label={`View cart: ${cartCount} items, total ৳${Math.round(cartSubtotal).toLocaleString()}`}
+                    >
+                        <div className="w-13 sm:w-15 md:w-16 py-2 sm:py-2.5 bg-[#E2231A] group-hover:bg-[#c61e16] text-white flex flex-col items-center justify-center gap-0.5 sm:gap-1 transition-colors px-1">
+                            <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 drop-shadow-xs" />
+                            <span className="text-[9.5px] sm:text-[10.5px] font-black tracking-tight leading-none whitespace-nowrap font-latin">
+                                {cartCount} {cartCount === 1 ? 'Item' : 'Items'}
+                            </span>
+                        </div>
+                        <div className="w-13 sm:w-15 md:w-16 py-1 sm:py-1.5 flex items-center justify-center bg-white text-[#E2231A] text-[10px] sm:text-[11.5px] font-black font-latin tracking-tight whitespace-nowrap px-1 border-t border-gray-100">
+                            ৳{Math.round(cartSubtotal).toLocaleString()}
+                        </div>
                     </div>
-                </div>
+                </>
             )}
 
             {/* 2. Scroll-To-Top Button with Circular Progress */}
@@ -195,8 +217,12 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
 
                 {/* Main Toggle Button */}
                 <button
-                    onClick={() => setIsContactOpen(!isContactOpen)}
-                    className={`w-10 h-10 xs:w-11 xs:h-11 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-xl border-none cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95 ${
+                    onClick={() => {
+                        const closing = isContactOpen;
+                        setIsContactOpen(!isContactOpen);
+                        if (closing) setChatMessage('');
+                    }}
+                    className={`w-11 h-11 xs:w-12 xs:h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-xl border-none cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95 ${
                         isContactOpen
                             ? 'bg-gray-700 hover:bg-gray-800 rotate-0'
                             : 'bg-[#E2231A] hover:bg-[#c61e16]'

@@ -110,7 +110,7 @@ class HomeController extends Controller
         $urgencyProductId = StoreSetting::getValue('urgency_banner_product_id');
         $urgencyProduct = null;
         if ($urgencyProductId) {
-            $urgencyProduct = Product::find($urgencyProductId);
+            $urgencyProduct = Product::with(['images' => fn ($q) => $q->where('is_main', true)])->find($urgencyProductId);
         }
 
         return Inertia::render('Storefront/Home', [

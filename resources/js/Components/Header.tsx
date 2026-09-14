@@ -76,21 +76,21 @@ export const Header: React.FC = () => {
                 <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-2.5 md:gap-3 lg:gap-4 shrink-0">
                     {/* Order Inquiry & Phone Number (Desktop XL Only to save space on tablets) */}
                     <a 
-                        href="tel:+8801705105889" 
+                        href={`tel:${store_settings?.contact_phone || '+8801705105889'}`}
                         className="hidden xl:flex flex-col items-start leading-tight hover:opacity-90 transition-opacity shrink-0 select-none no-underline"
                         title="Call for Order Inquiry"
                     >
                         <span className="text-[11px] font-bold text-[#009E49] mb-0.5">Order Inquiry</span>
                         <span className="text-[17px] lg:text-[18px] xl:text-[19px] font-black text-gray-900 font-latin tracking-tight leading-none">
-                            +880 1705-105889
+                            {store_settings?.contact_phone || '+880 1705-105889'}
                         </span>
                     </a>
 
                     {/* Compact Phone Icon for Tablet (md to lg) */}
                     <a
-                        href="tel:+8801705105889"
+                        href={`tel:${store_settings?.contact_phone || '+8801705105889'}`}
                         className="hidden md:flex xl:hidden p-2 rounded-xl bg-slate-50/90 hover:bg-emerald-50/80 border border-slate-200/80 text-slate-700 hover:text-[#009E49] transition-all focus:outline-none shrink-0"
-                        title="Call for Order Inquiry (+880 1705-105889)"
+                        title={`Call for Order Inquiry (${store_settings?.contact_phone || '+880 1705-105889'})`}
                     >
                         <Phone className="w-5 h-5 stroke-[1.8]" />
                     </a>

@@ -72,6 +72,7 @@ class SearchController extends Controller
                 'id', 'name', 'slug', 'product_code', 'short_description',
                 'price', 'discount_type', 'discount_value', 'stock_quantity', 'total_sold',
             ])
+            ->limit(300)
             ->get();
 
         $queryLower = mb_strtolower($query);

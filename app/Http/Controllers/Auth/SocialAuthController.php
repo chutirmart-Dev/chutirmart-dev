@@ -61,7 +61,12 @@ class SocialAuthController extends Controller
         $redirectUri = config('services.google.redirect');
 
         try {
-            $tokenResponse = Http::withoutVerifying()->asForm()->post('https://oauth2.googleapis.com/token', [
+            // Only skip SSL verification in local/test environments (never in production)
+            $httpClient = app()->isLocal() || app()->runningUnitTests()
+                ? Http::withoutVerifying()->asForm()
+                : Http::asForm();
+
+            $tokenResponse = $httpClient->post('https://oauth2.googleapis.com/token', [
                 'code' => $request->input('code'),
                 'client_id' => $clientId,
                 'client_secret' => $clientSecret,
@@ -77,7 +82,11 @@ class SocialAuthController extends Controller
 
             $accessToken = $tokenResponse->json('access_token');
 
-            $userResponse = Http::withoutVerifying()->withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
+            $httpUserClient = app()->isLocal() || app()->runningUnitTests()
+                ? Http::withoutVerifying()->withToken($accessToken)
+                : Http::withToken($accessToken);
+
+            $userResponse = $httpUserClient->get('https://www.googleapis.com/oauth2/v3/userinfo');
 
             if ($userResponse->failed()) {
                 Log::error('Google OAuth user profile fetch failed', ['response' => $userResponse->body()]);

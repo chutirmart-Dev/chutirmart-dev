@@ -100,11 +100,11 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
     const canSlide = products.length > 1;
 
     return (
-        <section className="container py-3 sm:py-6">
+        <section className="container py-4 sm:py-8">
             {/* Header matching Reference Image with full-width line & branding color active bar */}
             <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex flex-wrap items-center justify-between gap-y-1.5 gap-x-2">
                 <div className="relative">
-                    <h2 className="text-sm xs:text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
+                    <h2 className="text-base xs:text-[17px] sm:text-xl md:text-2xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
                         {icon && <span className="text-sm sm:text-lg">{icon}</span>}
                         <span>{title}</span>
                     </h2>

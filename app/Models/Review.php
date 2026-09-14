@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Services\MediaService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class Review extends Model
 {
@@ -49,14 +49,6 @@ class Review extends Model
             return null;
         }
 
-        if (str_starts_with($this->customer_avatar, 'http://') || str_starts_with($this->customer_avatar, 'https://')) {
-            return $this->customer_avatar;
-        }
-
-        if (str_starts_with($this->customer_avatar, '/storage/')) {
-            return $this->customer_avatar;
-        }
-
-        return Storage::url($this->customer_avatar);
+        return MediaService::resolveUrl($this->customer_avatar, 'avatar');
     }
 }
