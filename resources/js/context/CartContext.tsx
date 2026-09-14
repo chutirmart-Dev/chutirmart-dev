@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { trackAddToCart } from '@/lib/gtm';
-import { toast } from 'sonner';
 import { Check } from 'lucide-react';
 
 export interface CartItem {
@@ -43,6 +42,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [coupon, setCoupon] = useState<{ code: string; discount: number } | null>(null);
+    const [cartToast, setCartToast] = useState<{ id: number; name: string; quantity: number } | null>(null);
+    const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Load cart from localStorage
     useEffect(() => {
@@ -62,6 +63,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }, []);
 
+    // Cleanup toast timer on unmount
+    useEffect(() => {
+        return () => {
+            if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+        };
+    }, []);
+
     // Save cart to localStorage
     const saveCart = (items: CartItem[]) => {
         setCartItems(items);
@@ -70,27 +78,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Clean top toast notification showing quantity
     const showCartToast = (productName: string, qty: number) => {
-        toast.dismiss();
-        toast.custom(() => (
-            <div className="w-[92vw] max-w-sm sm:max-w-md bg-[#ECFDF5] border border-emerald-300 text-emerald-950 rounded-2xl p-3 sm:p-3.5 shadow-[0_10px_30px_rgba(0,0,0,0.12)] flex items-start gap-3 pointer-events-auto select-none animate-in fade-in slide-in-from-top-2 duration-200">
-                <div className="w-6 h-6 rounded-full bg-[#009E49] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
-                    <Check className="w-3.5 h-3.5 stroke-[3]" />
-                </div>
-                <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2">
-                        <div className="font-extrabold text-[#009E49] text-sm sm:text-base leading-tight font-latin">
-                            Added to cart! ({qty}টি)
-                        </div>
-                        <span className="bg-[#009E49] text-white text-[11px] sm:text-xs font-bold px-2 py-0.5 rounded-full font-bangla shrink-0">
-                            {qty} টি
-                        </span>
-                    </div>
-                    <div className="text-xs sm:text-[13px] font-semibold text-emerald-950 mt-1 line-clamp-2 leading-snug font-bangla">
-                        {productName}
-                    </div>
-                </div>
-            </div>
-        ), { duration: 3000 });
+        if (toastTimerRef.current) {
+            clearTimeout(toastTimerRef.current);
+        }
+        setCartToast({ id: Date.now(), name: productName, quantity: qty });
+        toastTimerRef.current = setTimeout(() => {
+            setCartToast(null);
+        }, 3000);
     };
 
     const addToCart = (product: any, quantity: number, variant: any = null, openDrawer: boolean = false) => {
@@ -203,6 +197,33 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             removeCoupon
         }}>
             {children}
+
+            {/* Custom Modern Floating Cart Toast (100% Dead Center, Crisp, Larger Font & Beautiful Padding) */}
+            {cartToast && (
+                <div 
+                    key={cartToast.id}
+                    onClick={() => setCartToast(null)}
+                    className="fixed top-3 xs:top-4 left-1/2 -translate-x-1/2 z-[9999] w-[92vw] max-w-[440px] bg-[#ECFDF5] border border-emerald-400 text-emerald-950 rounded-2xl p-3.5 xs:p-4 shadow-[0_14px_40px_rgba(0,158,73,0.2),0_4px_16px_rgba(0,0,0,0.08)] flex items-center gap-3.5 cursor-pointer pointer-events-auto select-none animate-in fade-in slide-in-from-top-3 duration-300"
+                    title="Click to dismiss"
+                >
+                    <div className="w-8 h-8 xs:w-9 xs:h-9 rounded-full bg-[#009E49] text-white flex items-center justify-center shrink-0 shadow-sm">
+                        <Check className="w-5 h-5 stroke-[3]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                            <span className="font-black text-[#009E49] text-[15px] xs:text-[17px] leading-tight font-latin tracking-tight">
+                                Added to cart!
+                            </span>
+                            <span className="bg-[#009E49] text-white text-xs xs:text-[13px] font-black px-2.5 py-0.5 rounded-full font-bangla shrink-0 shadow-2xs">
+                                {cartToast.quantity} টি
+                            </span>
+                        </div>
+                        <p className="text-xs xs:text-sm font-bold text-emerald-950 mt-1 line-clamp-1 leading-snug font-bangla">
+                            {cartToast.name}
+                        </p>
+                    </div>
+                </div>
+            )}
         </CartContext.Provider>
     );
 };
