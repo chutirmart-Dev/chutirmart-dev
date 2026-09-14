@@ -215,38 +215,59 @@ export const Home: React.FC<HomeProps> = ({
                     </Link>
                 </div>
 
-                <Carousel 
-                    setApi={setCategoryApi}
-                    opts={{ align: 'start', loop: categories.length > 5 }} 
-                    className="w-full relative"
-                >
-                    <CarouselContent className="-ml-2 sm:-ml-3 md:-ml-4 flex items-center">
-                        {categories.map(cat => (
-                            <CarouselItem key={cat.id} className="pl-2 sm:pl-3 md:pl-4 basis-[28%] xs:basis-1/4 sm:basis-1/5 md:basis-1/6 shrink-0">
-                                <Link 
-                                    href={route('shop', { category: cat.slug })}
-                                    className="flex flex-col items-center justify-center group select-none"
-                                >
-                                    {/* Rounded Square Card for Icon */}
-                                    <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-white rounded-2xl border border-gray-150 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex items-center justify-center hover:shadow-[0_8px_24px_rgba(0,158,73,0.12)] hover:border-[#009E49]/40 transition-all duration-300 transform group-hover:scale-105 active:scale-95">
-                                        <span className="text-xl xs:text-3xl md:text-3xl transform group-hover:rotate-12 transition-transform duration-300">
-                                            {cat.icon || '📦'}
+                <div className="relative">
+                    <Carousel 
+                        setApi={setCategoryApi}
+                        opts={{ align: 'start', loop: categories.length > 5 }} 
+                        className="w-full"
+                    >
+                        <CarouselContent 
+                            wrapperClassName="overflow-hidden py-1.5 -my-1.5 px-3 -mx-3"
+                            className="-ml-2 sm:-ml-3 md:-ml-4 flex items-center"
+                        >
+                            {categories.map(cat => (
+                                <CarouselItem key={cat.id} className="pl-2 sm:pl-3 md:pl-4 basis-[28%] xs:basis-1/4 sm:basis-1/5 md:basis-1/6 shrink-0">
+                                    <Link 
+                                        href={route('shop', { category: cat.slug })}
+                                        className="flex flex-col items-center justify-center group select-none"
+                                    >
+                                        {/* Rounded Square Card for Icon */}
+                                        <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-white rounded-2xl border border-gray-150 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex items-center justify-center hover:shadow-[0_8px_24px_rgba(0,158,73,0.12)] hover:border-[#009E49]/40 transition-all duration-300 transform group-hover:scale-105 active:scale-95">
+                                            <span className="text-xl xs:text-3xl md:text-3xl transform group-hover:rotate-12 transition-transform duration-300">
+                                                {cat.icon || '📦'}
+                                            </span>
+                                        </div>
+                                        
+                                        {/* Category Name Centered BELOW the Card with clean wrap */}
+                                        <span className="text-[11px] xs:text-[13px] sm:text-sm font-bold text-gray-800 text-center line-clamp-2 min-h-[2rem] flex items-center justify-center mt-1.5 group-hover:text-[#009E49] transition-colors font-bangla leading-tight px-1">
+                                            {cat.name}
                                         </span>
-                                    </div>
-                                    
-                                    {/* Category Name Centered BELOW the Card with clean wrap */}
-                                    <span className="text-[11px] xs:text-[13px] sm:text-sm font-bold text-gray-800 text-center line-clamp-2 min-h-[2rem] flex items-center justify-center mt-1.5 group-hover:text-[#009E49] transition-colors font-bangla leading-tight px-1">
-                                        {cat.name}
-                                    </span>
-                                </Link>
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
+                                    </Link>
+                                </CarouselItem>
+                            ))}
+                        </CarouselContent>
+                    </Carousel>
 
-                    {/* Circular Navigation Buttons matching Reference Image, vertically centered with Icon Cards */}
-                    <CarouselPrevious className="flex -left-1.5 xs:-left-2 sm:-left-3 md:-left-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-[0_2px_8px_rgba(0,158,73,0.35)] w-7 h-7 xs:w-8 xs:h-8 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all items-center justify-center inset-y-auto bottom-auto my-0 top-[68px] xs:top-[72px] sm:top-[76px] md:top-[80px] -translate-y-1/2 [&_svg]:size-3.5 xs:[&_svg]:size-4 [&_svg]:stroke-[2.5]" />
-                    <CarouselNext className="flex -right-1.5 xs:-right-2 sm:-right-3 md:-right-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-[0_2px_8px_rgba(0,158,73,0.35)] w-7 h-7 xs:w-8 xs:h-8 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all items-center justify-center inset-y-auto bottom-auto my-0 top-[68px] xs:top-[72px] sm:top-[76px] md:top-[80px] -translate-y-1/2 [&_svg]:size-3.5 xs:[&_svg]:size-4 [&_svg]:stroke-[2.5]" />
-                </Carousel>
+                    {/* Navigation Buttons: Perfectly centered with the icon cards across all devices */}
+                    <div className="pointer-events-none absolute top-0 left-0 right-0 h-14 xs:h-16 sm:h-18 md:h-20 flex items-center justify-between z-20">
+                        <button
+                            type="button"
+                            onClick={() => categoryApi?.scrollPrev()}
+                            className="pointer-events-auto -ml-2 xs:-ml-2.5 sm:-ml-3.5 md:-ml-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-[0_3px_10px_rgba(0,158,73,0.35)] w-7.5 h-7.5 xs:w-8 xs:h-8 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+                            aria-label="Previous categories"
+                        >
+                            <ChevronLeft className="w-4 h-4 xs:w-4.5 xs:h-4.5 stroke-[2.6]" />
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => categoryApi?.scrollNext()}
+                            className="pointer-events-auto -mr-2 xs:-mr-2.5 sm:-mr-3.5 md:-mr-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-[0_3px_10px_rgba(0,158,73,0.35)] w-7.5 h-7.5 xs:w-8 xs:h-8 sm:w-8.5 sm:h-8.5 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all flex items-center justify-center"
+                            aria-label="Next categories"
+                        >
+                            <ChevronRight className="w-4 h-4 xs:w-4.5 xs:h-4.5 stroke-[2.6]" />
+                        </button>
+                    </div>
+                </div>
             </section>
 
             {/* Top Selling Products Carousel */}
