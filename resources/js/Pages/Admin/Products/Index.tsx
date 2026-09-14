@@ -115,7 +115,7 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
             archived: 'bg-gray-100 text-gray-600 border-gray-200',
         };
         return (
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[11px] font-bold border ${map[s] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-[12px] sm:text-[12.5px] font-bold border ${map[s] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>
                 {s.charAt(0).toUpperCase() + s.slice(1)}
             </span>
         );
@@ -252,20 +252,20 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                                         {statusBadge(product.status)}
                                                     </button>
                                                 </div>
-                                                <h4 className="text-[14px] font-bold text-slate-800 truncate mt-1">{product.name}</h4>
-                                                <p className="text-[11.5px] text-slate-400">{product.brand?.name || 'No brand'}</p>
+                                                <h4 className="text-[14.5px] sm:text-[15px] font-bold text-slate-800 truncate mt-1">{product.name}</h4>
+                                                <p className="text-[12.5px] text-slate-500">{product.brand?.name || 'No brand'}</p>
                                             </div>
                                         </div>
 
                                         {/* Price & Stock Row */}
-                                        <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
+                                        <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-100">
                                             <div>
-                                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Price</span>
-                                                <div className="text-[15px] font-black text-slate-800">৳{product.price}</div>
+                                                <span className="text-[11.5px] font-bold uppercase tracking-wider text-slate-400">Price</span>
+                                                <div className="text-[16px] font-black text-slate-800">৳{product.price}</div>
                                             </div>
                                             <div className="text-right">
-                                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Stock</span>
-                                                <div className={`text-[13px] font-bold ${product.stock_quantity <= 5 ? 'text-rose-600' : 'text-emerald-700'}`}>
+                                                <span className="text-[11.5px] font-bold uppercase tracking-wider text-slate-400">Stock</span>
+                                                <div className={`text-[13.5px] font-bold ${product.stock_quantity <= 5 ? 'text-rose-600' : 'text-emerald-700'}`}>
                                                     {product.stock_quantity} in stock
                                                 </div>
                                             </div>
@@ -277,7 +277,7 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                                 type="button"
                                                 onClick={() => handleToggleFeatured(product.id, 'is_best_selling')}
                                                 disabled={togglingId === `${product.id}-is_best_selling`}
-                                                className={`h-9 px-1 rounded-lg text-[11px] font-bold border transition-all flex items-center justify-center gap-1 text-center cursor-pointer select-none active:scale-95 ${
+                                                className={`h-9 px-1 rounded-lg text-[11.5px] sm:text-[12px] font-bold border transition-all flex items-center justify-center gap-1 text-center cursor-pointer select-none active:scale-95 ${
                                                     product.is_best_selling
                                                         ? 'bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 border-orange-300 shadow-2xs font-extrabold'
                                                         : 'bg-slate-50/80 text-slate-500 border-slate-200/90 hover:bg-slate-100'
@@ -291,7 +291,7 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                                 type="button"
                                                 onClick={() => handleToggleFeatured(product.id, 'is_new_arrival')}
                                                 disabled={togglingId === `${product.id}-is_new_arrival`}
-                                                className={`h-9 px-1 rounded-lg text-[11px] font-bold border transition-all flex items-center justify-center gap-1 text-center cursor-pointer select-none active:scale-95 ${
+                                                className={`h-9 px-1 rounded-lg text-[11.5px] sm:text-[12px] font-bold border transition-all flex items-center justify-center gap-1 text-center cursor-pointer select-none active:scale-95 ${
                                                     product.is_new_arrival
                                                         ? 'bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-800 border-amber-300 shadow-2xs font-extrabold'
                                                         : 'bg-slate-50/80 text-slate-500 border-slate-200/90 hover:bg-slate-100'
@@ -305,7 +305,7 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                                 type="button"
                                                 onClick={() => handleToggleFeatured(product.id, 'is_featured')}
                                                 disabled={togglingId === `${product.id}-is_featured`}
-                                                className={`h-9 px-1 rounded-lg text-[11px] font-bold border transition-all flex items-center justify-center gap-1 text-center cursor-pointer select-none active:scale-95 ${
+                                                className={`h-9 px-1 rounded-lg text-[11.5px] sm:text-[12px] font-bold border transition-all flex items-center justify-center gap-1 text-center cursor-pointer select-none active:scale-95 ${
                                                     product.is_featured
                                                         ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-800 border-emerald-300 shadow-2xs font-extrabold'
                                                         : 'bg-slate-50/80 text-slate-500 border-slate-200/90 hover:bg-slate-100'
@@ -344,24 +344,34 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
 
                             {/* ── Desktop View: Products Table (hidden md:block) ── */}
                             <div className="hidden md:block overflow-x-auto">
-                                <table className="w-full">
+                                <table className="w-full table-fixed min-w-[1100px] border-collapse">
+                                    <colgroup>
+                                        <col className="w-[6%]" />
+                                        <col className="w-[23%]" />
+                                        <col className="w-[9%]" />
+                                        <col className="w-[8%]" />
+                                        <col className="w-[7%]" />
+                                        <col className="w-[8%]" />
+                                        <col className="w-[28%]" />
+                                        <col className="w-[11%]" />
+                                    </colgroup>
                                     <thead>
                                         <tr className="border-b border-slate-100 bg-slate-50/80">
-                                            <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-6 py-3.5 w-16">IMG</th>
-                                            <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Product</th>
-                                            <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Code</th>
-                                            <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Price</th>
-                                            <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Stock</th>
-                                            <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Status</th>
-                                            <th className="text-left text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">হোমপেজ সেকশন (Showcase)</th>
-                                            <th className="text-right text-[11px] font-bold text-slate-400 uppercase tracking-wider px-6 py-3.5">Actions</th>
+                                            <th className="text-center text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-2 py-4">IMG</th>
+                                            <th className="text-left text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-4 py-4">Product</th>
+                                            <th className="text-center text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-2 py-4">Code</th>
+                                            <th className="text-center text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-2 py-4">Price</th>
+                                            <th className="text-center text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-2 py-4">Stock</th>
+                                            <th className="text-center text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-2 py-4">Status</th>
+                                            <th className="text-center text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-2 py-4">হোমপেজ সেকশন (Showcase)</th>
+                                            <th className="text-center text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-3 py-4">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100">
                                         {products.data.map(product => (
                                             <tr key={product.id} className="hover:bg-slate-50/60 transition-colors">
-                                                <td className="px-6 py-3.5">
-                                                    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-slate-200 bg-white flex items-center justify-center shadow-2xs">
+                                                <td className="px-2 py-4 text-center">
+                                                    <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-xl overflow-hidden shrink-0 border border-slate-200 bg-white flex items-center justify-center shadow-2xs mx-auto">
                                                         <img
                                                             src={product.images?.[0]?.image_path || '/storage/defaults/default-product.svg'}
                                                             onError={e => {
@@ -372,26 +382,26 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                                         />
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-3.5">
-                                                    <p className="text-[13.5px] font-bold text-slate-800 max-w-[220px] truncate">{product.name}</p>
-                                                    <p className="text-[11.5px] text-slate-400 mt-0.5">{product.brand?.name || '—'}</p>
+                                                <td className="px-4 py-4 text-left">
+                                                    <p className="text-[14px] sm:text-[14.5px] font-bold text-slate-900 line-clamp-2 leading-snug">{product.name}</p>
+                                                    <p className="text-[12px] text-slate-400 mt-0.5">{product.brand?.name || '—'}</p>
                                                 </td>
-                                                <td className="px-4 py-3.5">
-                                                    <span className="text-[11.5px] font-mono font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200/60">{product.product_code || '—'}</span>
+                                                <td className="px-2 py-4 text-center">
+                                                    <span className="text-[11.5px] sm:text-[12px] font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200/60 inline-block">{product.product_code || '—'}</span>
                                                 </td>
-                                                <td className="px-4 py-3.5">
-                                                    <span className="text-[13.5px] font-black text-slate-800">৳{product.price}</span>
+                                                <td className="px-2 py-4 text-center">
+                                                    <span className="text-[15px] sm:text-[15.5px] font-black text-slate-900">৳{product.price}</span>
                                                 </td>
-                                                <td className="px-4 py-3.5">
-                                                    <span className={`text-[12.5px] font-bold ${product.stock_quantity <= 5 ? 'text-rose-600' : 'text-emerald-700'}`}>
+                                                <td className="px-2 py-4 text-center">
+                                                    <span className={`text-[13px] sm:text-[13.5px] font-black ${product.stock_quantity <= 5 ? 'text-rose-600' : 'text-emerald-700'}`}>
                                                         {product.stock_quantity}
                                                     </span>
                                                 </td>
-                                                <td className="px-4 py-3.5">
+                                                <td className="px-2 py-4 text-center">
                                                     <button
                                                         type="button"
                                                         onClick={() => handleToggleStatus(product.id)}
-                                                        className="border-none bg-transparent p-0 cursor-pointer hover:opacity-85 transition-opacity"
+                                                        className="border-none bg-transparent p-0 cursor-pointer hover:opacity-85 transition-opacity inline-block"
                                                         title={`Click to change status to ${product.status === 'active' ? 'Draft' : 'Active'}`}
                                                     >
                                                         {statusBadge(product.status)}
@@ -399,14 +409,14 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                                 </td>
 
                                                 {/* Homepage Showcase Column */}
-                                                <td className="px-4 py-3.5">
-                                                    <div className="flex flex-wrap items-center gap-2">
+                                                <td className="px-2 py-4 text-center">
+                                                    <div className="flex items-center justify-center gap-1.5 flex-nowrap">
                                                         {/* Best Selling Toggle */}
                                                         <button
                                                             type="button"
                                                             onClick={() => handleToggleFeatured(product.id, 'is_best_selling')}
                                                             disabled={togglingId === `${product.id}-is_best_selling`}
-                                                            className={`inline-flex items-center justify-center gap-1.5 h-8.5 px-3 rounded-lg text-[11.5px] font-bold border transition-all cursor-pointer select-none active:scale-95 ${
+                                                            className={`inline-flex items-center justify-center gap-1 h-8.5 px-2.5 rounded-lg text-[11.5px] font-bold border transition-all cursor-pointer select-none active:scale-95 whitespace-nowrap ${
                                                                 product.is_best_selling
                                                                     ? 'bg-gradient-to-r from-orange-50 to-amber-50 text-orange-700 border-orange-300 shadow-2xs font-extrabold'
                                                                     : 'bg-slate-50/80 text-slate-500 border-slate-200/90 hover:text-orange-600 hover:border-orange-200 hover:bg-orange-50/50'
@@ -422,7 +432,7 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                                             type="button"
                                                             onClick={() => handleToggleFeatured(product.id, 'is_new_arrival')}
                                                             disabled={togglingId === `${product.id}-is_new_arrival`}
-                                                            className={`inline-flex items-center justify-center gap-1.5 h-8.5 px-3 rounded-lg text-[11.5px] font-bold border transition-all cursor-pointer select-none active:scale-95 ${
+                                                            className={`inline-flex items-center justify-center gap-1 h-8.5 px-2.5 rounded-lg text-[11.5px] font-bold border transition-all cursor-pointer select-none active:scale-95 whitespace-nowrap ${
                                                                 product.is_new_arrival
                                                                     ? 'bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-800 border-amber-300 shadow-2xs font-extrabold'
                                                                     : 'bg-slate-50/80 text-slate-500 border-slate-200/90 hover:text-amber-600 hover:border-amber-200 hover:bg-amber-50/50'
@@ -438,7 +448,7 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                                             type="button"
                                                             onClick={() => handleToggleFeatured(product.id, 'is_featured')}
                                                             disabled={togglingId === `${product.id}-is_featured`}
-                                                            className={`inline-flex items-center justify-center gap-1.5 h-8.5 px-3 rounded-lg text-[11.5px] font-bold border transition-all cursor-pointer select-none active:scale-95 ${
+                                                            className={`inline-flex items-center justify-center gap-1 h-8.5 px-2.5 rounded-lg text-[11.5px] font-bold border transition-all cursor-pointer select-none active:scale-95 whitespace-nowrap ${
                                                                 product.is_featured
                                                                     ? 'bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-800 border-emerald-300 shadow-2xs font-extrabold'
                                                                     : 'bg-slate-50/80 text-slate-500 border-slate-200/90 hover:text-emerald-600 hover:border-emerald-200 hover:bg-emerald-50/50'
@@ -452,21 +462,21 @@ export const Index: React.FC<IndexProps> = ({ products, filters }) => {
                                                 </td>
 
                                                 {/* Actions */}
-                                                <td className="px-6 py-3.5 text-right">
-                                                    <div className="flex items-center justify-end gap-1.5">
+                                                <td className="px-3 py-4 text-center">
+                                                    <div className="flex items-center justify-center gap-1.5">
                                                         <Link href={route('product.show', { slug: product.slug })} target="_blank">
-                                                            <button className="w-9 h-9 rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-[#009E49] transition-all flex items-center justify-center border-none cursor-pointer active:scale-95" title="View Storefront">
+                                                            <button className="w-8.5 h-8.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-[#009E49] transition-all flex items-center justify-center border-none cursor-pointer active:scale-95" title="View Storefront">
                                                                 <Eye className="w-4 h-4" />
                                                             </button>
                                                         </Link>
                                                         <Link href={route('admin.products.edit', { id: product.id })}>
-                                                            <button className="w-9 h-9 rounded-lg bg-emerald-50 text-[#009E49] hover:bg-[#009E49] hover:text-white transition-all flex items-center justify-center border-none cursor-pointer active:scale-95" title="Edit Product">
+                                                            <button className="w-8.5 h-8.5 rounded-lg bg-emerald-50 text-[#009E49] hover:bg-[#009E49] hover:text-white transition-all flex items-center justify-center border-none cursor-pointer active:scale-95" title="Edit Product">
                                                                 <Edit className="w-4 h-4" />
                                                             </button>
                                                         </Link>
                                                         <button
                                                             onClick={() => handleDelete(product.id)}
-                                                            className="w-9 h-9 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center border-none cursor-pointer active:scale-95"
+                                                            className="w-8.5 h-8.5 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center border-none cursor-pointer active:scale-95"
                                                             title="Delete"
                                                         >
                                                             <Trash2 className="w-3.5 h-3.5" />

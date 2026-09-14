@@ -61,12 +61,12 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
     };
 
     return (
-        <div className="flex flex-col min-h-screen bg-[#F5F3EE] overflow-x-clip max-w-full w-full">
+        <div className="flex flex-col min-h-screen bg-[#F5F3EE] max-w-full w-full">
             {/* Header */}
             <Header />
 
             {/* Main Content Area */}
-            <main className="flex-grow w-full max-w-full min-w-0">
+            <main className="flex-grow w-full max-w-full min-w-0 overflow-x-clip">
                 {children}
             </main>
 
@@ -85,20 +85,20 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
             {!isCheckout && !isConfirmation && cartCount > 0 && (
                 <div 
                     onClick={() => setIsCartOpen(true)}
-                    className="flex fixed right-0 top-1/2 -translate-y-1/2 z-40 flex-col items-center bg-white shadow-[-4px_6px_20px_rgba(0,0,0,0.18)] rounded-l-xl border border-r-0 border-gray-200/90 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-3px] active:scale-95 group"
+                    className="hidden md:flex fixed right-0 top-[62%] -translate-y-1/2 z-40 flex-col items-center bg-white shadow-[-4px_6px_20px_rgba(0,0,0,0.18)] rounded-l-xl border border-r-0 border-gray-200/90 overflow-hidden cursor-pointer select-none transition-all duration-300 hover:translate-x-[-3px] active:scale-95 group"
                     title="View Cart"
                     role="button"
                     aria-label={`View cart: ${cartCount} items, total ৳${Math.round(cartSubtotal).toLocaleString()}`}
                 >
                     {/* Top: Red background with bag icon & count */}
-                    <div className="w-14 sm:w-16 py-2.5 sm:py-3 bg-[#E2231A] group-hover:bg-[#c61e16] text-white flex flex-col items-center justify-center gap-1 transition-colors px-1">
-                        <ShoppingBag className="w-4.5 h-4.5 sm:w-5 sm:h-5 drop-shadow-xs" />
-                        <span className="text-[10px] sm:text-[11px] font-black tracking-tight leading-none whitespace-nowrap font-latin">
+                    <div className="w-13 sm:w-15 md:w-16 py-2 sm:py-2.5 bg-[#E2231A] group-hover:bg-[#c61e16] text-white flex flex-col items-center justify-center gap-0.5 sm:gap-1 transition-colors px-1">
+                        <ShoppingBag className="w-4 h-4 sm:w-4.5 sm:h-4.5 drop-shadow-xs" />
+                        <span className="text-[9.5px] sm:text-[10.5px] font-black tracking-tight leading-none whitespace-nowrap font-latin">
                             {cartCount} {cartCount === 1 ? 'Item' : 'Items'}
                         </span>
                     </div>
                     {/* Bottom: White background with clean formatted subtotal */}
-                    <div className="w-14 sm:w-16 py-1.5 sm:py-2 flex items-center justify-center bg-white text-[#E2231A] text-[11px] sm:text-[12px] font-black font-latin tracking-tight whitespace-nowrap px-1 border-t border-gray-100">
+                    <div className="w-13 sm:w-15 md:w-16 py-1 sm:py-1.5 flex items-center justify-center bg-white text-[#E2231A] text-[10px] sm:text-[11.5px] font-black font-latin tracking-tight whitespace-nowrap px-1 border-t border-gray-100">
                         ৳{Math.round(cartSubtotal).toLocaleString()}
                     </div>
                 </div>
@@ -145,11 +145,11 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
             )}
 
             {/* 3. Left-side Floating Contact Speed-Dial */}
-            <div className={`fixed left-4 bottom-24 md:bottom-8 z-40 items-center gap-3 ${isCheckout || isProductPage || isConfirmation ? 'hidden md:flex md:flex-col-reverse' : 'flex flex-col-reverse'}`}>
+            <div className={`fixed left-2 xs:left-3 sm:left-4 bottom-18 xs:bottom-20 md:bottom-8 z-40 items-center gap-2 xs:gap-3 ${isCheckout || isProductPage || isConfirmation ? 'hidden md:flex md:flex-col-reverse' : 'flex flex-col-reverse'}`}>
 
                 {/* Expanded contact buttons — WhatsApp, Messenger, Phone */}
                 <div
-                    className={`flex flex-col-reverse items-center gap-3 transition-all duration-300 overflow-hidden ${
+                    className={`flex flex-col-reverse items-center gap-2 xs:gap-3 transition-all duration-300 overflow-hidden ${
                         isContactOpen
                             ? 'opacity-100 max-h-[240px] translate-y-0'
                             : 'opacity-0 max-h-0 pointer-events-none translate-y-4'
@@ -161,10 +161,10 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
                         target="_blank"
                         rel="noopener noreferrer"
                         title="WhatsApp"
-                        className="w-12 h-12 bg-[#25D366] hover:bg-[#20ba56] text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
+                        className="w-9 h-9 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-[#25D366] hover:bg-[#20ba56] text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
                     >
                         {/* WhatsApp SVG */}
-                        <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white">
+                        <svg viewBox="0 0 24 24" className="w-4.5 h-4.5 xs:w-5 xs:h-5 sm:w-6 sm:h-6 fill-white">
                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                         </svg>
                     </a>
@@ -175,10 +175,10 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
                         target="_blank"
                         rel="noopener noreferrer"
                         title="Messenger"
-                        className="w-12 h-12 bg-[#0084FF] hover:bg-[#0070dd] text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
+                        className="w-9 h-9 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-[#0084FF] hover:bg-[#0070dd] text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
                     >
                         {/* Messenger SVG */}
-                        <svg viewBox="0 0 24 24" className="w-6 h-6 fill-white">
+                        <svg viewBox="0 0 24 24" className="w-4.5 h-4.5 xs:w-5 xs:h-5 sm:w-6 sm:h-6 fill-white">
                             <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.652V24l4.088-2.242c1.092.3 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111C24 4.974 18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8.1l3.131 3.26L19.752 8.1l-6.561 6.863z"/>
                         </svg>
                     </a>
@@ -187,16 +187,16 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
                     <a
                         href={`tel:${store_settings?.contact_phone || '01700000000'}`}
                         title="Call Us"
-                        className="w-12 h-12 bg-[#009E49] hover:bg-[#007F3B] text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
+                        className="w-9 h-9 xs:w-10 xs:h-10 sm:w-12 sm:h-12 bg-[#009E49] hover:bg-[#007F3B] text-white rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
                     >
-                        <Phone className="w-6 h-6" />
+                        <Phone className="w-4.5 h-4.5 xs:w-5 xs:h-5 sm:w-6 sm:h-6" />
                     </a>
                 </div>
 
                 {/* Main Toggle Button */}
                 <button
                     onClick={() => setIsContactOpen(!isContactOpen)}
-                    className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl border-none cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95 ${
+                    className={`w-10 h-10 xs:w-11 xs:h-11 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-xl border-none cursor-pointer transition-all duration-300 hover:scale-110 active:scale-95 ${
                         isContactOpen
                             ? 'bg-gray-700 hover:bg-gray-800 rotate-0'
                             : 'bg-[#E2231A] hover:bg-[#c61e16]'
@@ -205,16 +205,16 @@ export const StorefrontLayout: React.FC<StorefrontLayoutProps> = ({ children }) 
                 >
                     <div className={`transition-transform duration-300 ${isContactOpen ? 'rotate-45' : 'rotate-0'}`}>
                         {isContactOpen ? (
-                            <X className="w-6 h-6 text-white" />
+                            <X className="w-4.5 h-4.5 xs:w-5 xs:h-5 sm:w-6 sm:h-6 text-white" />
                         ) : (
-                            <MessageSquare className="w-6 h-6 text-white fill-white" />
+                            <MessageSquare className="w-4.5 h-4.5 xs:w-5 xs:h-5 sm:w-6 sm:h-6 text-white fill-white" />
                         )}
                     </div>
                 </button>
             </div>
 
             {/* Toast Notifications */}
-            <Toaster position="top-center" richColors />
+            <Toaster position="top-center" theme="light" />
         </div>
     );
 };

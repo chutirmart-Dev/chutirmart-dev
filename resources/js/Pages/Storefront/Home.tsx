@@ -4,7 +4,7 @@ import StorefrontLayout from '@/layouts/StorefrontLayout';
 import { ProductCard } from '@/components/ProductCard';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from '@/components/ui/carousel';
 import { ProductCarouselSection } from '@/components/ProductCarouselSection';
-import { Star, MessageCircle, ShieldCheck, Truck, ShieldAlert } from 'lucide-react';
+import { Star, MessageCircle, ShieldCheck, Truck, ShieldAlert, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface HomeProps {
@@ -46,6 +46,7 @@ export const Home: React.FC<HomeProps> = ({
 
     // Carousel API state & Smooth Autoplay
     const [sliderApi, setSliderApi] = useState<CarouselApi>();
+    const [categoryApi, setCategoryApi] = useState<CarouselApi>();
     const [currentSlide, setCurrentSlide] = useState(0);
     const [slideCount, setSlideCount] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
@@ -88,10 +89,10 @@ export const Home: React.FC<HomeProps> = ({
 
             {/* Hero Banner Section with Optimized Responsive Height */}
             <section className="container pt-2.5 pb-3 sm:py-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
-                    {/* Left: Larger Carousel Banner */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 lg:gap-6 items-stretch">
+                    {/* Left: Main Carousel Banner - Full width on Mobile & Tablet (< lg), 8 cols on Desktop (lg+) */}
                     <div 
-                        className="md:col-span-2 relative overflow-hidden bg-gray-100 rounded-lg border border-[#E3E0D8] shadow-[0_2px_10px_rgba(0,0,0,0.04)] group"
+                        className="col-span-1 lg:col-span-8 relative overflow-hidden bg-gray-100 rounded-lg border border-[#E3E0D8] shadow-[0_2px_10px_rgba(0,0,0,0.04)] group"
                         onMouseEnter={() => setIsHovered(true)}
                         onMouseLeave={() => setIsHovered(false)}
                     >
@@ -101,12 +102,12 @@ export const Home: React.FC<HomeProps> = ({
                                 loop: true, 
                                 duration: 40 
                             }} 
-                            className="w-full"
+                            className="w-full h-full"
                         >
                             <CarouselContent wrapperClassName="w-full h-full overflow-hidden" className="-ml-0">
                                 {activeSliders.length > 0 ? activeSliders.map((banner, index) => (
                                     <CarouselItem key={index} className="pl-0 basis-full min-w-0 shrink-0 grow-0">
-                                        <div className="relative h-[135px] xs:h-[160px] sm:h-[240px] md:h-[300px] lg:h-[350px] w-full overflow-hidden">
+                                        <div className="relative h-[150px] xs:h-[180px] sm:h-[240px] md:h-[290px] lg:h-[340px] xl:h-[360px] w-full overflow-hidden">
                                             <img 
                                                 src={banner.image_path || '/storage/defaults/default-banner.svg'} 
                                                 alt={banner.title || 'Banner'} 
@@ -124,7 +125,7 @@ export const Home: React.FC<HomeProps> = ({
                                     </CarouselItem>
                                 )) : (
                                     <CarouselItem className="pl-0 basis-full min-w-0 shrink-0 grow-0">
-                                        <div className="relative h-[135px] xs:h-[160px] sm:h-[240px] md:h-[300px] lg:h-[350px] w-full bg-gray-300 flex items-center justify-center overflow-hidden">
+                                        <div className="relative h-[150px] xs:h-[180px] sm:h-[240px] md:h-[290px] lg:h-[340px] xl:h-[360px] w-full bg-gray-300 flex items-center justify-center overflow-hidden">
                                             <img src="/storage/defaults/default-banner.svg" className="w-full h-full object-cover absolute" alt="Default Banner" />
                                             <div className="relative z-10 text-center text-white bg-black/30 p-6 rounded-md">
                                                 <h1 className="text-2xl md:text-3xl font-extrabold font-bangla">ছুটির মার্ট ই-কমার্স</h1>
@@ -162,14 +163,14 @@ export const Home: React.FC<HomeProps> = ({
                         </Carousel>
                     </div>
 
-                    {/* Right: Smaller Side Promotion Banner with Matching Height & Hover Effect */}
-                    <div className="hidden md:block relative h-[175px] sm:h-[250px] md:h-[300px] lg:h-[350px] rounded-lg overflow-hidden border border-[#E3E0D8] shadow-[0_2px_10px_rgba(0,0,0,0.04)] bg-gray-100 group">
+                    {/* Right: Companion Side Promotion Banner on Desktop (lg+) */}
+                    <div className="hidden lg:block lg:col-span-4 relative h-[340px] xl:h-[360px] rounded-lg overflow-hidden border border-[#E3E0D8] shadow-[0_2px_10px_rgba(0,0,0,0.04)] bg-gray-100 group">
                         {activeSideBanner ? (
                             <>
                                 <img 
                                     src={activeSideBanner.image_path || '/storage/defaults/default-banner.svg'} 
                                     alt={activeSideBanner.title || "Promotion Banner"} 
-                                    className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                                    className="w-full h-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                                     loading="lazy"
                                     onError={e => {
                                         (e.target as HTMLImageElement).src = '/storage/defaults/default-banner.svg';
@@ -193,27 +194,54 @@ export const Home: React.FC<HomeProps> = ({
             </section>
 
             {/* Featured Categories Row */}
-            <section className="container py-3 sm:py-8 select-none">
-                {/* Reference Image Styled Header */}
-                <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex items-center justify-between">
+            <section className="container py-3 sm:py-6 select-none">
+                {/* Header with Title and Prev/Next controls */}
+                <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex flex-wrap items-center justify-between gap-y-1.5 gap-x-2">
                     <div className="relative">
-                        <h2 className="text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
-                            <span className="text-base sm:text-lg">🛍️</span>
+                        <h2 className="text-sm xs:text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
+                            <span className="text-sm sm:text-lg">🛍️</span>
                             <span>ক্যাটাগরি সমূহ</span>
                         </h2>
                         {/* Brand Color Underline Accent */}
-                        <div className="absolute -bottom-2.5 sm:-bottom-3 left-0 h-[3px] w-10 sm:w-12 bg-[#009E49] rounded-full" />
+                        <div className="absolute -bottom-2 sm:-bottom-2.5 md:-bottom-3 left-0 h-[2.5px] sm:h-[3px] w-8 sm:w-12 bg-[#009E49] rounded-full" />
                     </div>
-                    <Link 
-                        href={route('shop')}
-                        className="text-xs sm:text-[13px] font-bold text-[#009E49] hover:text-[#008038] tracking-wide flex items-center gap-1 sm:gap-1.5 transition-colors group font-bangla"
-                    >
-                        <span>সবগুলো দেখুন</span>
-                        <span className="text-sm sm:text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
-                    </Link>
+
+                    <div className="flex items-center gap-2.5 sm:gap-3.5 ml-auto">
+                        {/* Header Navigation Arrows (Desktop & Tablet) */}
+                        <div className="hidden md:flex items-center gap-1.5">
+                            <button
+                                type="button"
+                                onClick={() => categoryApi?.scrollPrev()}
+                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-200 bg-white hover:bg-[#009E49] hover:text-white hover:border-[#009E49] flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95 text-gray-700"
+                                aria-label="Previous categories"
+                            >
+                                <ChevronLeft className="w-4 h-4 stroke-[2.2]" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => categoryApi?.scrollNext()}
+                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-200 bg-white hover:bg-[#009E49] hover:text-white hover:border-[#009E49] flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95 text-gray-700"
+                                aria-label="Next categories"
+                            >
+                                <ChevronRight className="w-4 h-4 stroke-[2.2]" />
+                            </button>
+                        </div>
+
+                        <Link 
+                            href={route('shop')}
+                            className="text-[11px] xs:text-xs sm:text-[13px] font-bold text-[#009E49] hover:text-[#008038] tracking-wide flex items-center gap-1 sm:gap-1.5 transition-colors group font-bangla"
+                        >
+                            <span>সবগুলো দেখুন</span>
+                            <span className="text-xs sm:text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
+                        </Link>
+                    </div>
                 </div>
 
-                <Carousel opts={{ align: 'start', loop: categories.length > 5 }} className="w-full relative px-0 md:px-0">
+                <Carousel 
+                    setApi={setCategoryApi}
+                    opts={{ align: 'start', loop: categories.length > 5 }} 
+                    className="w-full relative"
+                >
                     <CarouselContent className="-ml-2 sm:-ml-3 md:-ml-4 flex items-center">
                         {categories.map(cat => (
                             <CarouselItem key={cat.id} className="pl-2 sm:pl-3 md:pl-4 basis-[28%] xs:basis-1/4 sm:basis-1/5 md:basis-1/6 shrink-0">
@@ -222,24 +250,24 @@ export const Home: React.FC<HomeProps> = ({
                                     className="flex flex-col items-center justify-center group select-none"
                                 >
                                     {/* Rounded Square Card for Icon */}
-                                    <div className="w-15 h-15 xs:w-18 xs:h-18 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-white rounded-lg border border-gray-150 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex items-center justify-center hover:shadow-[0_8px_24px_rgba(0,158,73,0.12)] hover:border-[#009E49]/40 transition-all duration-300 transform group-hover:scale-105 active:scale-95">
-                                        <span className="text-2xl xs:text-3xl md:text-4xl transform group-hover:rotate-12 transition-transform duration-300">
+                                    <div className="w-14 h-14 xs:w-16 xs:h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 bg-white rounded-2xl border border-gray-150 shadow-[0_2px_8px_rgba(0,0,0,0.04)] flex items-center justify-center hover:shadow-[0_8px_24px_rgba(0,158,73,0.12)] hover:border-[#009E49]/40 transition-all duration-300 transform group-hover:scale-105 active:scale-95">
+                                        <span className="text-xl xs:text-3xl md:text-3xl transform group-hover:rotate-12 transition-transform duration-300">
                                             {cat.icon || '📦'}
                                         </span>
                                     </div>
                                     
-                                    {/* Category Name Centered BELOW the Card */}
-                                    <span className="text-xs xs:text-[13px] sm:text-sm font-bold text-gray-800 text-center line-clamp-1 mt-2 group-hover:text-[#009E49] transition-colors font-bangla">
+                                    {/* Category Name Centered BELOW the Card with clean wrap */}
+                                    <span className="text-[11px] xs:text-[13px] sm:text-sm font-bold text-gray-800 text-center line-clamp-2 min-h-[2rem] flex items-center justify-center mt-1.5 group-hover:text-[#009E49] transition-colors font-bangla leading-tight px-1">
                                         {cat.name}
                                     </span>
                                 </Link>
                             </CarouselItem>
                         ))}
                     </CarouselContent>
-                    
-                    {/* Branding Green Circular Navigation Buttons (Desktop Only) */}
-                    <CarouselPrevious className="hidden md:inline-flex -left-1.5 md:-left-3 lg:-left-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-md w-8 h-8 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all items-center justify-center top-20 md:top-[88px] bottom-auto my-0 -translate-y-1/2" />
-                    <CarouselNext className="hidden md:inline-flex -right-1.5 md:-right-3 lg:-right-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-md w-8 h-8 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all items-center justify-center top-20 md:top-[88px] bottom-auto my-0 -translate-y-1/2" />
+
+                    {/* Circular Navigation Buttons matching Reference Image */}
+                    <CarouselPrevious className="flex -left-2 sm:-left-3 md:-left-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-md w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all items-center justify-center top-1/2 -translate-y-1/2" />
+                    <CarouselNext className="flex -right-2 sm:-right-3 md:-right-4 z-20 bg-[#009E49] hover:bg-[#008038] text-white border-2 border-white shadow-md w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 rounded-full cursor-pointer hover:scale-105 active:scale-95 transition-all items-center justify-center top-1/2 -translate-y-1/2" />
                 </Carousel>
             </section>
 
@@ -269,25 +297,25 @@ export const Home: React.FC<HomeProps> = ({
             {justForYou && justForYou.length > 0 && (
                 <section className="container py-3 sm:py-8">
                     {/* Header matching Reference Image 2 */}
-                    <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex items-center justify-between gap-2">
+                    <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex flex-wrap items-center justify-between gap-y-1.5 gap-x-2">
                         <div className="relative min-w-0">
-                            <h2 className="text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight truncate font-bangla">
-                                <span className="text-base sm:text-lg">⚡</span>
+                            <h2 className="text-sm xs:text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight truncate font-bangla">
+                                <span className="text-sm sm:text-lg">⚡</span>
                                 <span>আপনার জন্য পণ্য</span>
                             </h2>
                             {/* Brand Color Underline Accent */}
-                            <div className="absolute -bottom-2.5 sm:-bottom-3 left-0 h-[3px] w-10 sm:w-12 bg-[#009E49] rounded-full" />
+                            <div className="absolute -bottom-2 sm:-bottom-2.5 md:-bottom-3 left-0 h-[2.5px] sm:h-[3px] w-8 sm:w-12 bg-[#009E49] rounded-full" />
                         </div>
                         <Link
                             href={route('shop')}
-                            className="text-xs sm:text-[13px] font-bold text-[#009E49] hover:text-[#008038] tracking-wide uppercase flex items-center gap-1 sm:gap-1.5 transition-colors group shrink-0 whitespace-nowrap font-latin"
+                            className="text-[11px] xs:text-xs sm:text-[13px] font-bold text-[#009E49] hover:text-[#008038] tracking-wide uppercase flex items-center gap-1 sm:gap-1.5 transition-colors group shrink-0 whitespace-nowrap font-latin ml-auto"
                         >
                             <span>VIEW ALL PRODUCTS</span>
-                            <span className="text-sm sm:text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
+                            <span className="text-xs sm:text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
                         </Link>
                     </div>
 
-                    {/* Multi-row 5-column Responsive Grid */}
+                    {/* Multi-row Responsive Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 xs:gap-2.5 sm:gap-4 lg:gap-5">
                         {justForYou.map(product => (
                             <div key={product.id} className="h-full">
@@ -309,51 +337,112 @@ export const Home: React.FC<HomeProps> = ({
                 </section>
             )}
 
-            {/* Customer Reviews Section */}
-            <section className="container py-3 sm:py-8">
+            {/* Customer Reviews Section (Reference Design, 4 Columns on Desktop, Moderate Rounded Corners) */}
+            <section className="container py-4 sm:py-8">
                 {/* Header matching Reference Image */}
-                <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex items-center justify-between">
+                <div className="relative border-b border-gray-200/90 pb-2.5 sm:pb-3 mb-4 sm:mb-6 flex items-center justify-between">
                     <div className="relative">
-                        <h2 className="text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight">
+                        <h2 className="text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
                             <span className="text-base sm:text-lg">💬</span>
                             <span>গ্রাহকদের মতামত ও রিভিউ</span>
                         </h2>
                         <div className="absolute -bottom-2.5 sm:-bottom-3 left-0 h-[3px] w-10 sm:w-12 bg-[#009E49] rounded-full" />
                     </div>
                 </div>
+
                 {reviews.length === 0 ? (
-                    <p className="text-sm text-gray-500 text-center py-8">কোনো রিভিউ নেই।</p>
+                    <div className="bg-white border border-[#E3E0D8] rounded-xl p-8 text-center shadow-xs">
+                        <Star className="w-10 h-10 text-amber-400/40 mx-auto mb-2" />
+                        <p className="text-sm font-bold text-gray-700 font-bangla">শীঘ্রই গ্রাহকদের রিভিউ যুক্ত করা হবে।</p>
+                    </div>
                 ) : (
                     <Carousel opts={{ align: 'start', loop: true }} className="w-full">
-                        <CarouselContent className="-ml-3 md:-ml-4">
-                            {reviews.map(review => (
-                                <CarouselItem key={review.id} className="pl-3 md:pl-4 sm:basis-1/2 lg:basis-1/3 flex">
-                                    <div className="py-1 w-full flex">
-                                        <div className="bg-white border border-[#E3E0D8] rounded-lg p-5 md:p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.08)] transition-shadow space-y-3 w-full flex flex-col justify-between">
-                                            <div className="flex justify-between items-center">
+                        <CarouselContent className="-ml-2 sm:-ml-4">
+                            {reviews.map(review => {
+                                const initials = review.customer_name 
+                                    ? review.customer_name.slice(0, 2).toUpperCase() 
+                                    : 'CM';
+                                
+                                const avatarSrc = review.avatar_url || (
+                                    review.customer_avatar 
+                                        ? (review.customer_avatar.startsWith('http') || review.customer_avatar.startsWith('/storage') 
+                                            ? review.customer_avatar 
+                                            : `/storage/${review.customer_avatar}`)
+                                        : null
+                                );
+
+                                return (
+                                    <CarouselItem key={review.id} className="pl-2 sm:pl-4 basis-full sm:basis-1/2 md:basis-1/3 lg:basis-1/4 flex">
+                                        <div className="py-1 w-full flex">
+                                            <div className="bg-white border border-[#E3E0D8] rounded-xl p-4.5 sm:p-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_25px_rgba(0,0,0,0.07)] hover:border-[#009E49]/40 transition-all duration-300 w-full flex flex-col justify-between group">
+                                                {/* Top row: Rating Stars on Left, Decorative Quote on Right */}
                                                 <div>
-                                                    <h4 className="text-sm font-bold text-gray-800">{review.customer_name}</h4>
-                                                    <span className="inline-flex items-center text-[10px] text-green-600 bg-green-50 px-1.5 py-0.5 rounded-full font-medium mt-1">
-                                                        ✓ ভেরিফাইড ক্রেতা
-                                                    </span>
+                                                    <div className="flex items-center justify-between gap-2">
+                                                        <div className="flex items-center gap-0.5 text-amber-400">
+                                                            {Array.from({ length: 5 }).map((_, i) => (
+                                                                <Star 
+                                                                    key={i} 
+                                                                    className={`w-4 h-4 ${i < (review.rating || 5) ? 'fill-amber-400 text-amber-400' : 'text-gray-200'}`} 
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                        {/* Decorative Quotation Mark */}
+                                                        <svg className="w-6 h-6 text-[#009E49]/20 group-hover:text-[#009E49]/35 transition-colors shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                                                            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                                                        </svg>
+                                                    </div>
+
+                                                    {/* Middle row: Review Text */}
+                                                    <p className="text-[13px] sm:text-[14px] text-gray-700 leading-relaxed font-bangla line-clamp-3 min-h-[3.8rem] mt-3 italic">
+                                                        "{review.review_text}"
+                                                    </p>
                                                 </div>
-                                                <div className="flex text-yellow-400">
-                                                    {[...Array(review.rating)].map((_, i) => (
-                                                        <Star key={i} className="w-3.5 h-3.5 fill-current" />
-                                                    ))}
+
+                                                {/* Bottom section: Divider & Reviewer Info */}
+                                                <div>
+                                                    <div className="w-full border-t border-gray-100 my-3.5" />
+                                                    <div className="flex items-center gap-3">
+                                                        {/* Circular Avatar */}
+                                                        {avatarSrc ? (
+                                                            <img 
+                                                                src={avatarSrc} 
+                                                                alt={review.customer_name} 
+                                                                className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-2xs shrink-0" 
+                                                                onError={(e) => {
+                                                                    (e.target as HTMLElement).style.display = 'none';
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#009E49] to-[#007F3B] text-white font-bold text-xs flex items-center justify-center shadow-2xs shrink-0 select-none">
+                                                                {initials}
+                                                            </div>
+                                                        )}
+
+                                                        {/* Name and Designation / Location */}
+                                                        <div className="min-w-0 flex-1">
+                                                            <h4 className="text-[13.5px] sm:text-sm font-bold text-gray-900 leading-snug truncate font-bangla">
+                                                                {review.customer_name}
+                                                            </h4>
+                                                            <div className="flex items-center gap-1 text-[11px] sm:text-xs text-gray-500 font-medium mt-0.5 font-bangla">
+                                                                {review.verified !== false && (
+                                                                    <CheckCircle2 className="w-3.5 h-3.5 text-[#009E49] shrink-0" />
+                                                                )}
+                                                                <span className="truncate">{review.customer_designation || 'ভেরিফাইড ক্রেতা'}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <p className="text-xs md:text-sm text-gray-600 leading-relaxed italic">
-                                                "{review.review_text}"
-                                            </p>
                                         </div>
-                                    </div>
-                                </CarouselItem>
-                            ))}
+                                    </CarouselItem>
+                                );
+                            })}
                         </CarouselContent>
-                        <div className="flex justify-end gap-2 mt-2.5 sm:mt-4">
-                            <CarouselPrevious className="static translate-y-0" />
-                            <CarouselNext className="static translate-y-0" />
+                        
+                        {/* Carousel Prev / Next Controls */}
+                        <div className="flex justify-end gap-2 mt-3 sm:mt-4">
+                            <CarouselPrevious className="static translate-y-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-200 bg-white hover:bg-[#009E49] hover:text-white hover:border-[#009E49] shadow-2xs transition-colors cursor-pointer" />
+                            <CarouselNext className="static translate-y-0 w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-200 bg-white hover:bg-[#009E49] hover:text-white hover:border-[#009E49] shadow-2xs transition-colors cursor-pointer" />
                         </div>
                     </Carousel>
                 )}

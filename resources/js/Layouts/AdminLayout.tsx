@@ -6,7 +6,7 @@ import {
     Settings, LogOut, Bell, ChevronDown, ChevronRight,
     Menu, X, Search, Globe, ShieldCheck, Tag,
     Layers, Truck, ArrowUpRight, ChevronsLeft, ChevronsRight,
-    PanelLeftClose, PanelLeftOpen
+    PanelLeftClose, PanelLeftOpen, FolderKanban
 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { AdminGlobalSearch } from '@/components/admin/AdminGlobalSearch';
@@ -123,6 +123,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 return path === '/customers' || path.startsWith('/customers/');
             case 'messages':
                 return path === '/messages' || path.startsWith('/messages/');
+            case 'file-manager':
+                return path === '/file-manager' || path.startsWith('/file-manager/');
             case 'store':
                 return ['/settings', '/banners', '/landing-pages']
                     .some(p => path === p || path.startsWith(p + '/'));
@@ -251,6 +253,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                     key: 'messages',
                     route: route('admin.messages.index'),
                 },
+                {
+                    label: 'File Manager',
+                    icon: FolderKanban,
+                    key: 'file-manager',
+                    route: route('admin.file-manager.index'),
+                },
             ],
         },
         {
@@ -294,19 +302,19 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             )}
 
             {/* ──────────────────────────────────────────────────────────────
-             *  Sidebar (Collapsible 250px expanded / 68px mini on mobile, 80px on desktop)
+             *  Sidebar (Collapsible 288px / w-72 expanded / 68px mini on mobile, 80px on desktop)
              * ────────────────────────────────────────────────────────────── */}
             <aside
                 className={`fixed inset-y-0 left-0 z-50 bg-white flex flex-col transition-all duration-300 ease-in-out border-r border-slate-200/80 shadow-xs ${
                     isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
                 } md:translate-x-0 ${
-                    isCollapsed ? 'w-[68px] md:w-[80px]' : 'w-[260px] md:w-[250px]'
+                    isCollapsed ? 'w-[68px] md:w-[80px]' : 'w-72 md:w-72'
                 }`}
             >
                 
-                {/* ── Brand Header (With Mini / Full Toggle) ── */}
-                <div className={`border-b border-slate-100 shrink-0 transition-all duration-300 ${
-                    isCollapsed ? 'p-2.5 sm:p-3 flex flex-col items-center justify-center' : 'p-4 flex items-center justify-between'
+                {/* ── Brand Header (Matching Customer Dashboard Size & Padding) ── */}
+                <div className={`border-b border-slate-100 shrink-0 min-h-[76px] transition-all duration-300 ${
+                    isCollapsed ? 'p-2.5 sm:p-3 flex flex-col items-center justify-center' : 'px-5 py-3.5 flex items-center justify-between'
                 }`}>
                     {isCollapsed ? (
                         <div className="flex flex-col items-center gap-2">
@@ -325,28 +333,29 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                         </div>
                     ) : (
                         <>
-                            <Link href={route('admin.dashboard')} className="flex items-center gap-2.5 group rounded-xl px-1 sm:px-2 py-1 transition-colors hover:bg-slate-50 min-w-0">
+                            <Link href={route('admin.dashboard')} className="inline-flex items-center gap-2.5 no-underline min-w-0 group rounded-xl transition-colors hover:opacity-90">
                                 {store_settings?.site_logo ? (
                                     <img 
                                         src={store_settings.site_logo} 
                                         alt={store_settings.site_name || 'ChutirMart'} 
-                                        className="h-9 max-w-[135px] sm:max-w-[145px] w-auto object-contain" 
+                                        className="h-12 sm:h-14 max-w-[190px] w-auto object-contain transition-all duration-200" 
                                         onError={e => {
                                              (e.target as HTMLImageElement).src = '/storage/defaults/default-logo.svg';
                                         }}
                                     />
                                 ) : (
                                     <div className="flex items-center gap-2.5 min-w-0">
-                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#009E49] via-[#00B853] to-[#0FD669] flex items-center justify-center text-white shadow-[0_4px_14px_rgba(0,158,73,0.3)] group-hover:scale-105 transition-transform shrink-0">
+                                        <div className="w-10 h-10 rounded-xl bg-[#009E49] flex items-center justify-center text-white shadow-sm shrink-0">
                                             <ShoppingBag className="w-5 h-5" />
                                         </div>
-                                        <h2 className="text-[15.5px] font-black text-slate-800 tracking-tight leading-tight truncate">
-                                            {store_settings?.site_name || 'ChutirMart'}
-                                        </h2>
+                                        <span className="text-xl font-black tracking-tight leading-tight truncate">
+                                            <span className="text-[#009E49]">Chutir</span>
+                                            <span className="text-[#E2231A]">Mart</span>
+                                        </span>
                                     </div>
                                 )}
                             </Link>
-                            <div className="flex items-center gap-1 shrink-0">
+                            <div className="flex items-center gap-1 shrink-0 ml-2">
                                 <button
                                     onClick={toggleCollapse}
                                     className="w-8 h-8 rounded-xl hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition-colors cursor-pointer shrink-0"
@@ -367,11 +376,11 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 </div>
 
                 {/* ── Nav Items (Neat & Clean Buttons with Branding Color & Modern Hover) ── */}
-                <div className={`flex-1 overflow-y-auto overflow-x-hidden ${isCollapsed ? 'px-1.5 sm:px-2 py-3 sm:py-4 space-y-2.5 sm:space-y-3' : 'px-3 py-4 space-y-4'}`} style={{ scrollbarWidth: 'none' }}>
+                <div className={`flex-1 overflow-y-auto overflow-x-hidden ${isCollapsed ? 'px-2 py-3.5 space-y-2.5' : 'px-4 sm:px-5 py-4 space-y-4'}`} style={{ scrollbarWidth: 'none' }}>
                     {navSections.map((section, sIdx) => (
                         <div key={sIdx}>
                             {!isCollapsed && section.group && (
-                                <p className="text-[10.5px] font-extrabold text-slate-400 uppercase tracking-wider px-3 mb-2">
+                                <p className="text-[11.5px] sm:text-[12px] font-black text-slate-500 uppercase tracking-wider px-3.5 mb-2.5">
                                     {section.group}
                                 </p>
                             )}
@@ -415,9 +424,9 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
                                                 {/* Flyout Submenu Popover on Hover (Collapsed Mode) */}
                                                 {item.submenu ? (
-                                                    <div className="absolute left-full top-0 ml-3 py-2 px-2 bg-white border border-slate-200/90 rounded-lg shadow-xl min-w-[195px] invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 text-left pointer-events-auto">
-                                                        <div className="px-2.5 pb-2 border-b border-slate-100 mb-1.5 flex items-center justify-between">
-                                                            <p className="text-[12px] font-bold text-slate-800 uppercase tracking-wider">
+                                                    <div className="absolute left-full top-0 ml-3 py-2.5 px-2.5 bg-white border border-slate-200/90 rounded-xl shadow-xl min-w-[210px] invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 text-left pointer-events-auto">
+                                                        <div className="px-2.5 pb-2 border-b border-slate-100 mb-2 flex items-center justify-between">
+                                                            <p className="text-[12.5px] font-bold text-slate-800 uppercase tracking-wider">
                                                                 {item.label}
                                                             </p>
                                                             {isHighlighted && (
@@ -465,7 +474,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                             <div key={idx} className="space-y-1">
                                                 <div
                                                     onClick={() => handleParentClick(item)}
-                                                    className={`group w-full flex items-center justify-between px-3.5 py-2.5 sm:py-3 rounded-lg text-[14.5px] sm:text-[15px] cursor-pointer select-none
+                                                    className={`group w-full flex items-center justify-between px-3.5 py-2.5 sm:py-3 rounded-lg text-[15px] sm:text-[15.5px] cursor-pointer select-none
                                                         transition-all duration-200 ease-out border border-transparent ${
                                                         isHighlighted
                                                             ? 'bg-[#009E49] text-white font-bold shadow-md shadow-[#009E49]/25'
@@ -516,7 +525,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                                                         key={subIdx}
                                                                         href={sub.route}
                                                                         prefetch
-                                                                        className={`group/sub flex items-center px-3 py-2 rounded-md text-[13.5px] select-none
+                                                                        className={`group/sub flex items-center px-3 py-2 rounded-md text-[14px] sm:text-[14.5px] select-none
                                                                             transition-all duration-200 ease-out ${
                                                                             isSubActive
                                                                                 ? 'bg-[#009E49] text-white font-bold shadow-xs'
@@ -547,7 +556,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                             key={idx}
                                             href={item.route!}
                                             prefetch
-                                            className={`group flex items-center gap-3 px-3.5 py-2.5 sm:py-3 rounded-lg text-[14.5px] sm:text-[15px] select-none
+                                            className={`group flex items-center gap-3 px-3.5 py-2.5 sm:py-3 rounded-lg text-[15px] sm:text-[15.5px] select-none
                                                 transition-all duration-200 ease-out border border-transparent ${
                                                 isActive
                                                     ? 'bg-[#009E49] text-white font-bold shadow-md shadow-[#009E49]/25'
@@ -601,7 +610,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                             <Link
                                 href={route('home')}
                                 target="_blank"
-                                className="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-lg bg-[#E8F8F0] text-[#009E49] hover:bg-[#009E49] hover:text-white font-bold text-[14px] transition-all border border-[#009E49]/25 shadow-2xs hover:shadow-md hover:shadow-[#009E49]/25 hover:-translate-y-0.5 group"
+                                className="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-lg bg-[#E8F8F0] text-[#009E49] hover:bg-[#009E49] hover:text-white font-bold text-[14.5px] transition-all border border-[#009E49]/25 shadow-2xs hover:shadow-md hover:shadow-[#009E49]/25 hover:-translate-y-0.5 group"
                             >
                                 <Globe className="w-4.5 h-4.5 text-[#009E49] group-hover:text-white transition-colors" />
                                 <span>Visit Store</span>
@@ -616,8 +625,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                         className="w-8 h-8 rounded-full ring-2 ring-emerald-100 shrink-0"
                                     />
                                     <div className="min-w-0 text-left">
-                                        <p className="text-[13px] font-bold text-slate-800 truncate leading-tight">{auth?.user?.name || 'Admin'}</p>
-                                        <p className="text-[11px] text-slate-400 truncate leading-tight">{auth?.user?.email || 'admin@store.com'}</p>
+                                        <p className="text-[14px] font-bold text-slate-800 truncate leading-tight">{auth?.user?.name || 'Admin'}</p>
+                                        <p className="text-[12px] text-slate-400 truncate leading-tight">{auth?.user?.email || 'admin@store.com'}</p>
                                     </div>
                                 </div>
                                 <button
@@ -636,24 +645,44 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
             {/* ──────────────────────────────────────────────────────────────
              *  Main Content Area (Smooth padding transition matching sidebar)
              * ────────────────────────────────────────────────────────────── */}
-            <div className={`flex-1 flex flex-col transition-[padding] duration-300 ease-in-out min-h-screen w-full max-w-full overflow-x-clip ${
-                isCollapsed ? 'md:pl-[80px]' : 'md:pl-[250px]'
+            <div className={`flex-1 flex flex-col transition-[padding] duration-300 ease-in-out min-h-screen w-full max-w-full ${
+                isCollapsed ? 'md:pl-[80px]' : 'md:pl-72'
             }`}>
                 
-                {/* ── Topbar (Fixed Sticky at Top of Screen on Scroll) ── */}
-                <header className="h-[64px] bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 md:px-8 sticky top-0 z-40 shadow-xs w-full max-w-full">
-                    <div className="w-full h-full flex items-center justify-between gap-4">
+                {/* ── Topbar (Fixed Sticky at Top of Screen on Scroll, Responsive 2-row on Mobile) ── */}
+                <header className="bg-white/95 backdrop-blur-md border-b border-slate-200/70 px-3.5 sm:px-6 md:px-8 sticky top-0 z-40 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.07),0_10px_30px_-5px_rgba(0,158,73,0.05)] transition-shadow w-full max-w-full">
+                    <div className="w-full flex flex-wrap md:flex-nowrap items-center justify-between gap-y-2.5 gap-x-2 py-2.5 md:py-0 md:h-[72px]">
                         
-                        {/* Left: Mobile Toggle, Desktop Collapse Toggle & Search Box */}
-                        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 max-w-md">
+                        {/* Left: Mobile Toggle & Official Brand Logo, Desktop Collapse Toggle */}
+                        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                             {/* Mobile Hamburger */}
                             <button
                                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                                className="md:hidden p-1.5 sm:p-2 text-slate-600 hover:text-[#009E49] hover:bg-slate-50 rounded-xl border-none bg-transparent cursor-pointer shrink-0"
+                                className="md:hidden p-1.5 text-slate-600 hover:text-[#009E49] hover:bg-slate-50 rounded-xl border border-slate-200 hover:border-emerald-300 bg-white cursor-pointer shrink-0 transition-colors"
                                 aria-label="Toggle Sidebar"
                             >
                                 <Menu className="w-5 h-5" />
                             </button>
+
+                            {/* Mobile Brand / Official Logo Image */}
+                            <Link href={route('admin.dashboard')} className="md:hidden flex items-center shrink-0 select-none no-underline">
+                                {store_settings?.site_logo ? (
+                                    <img 
+                                        src={store_settings.site_logo} 
+                                        alt={store_settings.site_name || 'ChutirMart'} 
+                                        className="h-8 xs:h-9 max-w-[125px] w-auto object-contain" 
+                                        onError={e => {
+                                             (e.target as HTMLImageElement).src = '/storage/defaults/default-logo.svg';
+                                        }}
+                                    />
+                                ) : (
+                                    <img 
+                                        src="/storage/defaults/default-logo.svg" 
+                                        alt="ChutirMart" 
+                                        className="h-8 xs:h-9 max-w-[125px] w-auto object-contain"
+                                    />
+                                )}
+                            </Link>
 
                             {/* Desktop Sidebar Toggle Button */}
                             <button
@@ -663,22 +692,24 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                             >
                                 {isCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
                             </button>
+                        </div>
 
-                            {/* Omnisearch: Orders, Products, Customers, Navigation */}
+                        {/* Search Box - Wraps to its own full-width line below on mobile (like homepage), centered between left & right on desktop */}
+                        <div className="w-full md:w-auto md:flex-1 md:max-w-md order-last md:order-none">
                             <AdminGlobalSearch />
                         </div>
 
                         {/* Right: Actions */}
-                        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                        <div className="flex items-center gap-1.5 xs:gap-2 sm:gap-3 shrink-0">
                             {/* Live Store Pill */}
                             <Link
                                 href={route('home')}
                                 target="_blank"
-                                className="group inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-1.5 rounded-full border border-[#009E49]/30 bg-[#E1F7EE]/70 text-[#009E49] text-[12px] sm:text-[12.5px] font-bold hover:bg-[#009E49] hover:text-white transition-all shadow-2xs shrink-0"
+                                className="group inline-flex items-center gap-1 px-2.5 py-1 xs:px-3 sm:px-4 sm:py-2 rounded-full border border-[#009E49]/30 bg-[#E1F7EE]/70 text-[#009E49] text-[12px] sm:text-[13.5px] font-bold hover:bg-[#009E49] hover:text-white transition-all shadow-2xs shrink-0"
                                 title="Visit Live Storefront"
                             >
                                 <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-current group-hover:text-white transition-colors" />
-                                <span className="hidden xs:inline sm:inline">Store</span>
+                                <span>Store</span>
                                 <ArrowUpRight className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 hidden xs:inline text-current group-hover:text-white transition-colors" />
                             </Link>
 
@@ -696,7 +727,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                             <div className="relative">
                                 <button
                                     onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                                    className="flex items-center gap-1.5 p-0.5 rounded-full hover:bg-slate-50 border-none bg-transparent cursor-pointer transition-all shrink-0"
+                                    className="flex items-center gap-1 p-0.5 rounded-full hover:bg-slate-50 border-none bg-transparent cursor-pointer transition-all shrink-0"
                                 >
                                     <img
                                         src={`https://ui-avatars.com/api/?name=${encodeURIComponent(auth?.user?.name || 'Admin')}&background=009E49&color=fff&size=80`}
@@ -709,29 +740,29 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                                 {isProfileDropdownOpen && (
                                     <>
                                         <div className="fixed inset-0 z-40" onClick={() => setIsProfileDropdownOpen(false)} />
-                                        <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 py-2 z-50 animate-in fade-in zoom-in-95">
+                                        <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-slate-100 py-2.5 z-50 animate-in fade-in zoom-in-95">
                                             <div className="px-4 py-2.5 border-b border-slate-100">
-                                                <p className="text-[13.5px] font-bold text-slate-800">{auth?.user?.name || 'Administrator'}</p>
-                                                <p className="text-[11.5px] text-slate-400">{auth?.user?.email || 'admin@store.com'}</p>
+                                                <p className="text-[14.5px] font-bold text-slate-800">{auth?.user?.name || 'Administrator'}</p>
+                                                <p className="text-[12.5px] text-slate-400">{auth?.user?.email || 'admin@store.com'}</p>
                                             </div>
                                             <Link
                                                 href={route('admin.settings.index')}
                                                 onClick={() => setIsProfileDropdownOpen(false)}
-                                                className="flex items-center gap-2.5 px-4 py-2 text-[13px] font-semibold text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/50 transition-colors"
+                                                className="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/50 transition-colors"
                                             >
                                                 <Settings className="w-4 h-4" /> Store Settings
                                             </Link>
                                             <Link
                                                 href={route('home')}
                                                 target="_blank"
-                                                className="flex items-center gap-2.5 px-4 py-2 text-[13px] font-semibold text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/50 transition-colors"
+                                                className="flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-slate-600 hover:text-[#009E49] hover:bg-emerald-50/50 transition-colors"
                                             >
                                                 <Globe className="w-4 h-4" /> Visit Storefront
                                             </Link>
-                                            <div className="border-t border-slate-100 my-1" />
+                                            <div className="border-t border-slate-100 my-1.5" />
                                             <button
                                                 onClick={handleLogout}
-                                                className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] font-semibold text-red-500 hover:bg-red-50 text-left border-none bg-transparent cursor-pointer transition-colors"
+                                                className="w-full flex items-center gap-2.5 px-4 py-2.5 text-[14px] font-semibold text-red-500 hover:bg-red-50 text-left border-none bg-transparent cursor-pointer transition-colors"
                                             >
                                                 <LogOut className="w-4 h-4" /> Logout
                                             </button>

@@ -5,6 +5,8 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
+  --breakpoint-xs: 320px;
+
   --font-sans: "Hind Siliguri", "Inter", sans-serif;
   --font-bangla: "Hind Siliguri", sans-serif;
 
@@ -143,7 +145,8 @@ html {
 }
 
 .container {
-  width: 100%;
+  width: 100% !important;
+  max-width: 100% !important;
   margin-left: auto !important;
   margin-right: auto !important;
   padding-left: 1rem;
@@ -152,7 +155,7 @@ html {
 
 @media (min-width: 640px) {
   .container {
-    max-width: 640px;
+    max-width: 640px !important;
     padding-left: 1.25rem;
     padding-right: 1.25rem;
   }
@@ -160,7 +163,7 @@ html {
 
 @media (min-width: 768px) {
   .container {
-    max-width: 768px;
+    max-width: 768px !important;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
@@ -168,7 +171,7 @@ html {
 
 @media (min-width: 1024px) {
   .container {
-    max-width: 1024px;
+    max-width: 1024px !important;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
@@ -176,7 +179,7 @@ html {
 
 @media (min-width: 1280px) {
   .container {
-    max-width: 1280px;
+    max-width: 1280px !important;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
@@ -184,7 +187,7 @@ html {
 
 @media (min-width: 1400px) {
   .container {
-    max-width: 1360px;
+    max-width: 1360px !important;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
   }
@@ -192,7 +195,7 @@ html {
 
 @media (min-width: 1536px) {
   .container {
-    max-width: 1440px;
+    max-width: 1440px !important;
     padding-left: 1.75rem;
     padding-right: 1.75rem;
   }
@@ -200,7 +203,7 @@ html {
 
 @media (min-width: 1720px) {
   .container {
-    max-width: 1520px;
+    max-width: 1520px !important;
     padding-left: 2rem;
     padding-right: 2rem;
   }
@@ -452,3 +455,111 @@ textarea:focus {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
   cursor: pointer;
 }
+
+/* ==========================================================================
+   Modern Sonner Toast Notifications - High Contrast & Brand Colors
+   ========================================================================== */
+[data-sonner-toaster] {
+  font-family: var(--font-bangla), sans-serif !important;
+  z-index: 999999 !important;
+}
+
+[data-sonner-toast] {
+  font-family: var(--font-bangla), sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.5 !important;
+  padding: 13px 18px !important;
+  border-radius: 12px !important;
+  background: #FFFFFF !important;
+  color: #1F2937 !important;
+  border: 1.5px solid #E5E7EB !important;
+  box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.06) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+[data-sonner-toast] [data-title] {
+  font-family: var(--font-bangla), sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: inherit !important;
+}
+
+[data-sonner-toast] [data-description] {
+  font-family: var(--font-bangla), sans-serif !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  color: #4B5563 !important;
+  margin-top: 2px !important;
+}
+
+/* Error Toast: Clean White Card with Crisp Red Border and Bold Red Text */
+[data-sonner-toast][data-type="error"] {
+  background: #FFFFFF !important;
+  color: #991B1B !important;
+  border: 2px solid #E2231A !important;
+  box-shadow: 0 12px 32px -4px rgba(226, 35, 26, 0.22), 0 4px 12px -2px rgba(226, 35, 26, 0.12) !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-title] {
+  color: #991B1B !important;
+  font-weight: 700 !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-icon] {
+  color: #E2231A !important;
+}
+
+/* Info Toast: Clean White Card with Vibrant Blue/Teal Accent */
+[data-sonner-toast][data-type="info"] {
+  background: #FFFFFF !important;
+  color: #1E3A8A !important;
+  border: 2px solid #2563EB !important;
+  box-shadow: 0 12px 30px -4px rgba(37, 99, 235, 0.2) !important;
+}
+
+[data-sonner-toast][data-type="info"] [data-title] {
+  color: #1E3A8A !important;
+  font-weight: 700 !important;
+}
+
+[data-sonner-toast][data-type="info"] [data-icon] {
+  color: #2563EB !important;
+}
+
+/* Warning Toast: Clean White Card with Warm Amber Accent */
+[data-sonner-toast][data-type="warning"] {
+  background: #FFFFFF !important;
+  color: #92400E !important;
+  border: 2px solid #D97706 !important;
+  box-shadow: 0 12px 30px -4px rgba(217, 119, 6, 0.2) !important;
+}
+
+[data-sonner-toast][data-type="warning"] [data-title] {
+  color: #92400E !important;
+  font-weight: 700 !important;
+}
+
+[data-sonner-toast][data-type="warning"] [data-icon] {
+  color: #D97706 !important;
+}
+
+/* Success Toast: Clean White Card with Brand Green Accent */
+[data-sonner-toast][data-type="success"] {
+  background: #FFFFFF !important;
+  color: #065F46 !important;
+  border: 2px solid #009E49 !important;
+  box-shadow: 0 12px 30px -4px rgba(0, 158, 73, 0.2) !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-title] {
+  color: #065F46 !important;
+  font-weight: 700 !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-icon] {
+  color: #009E49 !important;
+}
+

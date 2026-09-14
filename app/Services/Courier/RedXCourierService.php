@@ -40,7 +40,7 @@ class RedXCourierService implements CourierServiceInterface
         ];
 
         try {
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'API-ACCESS-TOKEN' => "Bearer {$this->apiToken}",
                 'Content-Type' => 'application/json',
             ])->timeout(20)->post("{$this->baseUrl}/parcels", $payload);
@@ -81,7 +81,7 @@ class RedXCourierService implements CourierServiceInterface
         }
 
         try {
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'API-ACCESS-TOKEN' => "Bearer {$this->apiToken}",
             ])->timeout(15)->get("{$this->baseUrl}/parcels/track/{$order->consignment_id}");
 

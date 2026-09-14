@@ -10,10 +10,10 @@ export const AdminCard: React.FC<{ children: React.ReactNode; className?: string
 
 // ── Section Header inside a card ───────────────────────────────────────────
 export const CardHead: React.FC<{ title: string; subtitle?: string; action?: React.ReactNode }> = ({ title, subtitle, action }) => (
-    <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#EBEDF2]">
+    <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-[#EBEDF2]">
         <div>
-            <h3 className="text-[14px] font-black text-[#1A1A2E]">{title}</h3>
-            {subtitle && <p className="text-[11.5px] text-[#9096B0] mt-0.5">{subtitle}</p>}
+            <h3 className="text-[16px] sm:text-[18px] font-black text-[#1A1A2E]">{title}</h3>
+            {subtitle && <p className="text-[13px] sm:text-[14px] text-[#64748B] mt-1 font-medium">{subtitle}</p>}
         </div>
         {action && <div>{action}</div>}
     </div>
@@ -21,10 +21,10 @@ export const CardHead: React.FC<{ title: string; subtitle?: string; action?: Rea
 
 // ── Page header (title + subtitle + optional action) ───────────────────────
 export const PageHeader: React.FC<{ title: string; subtitle?: string; action?: React.ReactNode }> = ({ title, subtitle, action }) => (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-            <h2 className="text-[20px] font-black text-[#1A1A2E] tracking-tight">{title}</h2>
-            {subtitle && <p className="text-[12.5px] text-[#9096B0] mt-0.5">{subtitle}</p>}
+            <h2 className="text-[22px] sm:text-[27px] font-black text-[#1A1A2E] tracking-tight">{title}</h2>
+            {subtitle && <p className="text-[14px] sm:text-[15.5px] text-[#64748B] mt-1 font-medium">{subtitle}</p>}
         </div>
         {action && <div>{action}</div>}
     </div>
@@ -36,7 +36,7 @@ export const PrimaryBtn: React.FC<{ children: React.ReactNode; onClick?: () => v
         type={type}
         onClick={onClick}
         disabled={disabled}
-        className={`inline-flex items-center justify-center gap-2 px-5 h-12 rounded-lg bg-[#009E49] text-white text-[14px] font-bold hover:bg-[#007F3B] transition-all shadow-xs hover:shadow-sm active:scale-98 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed select-none ${className}`}
+        className={`inline-flex items-center justify-center gap-2 px-6 h-12 rounded-xl bg-[#009E49] text-white text-[15px] sm:text-[16px] font-bold hover:bg-[#007F3B] transition-all shadow-xs hover:shadow-md active:scale-98 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed select-none ${className}`}
     >
         {children}
     </button>
@@ -47,7 +47,7 @@ export const SaveBtn: React.FC<{ children: React.ReactNode; type?: 'button' | 's
     <button
         type={type}
         disabled={disabled}
-        className={`inline-flex items-center justify-center gap-2 px-5 h-12 rounded-lg text-white text-[14px] font-bold transition-all shadow-xs hover:shadow-md active:scale-98 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed select-none ${className}`}
+        className={`inline-flex items-center justify-center gap-2 px-6 h-12 rounded-xl text-white text-[15px] sm:text-[16px] font-bold transition-all shadow-xs hover:shadow-md active:scale-98 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed select-none ${className}`}
         style={{ background: 'linear-gradient(135deg,#E2231A 0%,#B8150D 100%)' }}
     >
         {children}
@@ -59,9 +59,9 @@ export const AdminInput: React.FC<React.InputHTMLAttributes<HTMLInputElement> & 
     <div>
         <input
             {...props}
-            className={`w-full h-10 px-3 rounded-lg border ${error ? 'border-red-400 bg-red-50' : 'border-[#EBEDF2] bg-[#F7F8FA]'} text-[13.5px] text-[#1A1A2E] placeholder-[#C0C6D8] focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 hover:border-[#009E49]/40 transition-all ${className}`}
+            className={`w-full h-12 sm:h-[50px] px-4 rounded-xl border ${error ? 'border-red-400 bg-red-50' : 'border-[#EBEDF2] bg-[#F7F8FA]'} text-[14.5px] sm:text-[15.5px] text-[#1A1A2E] placeholder-[#9CA3AF] focus:outline-none focus:bg-white focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 hover:border-[#009E49]/40 transition-all ${className}`}
         />
-        {error && <p className="text-[11.5px] text-red-500 mt-1">{error}</p>}
+        {error && <p className="text-[12.5px] sm:text-[13px] text-red-500 mt-1.5 font-medium">{error}</p>}
     </div>
 );
 
@@ -70,9 +70,9 @@ export const AdminTextarea: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaEl
     <div>
         <textarea
             {...props}
-            className={`w-full px-3 py-2.5 rounded-lg border ${error ? 'border-red-400 bg-red-50' : 'border-[#EBEDF2] bg-[#F7F8FA]'} text-[13.5px] text-[#1A1A2E] placeholder-[#C0C6D8] focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 hover:border-[#009E49]/40 transition-all resize-none ${className}`}
+            className={`w-full px-4 py-3 rounded-xl border ${error ? 'border-red-400 bg-red-50' : 'border-[#EBEDF2] bg-[#F7F8FA]'} text-[14.5px] sm:text-[15.5px] text-[#1A1A2E] placeholder-[#9CA3AF] focus:outline-none focus:bg-white focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/15 hover:border-[#009E49]/40 transition-all min-h-[110px] resize-none ${className}`}
         />
-        {error && <p className="text-[11.5px] text-red-500 mt-1">{error}</p>}
+        {error && <p className="text-[12.5px] sm:text-[13px] text-red-500 mt-1.5 font-medium">{error}</p>}
     </div>
 );
 
@@ -154,7 +154,7 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
                 id={id}
                 disabled={disabled}
                 onClick={() => !disabled && setIsOpen(!isOpen)}
-                className={`w-full min-w-0 h-10 px-3.5 pr-9 rounded-lg border text-[13.5px] font-semibold text-[#1A1A2E] text-left flex items-center justify-between transition-all cursor-pointer ${
+                className={`w-full min-w-0 h-12 sm:h-[50px] px-4 pr-10 rounded-xl border text-[14.5px] sm:text-[15.5px] font-semibold text-[#1A1A2E] text-left flex items-center justify-between transition-all cursor-pointer ${
                     disabled
                         ? 'bg-gray-100 border-gray-200 opacity-60 cursor-not-allowed'
                         : isOpen
@@ -167,7 +167,7 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
                 </span>
                 <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#009E49]">
                     <ChevronDown
-                        className={`w-4 h-4 stroke-[2.5] transition-transform duration-200 ${
+                        className={`w-4.5 h-4.5 stroke-[2.5] transition-transform duration-200 ${
                             isOpen ? 'rotate-180 text-[#009E49]' : 'text-[#009E49]'
                         }`}
                     />
@@ -176,7 +176,7 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
 
             {/* Floating Branded Dropdown Menu */}
             {isOpen && (
-                <div className="absolute left-0 right-0 top-full mt-1.5 p-1.5 bg-white border border-[#009E49]/25 rounded-xl shadow-[0_12px_32px_rgba(0,158,73,0.15),0_4px_12px_rgba(0,0,0,0.06)] z-50 max-h-60 overflow-y-auto scrollbar-thin animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute left-0 right-0 top-full mt-1.5 p-2 bg-white border border-[#009E49]/25 rounded-xl shadow-[0_12px_32px_rgba(0,158,73,0.15),0_4px_12px_rgba(0,0,0,0.06)] z-50 max-h-64 overflow-y-auto scrollbar-thin animate-in fade-in zoom-in-95 duration-150">
                     {options.map((opt, idx) => {
                         const isSelected = String(opt.value) === String(currentValue);
                         return (
@@ -185,7 +185,7 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
                                 type="button"
                                 disabled={opt.disabled}
                                 onClick={() => handleSelect(opt)}
-                                className={`w-full px-3 py-2.5 rounded-lg text-[13px] text-left flex items-center justify-between transition-all cursor-pointer border-none mb-0.5 last:mb-0 ${
+                                className={`w-full px-3.5 py-3 rounded-lg text-[14px] sm:text-[15px] text-left flex items-center justify-between transition-all cursor-pointer border-none mb-0.5 last:mb-0 ${
                                     opt.disabled
                                         ? 'opacity-40 cursor-not-allowed'
                                         : isSelected
@@ -195,7 +195,7 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
                             >
                                 <span className="truncate">{opt.label}</span>
                                 {isSelected && (
-                                    <Check className="w-4 h-4 text-white stroke-[2.5] shrink-0 ml-2" />
+                                    <Check className="w-4.5 h-4.5 text-white stroke-[2.5] shrink-0 ml-2" />
                                 )}
                             </button>
                         );
@@ -221,8 +221,8 @@ export const AdminSelect: React.FC<React.SelectHTMLAttributes<HTMLSelectElement>
 };
 
 // ── Field label ────────────────────────────────────────────────────────────
-export const FieldLabel: React.FC<{ children: React.ReactNode; htmlFor?: string; required?: boolean }> = ({ children, htmlFor, required }) => (
-    <label htmlFor={htmlFor} className="block text-[12px] font-bold text-[#555E7A] mb-2">
+export const FieldLabel: React.FC<{ children: React.ReactNode; htmlFor?: string; required?: boolean; className?: string }> = ({ children, htmlFor, required, className = '' }) => (
+    <label htmlFor={htmlFor} className={`block text-[13.5px] sm:text-[14.5px] font-bold text-[#334155] mb-2 ${className}`}>
         {children}{required && <span className="text-red-500 ml-0.5">*</span>}
     </label>
 );
@@ -238,7 +238,7 @@ export const THead: React.FC<{ cols: string[] }> = ({ cols }) => (
     <thead>
         <tr className="border-b border-[#EBEDF2] bg-[#F7F8FA]">
             {cols.map((c, i) => (
-                <th key={i} className="text-left text-[11px] font-bold text-[#9096B0] uppercase tracking-[0.08em] px-5 py-3.5">
+                <th key={i} className="text-left text-[12px] sm:text-[13px] font-extrabold text-[#64748B] uppercase tracking-[0.06em] px-5 sm:px-6 py-4">
                     {c}
                 </th>
             ))}
@@ -256,6 +256,8 @@ export const StatusPill: React.FC<{ status: string; className?: string }> = ({ s
         processing: { bg: 'bg-[#E6F5EC]', text: 'text-[#009E49]', border: 'border-emerald-200/80' },
         on_hold: { bg: 'bg-[#FFF8E6]', text: 'text-[#D97706]', border: 'border-amber-200/70' },
         complete: { bg: 'bg-[#E3FAF0]', text: 'text-[#16A34A]', border: 'border-emerald-200/70' },
+        approved: { bg: 'bg-[#E3FAF0]', text: 'text-[#16A34A]', border: 'border-emerald-200/70' },
+        rejected: { bg: 'bg-[#FFECEC]', text: 'text-[#DC2626]', border: 'border-rose-200/70' },
         cancelled: { bg: 'bg-[#FFECEC]', text: 'text-[#DC2626]', border: 'border-rose-200/70' },
         pending: { bg: 'bg-[#FFF4EC]', text: 'text-[#EA7C2B]', border: 'border-orange-200/70' },
         paid: { bg: 'bg-[#E3FAF0]', text: 'text-[#16A34A]', border: 'border-emerald-200/70' },
@@ -263,7 +265,7 @@ export const StatusPill: React.FC<{ status: string; className?: string }> = ({ s
     const s = map[status] ?? { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200' };
     const label = status ? status.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : '';
     return (
-        <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-[11px] font-semibold tracking-wide ${s.bg} ${s.text} ${s.border} ${className}`}>
+        <span className={`inline-flex items-center px-3 py-1 rounded-lg border text-[12px] sm:text-[13px] font-bold tracking-wide ${s.bg} ${s.text} ${s.border} ${className}`}>
             {label}
         </span>
     );
@@ -274,14 +276,14 @@ import { Link } from '@inertiajs/react';
 export const AdminPagination: React.FC<{ links: any[] }> = ({ links }) => {
     if (links.length <= 3) return null;
     return (
-        <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-1.5 px-3 sm:px-6 py-3 sm:py-4 border-t border-[#EBEDF2]">
+        <div className="flex flex-wrap justify-center items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-4 sm:py-5 border-t border-[#EBEDF2]">
             {links.map((link, idx) => {
                 if (link.url === null) return null;
                 return (
                     <Link
                         key={idx}
                         href={link.url}
-                        className={`px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg text-[12px] sm:text-[13px] font-bold transition-all ${link.active ? 'bg-[#009E49] text-white shadow-[0_2px_8px_rgba(0,158,73,0.2)]' : 'bg-[#F7F8FA] text-[#555E7A] hover:bg-[#009E49] hover:text-white border border-[#EBEDF2]'}`}
+                        className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[13.5px] sm:text-[14.5px] font-bold transition-all ${link.active ? 'bg-[#009E49] text-white shadow-[0_2px_8px_rgba(0,158,73,0.2)]' : 'bg-[#F7F8FA] text-[#555E7A] hover:bg-[#009E49] hover:text-white border border-[#EBEDF2]'}`}
                         dangerouslySetInnerHTML={{ __html: link.label }}
                     />
                 );
@@ -303,7 +305,7 @@ export const IconBtn: React.FC<{ color?: 'purple' | 'green' | 'red' | 'orange' |
         <button
             title={title}
             onClick={onClick}
-            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all border-none cursor-pointer ${map[color]} ${className}`}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all border-none cursor-pointer ${map[color]} ${className}`}
         >
             {children}
         </button>
@@ -313,7 +315,7 @@ export const IconBtn: React.FC<{ color?: 'purple' | 'green' | 'red' | 'orange' |
 // ── Search bar ─────────────────────────────────────────────────────────────
 export const AdminSearchBar: React.FC<{ placeholder?: string; value: string; onChange: (v: string) => void; onSubmit: () => void }> = ({ placeholder = 'Search...', value, onChange, onSubmit }) => (
     <form onSubmit={e => { e.preventDefault(); onSubmit(); }} className="relative flex-1">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C0C6D8]">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[#A0ABC0]">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
         </svg>
         <input
@@ -321,7 +323,7 @@ export const AdminSearchBar: React.FC<{ placeholder?: string; value: string; onC
             placeholder={placeholder}
             value={value}
             onChange={e => onChange(e.target.value)}
-            className="w-full h-11 pl-10 pr-4 rounded-xl border border-[#EBEDF2] bg-[#F7F8FA] text-[14px] text-[#2D3048] placeholder-[#C0C6D8] focus:outline-none focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all"
+            className="w-full h-12 sm:h-[50px] pl-11 pr-4 rounded-xl border border-[#EBEDF2] bg-[#F7F8FA] text-[14.5px] sm:text-[15.5px] text-[#2D3048] placeholder-[#9CA3AF] focus:outline-none focus:bg-white focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 transition-all"
         />
     </form>
 );

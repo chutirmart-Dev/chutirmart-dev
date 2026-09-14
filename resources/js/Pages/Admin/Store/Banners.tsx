@@ -4,6 +4,7 @@ import AdminLayout from '@/layouts/AdminLayout';
 import { AdminCard, CardHead, PageHeader, SaveBtn, AdminInput, FieldLabel, IconBtn } from '@/components/admin/ui';
 import { Trash2, UploadCloud, X, Save, Info, Pencil, Check, XCircle, LayoutGrid, Sliders, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { MediaPickerModal } from '@/components/admin/MediaPickerModal';
 
 interface Banner {
     id: number;
@@ -359,6 +360,7 @@ export const Banners: React.FC<BannersProps> = ({ banners }) => {
     const [previewImage, setPreviewImage] = useState<string>('');
     const [editingId,    setEditingId]    = useState<number | null>(null);
     const [filterType,   setFilterType]   = useState<'all' | 'slider' | 'side'>('all');
+    const [isMediaModalOpen, setIsMediaModalOpen] = useState<boolean>(false);
 
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -793,7 +795,9 @@ export const Banners: React.FC<BannersProps> = ({ banners }) => {
                                         </button>
                                     </div>
                                 ) : (
-                                    <label
+                                    <div
+                                        role="button"
+                                        onClick={() => setIsMediaModalOpen(true)}
                                         className={`group relative block w-full border-2 border-dashed rounded-2xl bg-[#FAFAFE] hover:bg-[#F5F3FF] transition-all duration-200 cursor-pointer ${
                                             data.position === 'side'
                                                 ? 'border-blue-300 hover:border-blue-600'
@@ -805,24 +809,18 @@ export const Banners: React.FC<BannersProps> = ({ banners }) => {
                                                 <UploadCloud className={`w-6 h-6 ${data.position === 'side' ? 'text-blue-600' : 'text-[#009E49]'}`} />
                                             </div>
                                             <p className="text-[13px] font-bold text-[#1A1A2E] mb-1">
-                                                {data.position === 'side' ? 'সাইড ব্যানার ছবি আপলোড করুন' : 'স্লাইডার ব্যানার ছবি আপলোড করুন'}
+                                                {data.position === 'side' ? 'সাইড ব্যানার ছবি নির্বাচন / আপলোড' : 'স্লাইডার ব্যানার ছবি নির্বাচন / আপলোড'}
                                             </p>
-                                            <p className="text-[11px] text-[#9096B0] mb-3">JPG, PNG, WebP (Drag & Drop)</p>
+                                            <p className="text-[11px] text-[#9096B0] mb-3">Media Library ও কম্পিউটার থেকে আপলোড</p>
                                             <span className={`px-4 py-1.5 rounded-xl bg-white border border-[#E8E7FF] text-[11px] font-bold text-[#1A1A2E] shadow-sm transition-all ${
                                                 data.position === 'side'
                                                     ? 'group-hover:border-blue-600 group-hover:text-blue-600'
                                                     : 'group-hover:border-[#009E49] group-hover:text-[#009E49]'
                                             }`}>
-                                                Browse File
+                                                মিডিয়া লাইব্রেরি খুলুন
                                             </span>
                                         </div>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={handleImageUpload}
-                                            className="hidden"
-                                        />
-                                    </label>
+                                    </div>
                                 )}
                             </div>
 
@@ -835,6 +833,20 @@ export const Banners: React.FC<BannersProps> = ({ banners }) => {
                 </div>
 
             </div>
+
+            {/* Banner Image Media Picker Modal */}
+            <MediaPickerModal
+                isOpen={isMediaModalOpen}
+                onClose={() => setIsMediaModalOpen(false)}
+                defaultFolder="banners"
+                title="Select Banner Image (ব্যানার মিডিয়া নির্বাচন)"
+                confirmText="ব্যানার হিসেবে নির্বাচন করুন"
+                onSelect={(item) => {
+                    setData('image', item.url);
+                    setPreviewImage(item.url);
+                    toast.success('ব্যানার ছবি সফলভাবে নির্বাচন করা হয়েছে! 🖼️');
+                }}
+            />
         </AdminLayout>
     );
 };

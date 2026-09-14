@@ -5,6 +5,7 @@ import { AdminCard, CardHead, PageHeader, SaveBtn, AdminInput, AdminTextarea, Ad
 import { UploadCloud, X, Save, ArrowLeft, Images } from 'lucide-react';
 import { toast } from 'sonner';
 import { VariationsSection } from '@/components/admin/VariationsSection';
+import { MediaPickerModal } from '@/components/admin/MediaPickerModal';
 import { compressImageFile } from '@/lib/imageCompression';
 
 interface CreateProps {
@@ -16,6 +17,8 @@ interface CreateProps {
 export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }) => {
     const [selectedAttributeOptions, setSelectedAttributeOptions] = useState<Record<number, number[]>>({});
     const [isOptimizingImages, setIsOptimizingImages] = useState(false);
+    const [isMainImagePickerOpen, setIsMainImagePickerOpen] = useState(false);
+    const [isGalleryPickerOpen, setIsGalleryPickerOpen] = useState(false);
     const { data, setData, post, processing, errors, transform } = useForm({
         name: '',
         price: '',
@@ -303,10 +306,13 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
                                         <p className="text-sm font-bold text-gray-800">Primary Product Image Selected</p>
                                         <p className="text-xs text-gray-500">Ready to save. You can change this image anytime or promote another image from the gallery.</p>
                                         <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
-                                            <label className="px-3.5 py-2 rounded-lg bg-white border border-[#009E49] text-xs font-bold text-[#009E49] hover:bg-[#009E49] hover:text-white cursor-pointer transition-all shadow-2xs">
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsMainImagePickerOpen(true)}
+                                                className="px-3.5 py-2 rounded-lg bg-white border border-[#009E49] text-xs font-bold text-[#009E49] hover:bg-[#009E49] hover:text-white cursor-pointer transition-all shadow-2xs"
+                                            >
                                                 Change Main Image
-                                                <input type="file" accept="image/*" onChange={handleMainImageUpload} className="hidden" />
-                                            </label>
+                                            </button>
                                             <button
                                                 type="button"
                                                 onClick={() => setData('main_image', '')}
@@ -318,38 +324,22 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
                                     </div>
                                 </div>
                             ) : (
-                                <label
+                                <div
+                                    role="button"
+                                    onClick={() => setIsMainImagePickerOpen(true)}
                                     className="group relative block w-full border-2 border-dashed border-[#009E49]/40 rounded-xl bg-[#FAFDFB] hover:bg-[#F0FDF4] hover:border-[#009E49] transition-all duration-200 cursor-pointer"
-                                    onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-[#009E49]', 'bg-[#F0FDF4]'); }}
-                                    onDragLeave={e => { e.currentTarget.classList.remove('border-[#009E49]', 'bg-[#F0FDF4]'); }}
-                                    onDrop={e => {
-                                        e.preventDefault();
-                                        e.currentTarget.classList.remove('border-[#009E49]', 'bg-[#F0FDF4]');
-                                        const file = e.dataTransfer.files?.[0];
-                                        if (file && file.type.startsWith('image/')) {
-                                            const reader = new FileReader();
-                                            reader.onloadend = () => setData('main_image', reader.result as string);
-                                            reader.readAsDataURL(file);
-                                        }
-                                    }}
                                 >
                                     <div className="flex flex-col items-center justify-center py-8 px-6 text-center">
                                         <div className="w-12 h-12 rounded-lg bg-white border border-[#DCFCE7] shadow-sm flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                                             <UploadCloud className="w-6 h-6 text-[#009E49]" />
                                         </div>
                                         <p className="text-[14px] font-bold text-[#1A1A2E] mb-1">Click to upload Main Product Image</p>
-                                        <p className="text-[12px] text-[#9096B0] mb-3">JPEG, PNG, WebP · Max 5 MB</p>
+                                        <p className="text-[12px] text-[#9096B0] mb-3">JPEG, PNG, WebP · Media Library & Uploader</p>
                                         <span className="px-4 py-1.5 rounded-lg bg-white border border-[#009E49] text-[12px] font-bold text-[#009E49] shadow-2xs group-hover:bg-[#009E49] group-hover:text-white transition-all">
                                             Select Main Image
                                         </span>
                                     </div>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleMainImageUpload}
-                                        className="hidden"
-                                    />
-                                </label>
+                                </div>
                             )}
                         </AdminCard>
 
@@ -371,53 +361,22 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
                             </div>
 
                             {/* Gallery Upload Drop Zone */}
-                            <label
+                            <div
+                                role="button"
+                                onClick={() => setIsGalleryPickerOpen(true)}
                                 className="group relative block w-full border-2 border-dashed border-[#86EFAC] rounded-xl bg-[#FAFDFB] hover:bg-[#F0FDF4] hover:border-[#009E49] transition-all duration-200 cursor-pointer mb-4"
-                                onDragOver={e => { e.preventDefault(); e.currentTarget.classList.add('border-[#009E49]', 'bg-[#F0FDF4]'); }}
-                                onDragLeave={e => { e.currentTarget.classList.remove('border-[#009E49]', 'bg-[#F0FDF4]'); }}
-                                onDrop={async e => {
-                                    e.preventDefault();
-                                    e.currentTarget.classList.remove('border-[#009E49]', 'bg-[#F0FDF4]');
-                                    const files = e.dataTransfer.files;
-                                    if (!files || files.length === 0) return;
-
-                                    const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
-                                    if (imageFiles.length === 0) return;
-
-                                    const readPromises = imageFiles.map(file => {
-                                        return new Promise<string>((resolve) => {
-                                            const reader = new FileReader();
-                                            reader.onloadend = () => resolve(reader.result as string);
-                                            reader.readAsDataURL(file);
-                                        });
-                                    });
-
-                                    const newBase64Images = await Promise.all(readPromises);
-                                    setData(prev => ({
-                                        ...prev,
-                                        gallery_images: [...prev.gallery_images, ...newBase64Images],
-                                    }));
-                                    toast.success(`${newBase64Images.length} gallery image(s) dropped! 🖼️`);
-                                }}
                             >
                                 <div className="flex flex-col items-center justify-center py-7 px-6 text-center">
                                     <div className="w-11 h-11 rounded-lg bg-white border border-[#DCFCE7] shadow-sm flex items-center justify-center mb-2.5 group-hover:scale-105 transition-transform">
                                         <UploadCloud className="w-5 h-5 text-[#009E49]" />
                                     </div>
-                                    <p className="text-[13px] font-bold text-[#1A1A2E] mb-0.5">Choose multiple gallery files or drag & drop here</p>
-                                    <p className="text-[11px] text-[#9096B0] mb-3">JPEG, PNG, WebP · Max 5 MB each</p>
+                                    <p className="text-[13px] font-bold text-[#1A1A2E] mb-0.5">Choose multiple gallery files from Media Library or PC</p>
+                                    <p className="text-[11px] text-[#9096B0] mb-3">JPEG, PNG, WebP · Media Library & Multi-Upload</p>
                                     <span className="px-4 py-1.5 rounded-lg bg-white border border-[#E6F5EC] text-[12px] font-bold text-[#009E49] shadow-2xs group-hover:bg-[#009E49] group-hover:text-white transition-all">
                                         Browse Gallery Files
                                     </span>
                                 </div>
-                                <input
-                                    type="file"
-                                    multiple
-                                    accept="image/*"
-                                    onChange={handleGalleryImageUpload}
-                                    className="hidden"
-                                />
-                            </label>
+                            </div>
 
                             {/* Gallery Previews */}
                             {data.gallery_images.length > 0 && (
@@ -624,6 +583,37 @@ export const Create: React.FC<CreateProps> = ({ brands, categories, attributes }
                 </div>
 
             </form>
+
+            {/* Main Product Image Picker Modal */}
+            <MediaPickerModal
+                isOpen={isMainImagePickerOpen}
+                onClose={() => setIsMainImagePickerOpen(false)}
+                defaultFolder="products"
+                title="Select Main Product Image"
+                confirmText="Set as Main Image"
+                onSelect={(item) => {
+                    setData('main_image', item.url);
+                    toast.success('Main product image selected! ✨');
+                }}
+            />
+
+            {/* Gallery Images Picker Modal (Multiple Selection) */}
+            <MediaPickerModal
+                isOpen={isGalleryPickerOpen}
+                onClose={() => setIsGalleryPickerOpen(false)}
+                defaultFolder="products"
+                multiple={true}
+                title="Add Gallery Images (মিডিয়া লাইব্রেরি)"
+                confirmText="Add to Gallery"
+                onSelectMultiple={(items) => {
+                    const urls = items.map(i => i.url);
+                    setData(prev => ({
+                        ...prev,
+                        gallery_images: [...prev.gallery_images, ...urls]
+                    }));
+                    toast.success(`${urls.length} image(s) added to gallery! 🖼️`);
+                }}
+            />
         </AdminLayout>
     );
 };

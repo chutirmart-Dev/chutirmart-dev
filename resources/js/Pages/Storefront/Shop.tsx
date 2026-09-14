@@ -412,18 +412,18 @@ export const Shop: React.FC<ShopProps> = ({ products, categories, brands, filter
 
             <div className="container py-4 sm:py-6">
                 {/* Breadcrumb & Sort controls */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 sm:mb-6 bg-white p-3.5 sm:p-5 rounded-lg border border-[#E3E0D8] shadow-[0_2px_8px_rgba(0,0,0,0.04)] font-bangla">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 sm:gap-3 mb-3.5 sm:mb-6 bg-white p-2.5 xs:p-3.5 sm:p-5 rounded-lg border border-[#E3E0D8] shadow-[0_2px_8px_rgba(0,0,0,0.04)] font-bangla">
                     <div>
                         <span className="text-xs sm:text-sm text-gray-500">হোম › শপ</span>
-                        <h1 className="text-base sm:text-lg md:text-2xl font-black text-gray-900 mt-1">
+                        <h1 className="text-sm xs:text-base sm:text-lg md:text-2xl font-black text-gray-900 mt-0.5 sm:mt-1">
                             {safeFilters.category ? `ক্যাটাগরি: ${safeFilters.category}` : 'আমাদের শপ'} ({products.total} টি পণ্য)
                         </h1>
                     </div>
 
-                    <div className="flex items-center gap-2.5 w-full sm:w-auto">
-                        {/* Mobile Filter Trigger */}
+                    <div className="flex flex-wrap xs:flex-nowrap items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
+                        {/* Mobile & Tablet Filter Trigger (< lg) */}
                         <Sheet>
-                            <SheetTrigger className="md:hidden flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold h-10 px-4 border border-gray-200 bg-white hover:bg-gray-50 rounded-md cursor-pointer shadow-2xs shrink-0">
+                            <SheetTrigger className="lg:hidden flex items-center justify-center gap-1.5 text-xs sm:text-sm font-bold h-10 px-4 border border-gray-200 bg-white hover:bg-gray-50 rounded-md cursor-pointer shadow-2xs shrink-0">
                                 <Filter className="w-4 h-4 text-[#009E49]" />
                                 ফিল্টার
                                 {(safeFilters.category || safeFilters.brand || safeFilters.min_price || safeFilters.max_price) && (
@@ -477,8 +477,8 @@ export const Shop: React.FC<ShopProps> = ({ products, categories, brands, filter
                     </div>
                 </div>
 
-                {/* Mobile Horizontal App Category Chips Bar */}
-                <div className="flex md:hidden items-center gap-1.5 overflow-x-auto no-scrollbar py-1 pb-3 mb-2 select-none font-bangla">
+                {/* Mobile & Tablet Horizontal App Category Chips Bar (< lg) */}
+                <div className="flex lg:hidden items-center gap-1.5 overflow-x-auto no-scrollbar py-1 pb-3 mb-2 select-none font-bangla">
                     <Link
                         href={route('shop')}
                         className={`shrink-0 px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-bold transition-all ${
@@ -510,8 +510,8 @@ export const Shop: React.FC<ShopProps> = ({ products, categories, brands, filter
 
                 {/* Main Shop Body */}
                 <div className="flex gap-6">
-                    {/* Left Sidebar (Desktop) */}
-                    <aside className="w-[270px] shrink-0 hidden md:block bg-white border border-[#E3E0D8] p-5 rounded-lg shadow-[0_2px_10px_rgba(0,0,0,0.04)] h-fit">
+                    {/* Left Sidebar (Desktop lg+) */}
+                    <aside className="w-[270px] shrink-0 hidden lg:block bg-white border border-[#E3E0D8] p-5 rounded-lg shadow-[0_2px_10px_rgba(0,0,0,0.04)] h-fit">
                         <div className="flex justify-between items-center mb-4 pb-2 border-b border-gray-100 font-bangla">
                             <span className="font-bold text-gray-900 text-base flex items-center gap-1.5">
                                 <SlidersHorizontal className="w-4 h-4 text-primary" /> ফিল্টার সমূহ
@@ -536,10 +536,10 @@ export const Shop: React.FC<ShopProps> = ({ products, categories, brands, filter
                             </div>
                         ) : (
                             <>
-                                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 xs:gap-2.5 sm:gap-4 md:gap-5">
+                                <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 xs:gap-2.5 sm:gap-4 md:gap-5">
                                     {products.data.map(product => (
-                                        <ProductCard key={product.id} product={product} />
-                                    ))}
+                                         <ProductCard key={product.id} product={product} />
+                                     ))}
                                 </div>
 
                                 {/* Pagination */}

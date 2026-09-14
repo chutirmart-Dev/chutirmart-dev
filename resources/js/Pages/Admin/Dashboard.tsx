@@ -234,12 +234,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
             <div className="space-y-5 sm:space-y-6 w-full max-w-full">
 
                 {/* ── Dashboard Header with Time Period Filter Dropdown ── */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 sm:p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-xl border border-slate-200/80 shadow-2xs">
                     <div>
-                        <h2 className="text-[18px] sm:text-[20px] font-black text-[#1A1A2E] tracking-tight">
+                        <h2 className="text-[19px] sm:text-[22px] font-black text-[#1A1A2E] tracking-tight">
                             Dashboard Overview
                         </h2>
-                        <p className="text-[11.5px] sm:text-[12px] text-slate-500 mt-0.5">
+                        <p className="text-[12.5px] sm:text-[13.5px] text-slate-500 mt-0.5">
                             ফিল্টার: <span className="font-bold text-[#009E49]">{activePeriodObj.label} ({activePeriodObj.bangla})</span> এর অর্ডার ও আয় পরিসংখ্যান
                         </p>
                     </div>
@@ -249,23 +249,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         <button
                             type="button"
                             onClick={() => setPeriodOpen(prev => !prev)}
-                            className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2.5 h-11 sm:h-11 px-4 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/90 text-slate-800 text-[14px] sm:text-[14.5px] font-bold shadow-2xs hover:border-[#009E49]/40 transition-all cursor-pointer active:scale-98"
+                            className="w-full sm:w-auto flex items-center justify-between sm:justify-start gap-2.5 h-11 sm:h-12 px-4 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/90 text-slate-800 text-[14.5px] sm:text-[15px] font-bold shadow-2xs hover:border-[#009E49]/40 transition-all cursor-pointer active:scale-98"
                         >
                             <div className="flex items-center gap-2 min-w-0">
-                                <Calendar className="w-4.5 h-4.5 text-[#009E49] shrink-0" />
-                                <span className="text-[16px]">{activePeriodObj.icon}</span>
+                                <Calendar className="w-5 h-5 text-[#009E49] shrink-0" />
+                                <span className="text-[17px]">{activePeriodObj.icon}</span>
                                 <span className="truncate">{activePeriodObj.label}</span>
                             </div>
-                            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 shrink-0 ${periodOpen ? 'rotate-180 text-[#009E49]' : ''}`} />
+                            <ChevronDown className={`w-4.5 h-4.5 text-slate-400 transition-transform duration-200 shrink-0 ${periodOpen ? 'rotate-180 text-[#009E49]' : ''}`} />
                         </button>
 
                         {periodOpen && (
-                            <div className="absolute left-0 sm:left-auto sm:right-0 top-[calc(100%+8px)] z-50 w-full sm:w-76 bg-white rounded-2xl border border-slate-200 shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-150">
-                                <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 mb-1">
-                                    <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                            <div className="absolute left-0 sm:left-auto sm:right-0 top-[calc(100%+8px)] z-50 w-full sm:w-80 bg-white rounded-2xl border border-slate-200 shadow-2xl p-2.5 animate-in fade-in zoom-in-95 duration-150">
+                                <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 mb-1.5">
+                                    <span className="text-[12px] font-bold uppercase tracking-wider text-slate-500">
                                         সময়কাল নির্বাচন করুন
                                     </span>
-                                    <span className="text-[11px] font-extrabold text-[#009E49] bg-[#009E49]/10 px-2 py-0.5 rounded-full">
+                                    <span className="text-[11.5px] font-extrabold text-[#009E49] bg-[#009E49]/10 px-2.5 py-0.5 rounded-full">
                                         Filter
                                     </span>
                                 </div>
@@ -277,7 +277,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                                 key={opt.value}
                                                 type="button"
                                                 onClick={() => handleSelectPeriod(opt.value)}
-                                                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-left transition-all cursor-pointer border-none ${
+                                                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left transition-all cursor-pointer border-none ${
                                                     isSelected
                                                         ? 'bg-[#009E49] text-white font-black shadow-md shadow-[#009E49]/20'
                                                         : 'text-slate-800 hover:bg-slate-100/80 hover:text-[#009E49]'
@@ -285,9 +285,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                             >
                                                 <span className="flex items-center gap-2.5">
                                                     <span className="text-[18px] shrink-0">{opt.icon}</span>
-                                                    <span className="text-[14px] font-bold">{opt.label}</span>
+                                                    <span className="text-[14.5px] font-bold">{opt.label}</span>
                                                 </span>
-                                                <span className={`text-[12px] font-semibold ${isSelected ? 'text-emerald-100 font-bold' : 'text-slate-500'}`}>
+                                                <span className={`text-[13px] font-semibold ${isSelected ? 'text-emerald-100 font-bold' : 'text-slate-500'}`}>
                                                     {opt.bangla}
                                                 </span>
                                             </button>
@@ -303,17 +303,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4 lg:gap-5 pt-1 sm:pt-2">
                     
                     {/* Card 1: Total Orders */}
-                    <div className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:bg-[#009E49] hover:border-[#009E49] hover:shadow-[0_16px_32px_rgba(0,158,73,0.22)] hover:-translate-y-1.5 transition-all duration-300 ease-out will-change-transform transform-gpu flex flex-col justify-between group min-h-[135px] sm:min-h-[160px] cursor-pointer select-none">
+                    <div className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:bg-[#009E49] hover:border-[#009E49] hover:shadow-[0_16px_32px_rgba(0,158,73,0.22)] hover:-translate-y-1.5 transition-all duration-300 ease-out will-change-transform transform-gpu flex flex-col justify-between group min-h-[140px] sm:min-h-[165px] cursor-pointer select-none">
                         <div className="flex items-center justify-between gap-1.5">
                             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                                 <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-slate-100/90 text-slate-700 flex items-center justify-center shrink-0 font-bold shadow-2xs group-hover:bg-white/20 group-hover:text-white transition-all duration-300 ease-out">
-                                    <ShoppingCart className="w-4 h-4 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
+                                    <ShoppingCart className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h4 className="text-[13px] sm:text-[16px] font-bold text-slate-800 group-hover:text-white leading-tight truncate transition-colors duration-300 ease-out">
+                                    <h4 className="text-[14px] sm:text-[16.5px] font-bold text-slate-800 group-hover:text-white leading-tight truncate transition-colors duration-300 ease-out">
                                         Total Orders
                                     </h4>
-                                    <p className="text-[10px] sm:text-[12px] font-bold text-slate-400 group-hover:text-emerald-100 uppercase tracking-wider mt-0.5 transition-colors duration-300 ease-out">
+                                    <p className="text-[11px] sm:text-[12.5px] font-bold text-slate-400 group-hover:text-emerald-100 uppercase tracking-wider mt-0.5 transition-colors duration-300 ease-out">
                                         ORD
                                     </p>
                                 </div>
@@ -328,31 +328,31 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         </div>
 
                         <div className="my-2 sm:my-2.5">
-                            <h3 className="text-[17px] xs:text-[20px] sm:text-[28px] lg:text-[30px] font-black text-slate-900 group-hover:text-white leading-tight tracking-tight truncate transition-colors duration-300 ease-out">
+                            <h3 className="text-[18px] xs:text-[22px] sm:text-[28px] lg:text-[30px] font-black text-slate-900 group-hover:text-white leading-tight tracking-tight truncate transition-colors duration-300 ease-out">
                                 ৳{stats?.orders_amount ? Number(stats.orders_amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
                             </h3>
                         </div>
 
                         <div>
-                            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[11px] sm:text-[13px] font-bold bg-[#E8F8F0] text-[#009E49] border border-transparent group-hover:bg-white/20 group-hover:text-white group-hover:border-white/20 transition-all duration-300 ease-out">
-                                <span className="text-[10px] sm:text-[12px]">↑</span>
+                            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[12px] sm:text-[13.5px] font-bold bg-[#E8F8F0] text-[#009E49] border border-transparent group-hover:bg-white/20 group-hover:text-white group-hover:border-white/20 transition-all duration-300 ease-out">
+                                <span className="text-[11px] sm:text-[12px]">↑</span>
                                 <span>5.2%</span>
                             </span>
                         </div>
                     </div>
 
                     {/* Card 2: Total Purchase */}
-                    <div className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:bg-[#009E49] hover:border-[#009E49] hover:shadow-[0_16px_32px_rgba(0,158,73,0.22)] hover:-translate-y-1.5 transition-all duration-300 ease-out will-change-transform transform-gpu flex flex-col justify-between group min-h-[135px] sm:min-h-[160px] cursor-pointer select-none">
+                    <div className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:bg-[#009E49] hover:border-[#009E49] hover:shadow-[0_16px_32px_rgba(0,158,73,0.22)] hover:-translate-y-1.5 transition-all duration-300 ease-out will-change-transform transform-gpu flex flex-col justify-between group min-h-[140px] sm:min-h-[165px] cursor-pointer select-none">
                         <div className="flex items-center justify-between gap-1.5">
                             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                                 <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-slate-100/90 text-slate-700 flex items-center justify-center shrink-0 font-bold shadow-2xs group-hover:bg-white/20 group-hover:text-white transition-all duration-300 ease-out">
-                                    <Package className="w-4 h-4 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
+                                    <Package className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h4 className="text-[13px] sm:text-[16px] font-bold text-slate-800 group-hover:text-white leading-tight truncate transition-colors duration-300 ease-out">
+                                    <h4 className="text-[14px] sm:text-[16.5px] font-bold text-slate-800 group-hover:text-white leading-tight truncate transition-colors duration-300 ease-out">
                                         Total Purchase
                                     </h4>
-                                    <p className="text-[10px] sm:text-[12px] font-bold text-slate-400 group-hover:text-emerald-100 uppercase tracking-wider mt-0.5 transition-colors duration-300 ease-out">
+                                    <p className="text-[11px] sm:text-[12.5px] font-bold text-slate-400 group-hover:text-emerald-100 uppercase tracking-wider mt-0.5 transition-colors duration-300 ease-out">
                                         PUR
                                     </p>
                                 </div>
@@ -367,31 +367,31 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         </div>
 
                         <div className="my-2 sm:my-2.5">
-                            <h3 className="text-[17px] xs:text-[20px] sm:text-[28px] lg:text-[30px] font-black text-slate-900 group-hover:text-white leading-tight tracking-tight truncate transition-colors duration-300 ease-out">
+                            <h3 className="text-[18px] xs:text-[22px] sm:text-[28px] lg:text-[30px] font-black text-slate-900 group-hover:text-white leading-tight tracking-tight truncate transition-colors duration-300 ease-out">
                                 ৳{Number(stats?.purchases ?? stats?.revenue ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </h3>
                         </div>
 
                         <div>
-                            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[11px] sm:text-[13px] font-bold bg-[#E8F8F0] text-[#009E49] border border-transparent group-hover:bg-white/20 group-hover:text-white group-hover:border-white/20 transition-all duration-300 ease-out">
-                                <span className="text-[10px] sm:text-[12px]">↑</span>
+                            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[12px] sm:text-[13.5px] font-bold bg-[#E8F8F0] text-[#009E49] border border-transparent group-hover:bg-white/20 group-hover:text-white group-hover:border-white/20 transition-all duration-300 ease-out">
+                                <span className="text-[11px] sm:text-[12px]">↑</span>
                                 <span>3.1%</span>
                             </span>
                         </div>
                     </div>
 
                     {/* Card 3: Total Revenue */}
-                    <div className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:bg-[#009E49] hover:border-[#009E49] hover:shadow-[0_16px_32px_rgba(0,158,73,0.22)] hover:-translate-y-1.5 transition-all duration-300 ease-out will-change-transform transform-gpu flex flex-col justify-between group min-h-[135px] sm:min-h-[160px] cursor-pointer select-none">
+                    <div className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:bg-[#009E49] hover:border-[#009E49] hover:shadow-[0_16px_32px_rgba(0,158,73,0.22)] hover:-translate-y-1.5 transition-all duration-300 ease-out will-change-transform transform-gpu flex flex-col justify-between group min-h-[140px] sm:min-h-[165px] cursor-pointer select-none">
                         <div className="flex items-center justify-between gap-1.5">
                             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                                 <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-slate-100/90 text-slate-700 flex items-center justify-center shrink-0 font-bold shadow-2xs group-hover:bg-white/20 group-hover:text-white transition-all duration-300 ease-out">
-                                    <TrendingUp className="w-4 h-4 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
+                                    <TrendingUp className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h4 className="text-[13px] sm:text-[16px] font-bold text-slate-800 group-hover:text-white leading-tight truncate transition-colors duration-300 ease-out">
+                                    <h4 className="text-[14px] sm:text-[16.5px] font-bold text-slate-800 group-hover:text-white leading-tight truncate transition-colors duration-300 ease-out">
                                         Total Revenue
                                     </h4>
-                                    <p className="text-[10px] sm:text-[12px] font-bold text-slate-400 group-hover:text-emerald-100 uppercase tracking-wider mt-0.5 transition-colors duration-300 ease-out">
+                                    <p className="text-[11px] sm:text-[12.5px] font-bold text-slate-400 group-hover:text-emerald-100 uppercase tracking-wider mt-0.5 transition-colors duration-300 ease-out">
                                         REV
                                     </p>
                                 </div>
@@ -406,31 +406,31 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         </div>
 
                         <div className="my-2 sm:my-2.5">
-                            <h3 className="text-[17px] xs:text-[20px] sm:text-[28px] lg:text-[30px] font-black text-slate-900 group-hover:text-white leading-tight tracking-tight truncate transition-colors duration-300 ease-out">
+                            <h3 className="text-[18px] xs:text-[22px] sm:text-[28px] lg:text-[30px] font-black text-slate-900 group-hover:text-white leading-tight tracking-tight truncate transition-colors duration-300 ease-out">
                                 ৳{Number(stats?.revenue ?? stats?.sales ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </h3>
                         </div>
 
                         <div>
-                            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[11px] sm:text-[13px] font-bold bg-[#E8F8F0] text-[#009E49] border border-transparent group-hover:bg-white/20 group-hover:text-white group-hover:border-white/20 transition-all duration-300 ease-out">
-                                <span className="text-[10px] sm:text-[12px]">↑</span>
+                            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[12px] sm:text-[13.5px] font-bold bg-[#E8F8F0] text-[#009E49] border border-transparent group-hover:bg-white/20 group-hover:text-white group-hover:border-white/20 transition-all duration-300 ease-out">
+                                <span className="text-[11px] sm:text-[12px]">↑</span>
                                 <span>5.2%</span>
                             </span>
                         </div>
                     </div>
 
                     {/* Card 4: Delivery Charge */}
-                    <div className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:bg-[#009E49] hover:border-[#009E49] hover:shadow-[0_16px_32px_rgba(0,158,73,0.22)] hover:-translate-y-1.5 transition-all duration-300 ease-out will-change-transform transform-gpu flex flex-col justify-between group min-h-[135px] sm:min-h-[160px] cursor-pointer select-none">
+                    <div className="bg-white rounded-xl border border-slate-200/80 p-3.5 sm:p-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:bg-[#009E49] hover:border-[#009E49] hover:shadow-[0_16px_32px_rgba(0,158,73,0.22)] hover:-translate-y-1.5 transition-all duration-300 ease-out will-change-transform transform-gpu flex flex-col justify-between group min-h-[140px] sm:min-h-[165px] cursor-pointer select-none">
                         <div className="flex items-center justify-between gap-1.5">
                             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                                 <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-lg bg-slate-100/90 text-slate-700 flex items-center justify-center shrink-0 font-bold shadow-2xs group-hover:bg-white/20 group-hover:text-white transition-all duration-300 ease-out">
-                                    <Truck className="w-4 h-4 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
+                                    <Truck className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 stroke-[2.2]" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                    <h4 className="text-[13px] sm:text-[16px] font-bold text-slate-800 group-hover:text-white leading-tight truncate transition-colors duration-300 ease-out">
+                                    <h4 className="text-[14px] sm:text-[16.5px] font-bold text-slate-800 group-hover:text-white leading-tight truncate transition-colors duration-300 ease-out">
                                         Delivery Charge
                                     </h4>
-                                    <p className="text-[10px] sm:text-[12px] font-bold text-slate-400 group-hover:text-emerald-100 uppercase tracking-wider mt-0.5 transition-colors duration-300 ease-out">
+                                    <p className="text-[11px] sm:text-[12.5px] font-bold text-slate-400 group-hover:text-emerald-100 uppercase tracking-wider mt-0.5 transition-colors duration-300 ease-out">
                                         LOGISTICS
                                     </p>
                                 </div>
@@ -445,14 +445,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         </div>
 
                         <div className="my-2 sm:my-2.5">
-                            <h3 className="text-[17px] xs:text-[20px] sm:text-[28px] lg:text-[30px] font-black text-slate-900 group-hover:text-white leading-tight tracking-tight truncate transition-colors duration-300 ease-out">
+                            <h3 className="text-[18px] xs:text-[22px] sm:text-[28px] lg:text-[30px] font-black text-slate-900 group-hover:text-white leading-tight tracking-tight truncate transition-colors duration-300 ease-out">
                                 ৳{Number(stats?.delivery_charge ?? 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </h3>
                         </div>
 
                         <div>
-                            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[11px] sm:text-[13px] font-bold bg-[#E8F8F0] text-[#009E49] border border-transparent group-hover:bg-white/20 group-hover:text-white group-hover:border-white/20 transition-all duration-300 ease-out">
-                                <span className="text-[10px] sm:text-[12px]">↑</span>
+                            <span className="inline-flex items-center gap-1 sm:gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[12px] sm:text-[13.5px] font-bold bg-[#E8F8F0] text-[#009E49] border border-transparent group-hover:bg-white/20 group-hover:text-white group-hover:border-white/20 transition-all duration-300 ease-out">
+                                <span className="text-[11px] sm:text-[12px]">↑</span>
                                 <span>6.3%</span>
                             </span>
                         </div>
@@ -465,17 +465,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     {/* Processing */}
                     <Link
                         href={route('admin.orders.index', { status: 'processing' })}
-                        className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-[#FFB300]/60 hover:bg-amber-50/10 transition-all duration-200 group cursor-pointer no-underline active:scale-[0.98]"
+                        className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-[#FFB300]/60 hover:bg-amber-50/10 transition-all duration-200 group cursor-pointer no-underline active:scale-[0.98]"
                     >
                         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-amber-50 text-[#FFB300] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
-                                <Clock className="w-4 h-4" />
+                            <div className="w-8.5 h-8.5 rounded-lg bg-amber-50 text-[#FFB300] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+                                <Clock className="w-4.5 h-4.5" />
                             </div>
-                            <span className="text-[13.5px] sm:text-[14.5px] font-bold text-slate-700 group-hover:text-slate-900 truncate">
+                            <span className="text-[14px] sm:text-[15.5px] font-bold text-slate-700 group-hover:text-slate-900 truncate">
                                 Processing
                             </span>
                         </div>
-                        <span className="px-2.5 py-1 min-w-7 rounded-lg bg-[#FFB300] text-white text-[12px] sm:text-[13px] font-black text-center shadow-2xs shrink-0">
+                        <span className="px-3 py-1 min-w-8 rounded-lg bg-[#FFB300] text-white text-[13px] sm:text-[14px] font-black text-center shadow-2xs shrink-0">
                             {summary?.processing ?? 0}
                         </span>
                     </Link>
@@ -483,17 +483,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     {/* On Hold */}
                     <Link
                         href={route('admin.orders.index', { status: 'on_hold' })}
-                        className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-[#009E49]/60 hover:bg-emerald-50/10 transition-all duration-200 group cursor-pointer no-underline active:scale-[0.98]"
+                        className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-[#009E49]/60 hover:bg-emerald-50/10 transition-all duration-200 group cursor-pointer no-underline active:scale-[0.98]"
                     >
                         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#009E49] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
-                                <AlertCircle className="w-4 h-4" />
+                            <div className="w-8.5 h-8.5 rounded-lg bg-emerald-50 text-[#009E49] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+                                <AlertCircle className="w-4.5 h-4.5" />
                             </div>
-                            <span className="text-[13.5px] sm:text-[14.5px] font-bold text-slate-700 group-hover:text-slate-900 truncate">
+                            <span className="text-[14px] sm:text-[15.5px] font-bold text-slate-700 group-hover:text-slate-900 truncate">
                                 On Hold
                             </span>
                         </div>
-                        <span className="px-2.5 py-1 min-w-7 rounded-lg bg-[#009E49] text-white text-[12px] sm:text-[13px] font-black text-center shadow-2xs shrink-0">
+                        <span className="px-3 py-1 min-w-8 rounded-lg bg-[#009E49] text-white text-[13px] sm:text-[14px] font-black text-center shadow-2xs shrink-0">
                             {summary?.on_hold ?? 0}
                         </span>
                     </Link>
@@ -501,17 +501,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     {/* Completed */}
                     <Link
                         href={route('admin.orders.index', { status: 'complete' })}
-                        className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-[#1E88E5]/60 hover:bg-blue-50/10 transition-all duration-200 group cursor-pointer no-underline active:scale-[0.98]"
+                        className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-[#1E88E5]/60 hover:bg-blue-50/10 transition-all duration-200 group cursor-pointer no-underline active:scale-[0.98]"
                     >
                         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-blue-50 text-[#1E88E5] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
-                                <CheckCircle2 className="w-4 h-4" />
+                            <div className="w-8.5 h-8.5 rounded-lg bg-blue-50 text-[#1E88E5] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+                                <CheckCircle2 className="w-4.5 h-4.5" />
                             </div>
-                            <span className="text-[13.5px] sm:text-[14.5px] font-bold text-slate-700 group-hover:text-slate-900 truncate">
+                            <span className="text-[14px] sm:text-[15.5px] font-bold text-slate-700 group-hover:text-slate-900 truncate">
                                 Completed
                             </span>
                         </div>
-                        <span className="px-2.5 py-1 min-w-7 rounded-lg bg-[#1E88E5] text-white text-[12px] sm:text-[13px] font-black text-center shadow-2xs shrink-0">
+                        <span className="px-3 py-1 min-w-8 rounded-lg bg-[#1E88E5] text-white text-[13px] sm:text-[14px] font-black text-center shadow-2xs shrink-0">
                             {summary?.complete ?? 0}
                         </span>
                     </Link>
@@ -519,17 +519,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     {/* Cancelled */}
                     <Link
                         href={route('admin.orders.index', { status: 'cancelled' })}
-                        className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-[#E53935]/60 hover:bg-red-50/10 transition-all duration-200 group cursor-pointer no-underline active:scale-[0.98]"
+                        className="flex items-center justify-between p-3 sm:p-4 rounded-xl bg-white border border-slate-200/80 shadow-2xs hover:shadow-md hover:border-[#E53935]/60 hover:bg-red-50/10 transition-all duration-200 group cursor-pointer no-underline active:scale-[0.98]"
                     >
                         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                            <div className="w-8 h-8 rounded-lg bg-red-50 text-[#E53935] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
-                                <XCircle className="w-4 h-4" />
+                            <div className="w-8.5 h-8.5 rounded-lg bg-red-50 text-[#E53935] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-2xs">
+                                <XCircle className="w-4.5 h-4.5" />
                             </div>
-                            <span className="text-[13.5px] sm:text-[14.5px] font-bold text-slate-700 group-hover:text-slate-900 truncate">
+                            <span className="text-[14px] sm:text-[15.5px] font-bold text-slate-700 group-hover:text-slate-900 truncate">
                                 Cancelled
                             </span>
                         </div>
-                        <span className="px-2.5 py-1 min-w-7 rounded-lg bg-[#E53935] text-white text-[12px] sm:text-[13px] font-black text-center shadow-2xs shrink-0">
+                        <span className="px-3 py-1 min-w-8 rounded-lg bg-[#E53935] text-white text-[13px] sm:text-[14px] font-black text-center shadow-2xs shrink-0">
                             {summary?.cancelled ?? 0}
                         </span>
                     </Link>
@@ -548,7 +548,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                 <div className={`w-12 h-12 rounded-lg ${card.bg} ${card.color} group-hover:bg-white group-hover:text-[#009E49] flex items-center justify-center mb-2.5 sm:mb-3 group-hover:scale-110 transition-all duration-200 shadow-2xs group-hover:shadow-md`}>
                                     <Icon className="w-6 h-6" />
                                 </div>
-                                <span className="text-[14px] sm:text-[15px] font-bold text-slate-800 group-hover:text-white transition-colors duration-200 leading-snug">
+                                <span className="text-[14.5px] sm:text-[15.5px] font-bold text-slate-800 group-hover:text-white transition-colors duration-200 leading-snug">
                                     {card.title}
                                 </span>
                             </Link>
@@ -569,7 +569,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                 <div className={`w-12 h-12 rounded-lg ${card.bg} ${card.color} group-hover:bg-white group-hover:text-[#009E49] flex items-center justify-center mb-2.5 sm:mb-3 group-hover:scale-110 transition-all duration-200 shadow-2xs group-hover:shadow-md`}>
                                     <Icon className="w-6 h-6" />
                                 </div>
-                                <span className="text-[14px] sm:text-[15px] font-bold text-slate-800 group-hover:text-white transition-colors duration-200 leading-snug">
+                                <span className="text-[14.5px] sm:text-[15.5px] font-bold text-slate-800 group-hover:text-white transition-colors duration-200 leading-snug">
                                     {card.title}
                                 </span>
                             </Link>
@@ -579,12 +579,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
                 {/* ── Notice Banner ── */}
                 <div className="bg-[#FFF8E1] border border-[#FFE082] rounded-xl p-4 sm:p-5 px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left shadow-2xs">
-                    <p className="text-[14px] sm:text-[15px] font-semibold text-[#5D4037]">
+                    <p className="text-[14.5px] sm:text-[15.5px] font-semibold text-[#5D4037]">
                         Welcome to ChutirMart Admin Dashboard. Manage your inventory, orders, and promotions smoothly.
                     </p>
                     <Link
                         href={route('admin.products.create')}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#009E49] hover:bg-[#00873E] text-white text-[13.5px] sm:text-[14px] font-bold shadow-xs hover:shadow-md hover:shadow-[#009E49]/30 hover:-translate-y-0.5 active:scale-98 transition-all shrink-0"
+                        className="inline-flex items-center gap-1.5 px-4.5 py-2.5 rounded-lg bg-[#009E49] hover:bg-[#00873E] text-white text-[14px] sm:text-[14.5px] font-bold shadow-xs hover:shadow-md hover:shadow-[#009E49]/30 hover:-translate-y-0.5 active:scale-98 transition-all shrink-0"
                     >
                         <PackagePlus className="w-4.5 h-4.5" /> Add Product
                     </Link>
@@ -595,9 +595,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-3.5 sm:p-4 flex items-start gap-3 shadow-2xs overflow-hidden">
                         <Lightbulb className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                         <div className="min-w-0 flex-1">
-                            <h4 className="text-[13.5px] sm:text-[14px] font-bold text-amber-900">Smart Suggestions</h4>
+                            <h4 className="text-[14px] sm:text-[15px] font-bold text-amber-900">Smart Suggestions</h4>
                             {suggestions.map((s, i) => (
-                                <p key={i} className="text-[12.5px] sm:text-[13px] text-amber-800 mt-0.5 break-words">● {s.message}</p>
+                                <p key={i} className="text-[13px] sm:text-[13.5px] text-amber-800 mt-0.5 break-words">● {s.message}</p>
                             ))}
                         </div>
                     </div>
@@ -793,8 +793,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="lg:col-span-5 xl:col-span-5 bg-white rounded-xl p-6 sm:p-7 flex flex-col justify-between border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,158,73,0.12)] hover:border-[#009E49]/40 hover:-translate-y-0.5 transition-all duration-300">
                         <div className="flex items-center justify-between mb-2">
                             <div>
-                                <h3 className="text-[18px] sm:text-[19px] font-extrabold text-slate-900">Store visits</h3>
-                                <p className="text-[13px] text-slate-500 font-semibold mt-0.5">Details about your store visits</p>
+                                <h3 className="text-[19px] sm:text-[20px] font-extrabold text-slate-900">Store visits</h3>
+                                <p className="text-[13.5px] text-slate-500 font-semibold mt-0.5">Details about your store visits</p>
                             </div>
                             <div className="w-9 h-9 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400">
                                 <SlidersHorizontal className="w-4.5 h-4.5" />
@@ -811,10 +811,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                     <UserPlus className="w-5 h-5" />
                                 </div>
                                 <div>
-                                    <h4 className="text-[14.5px] sm:text-[15px] font-bold text-slate-800 group-hover:text-white transition-colors">
+                                    <h4 className="text-[15px] sm:text-[15.5px] font-bold text-slate-800 group-hover:text-white transition-colors">
                                         Add New Customer
                                     </h4>
-                                    <p className="text-[12.5px] font-bold text-[#009E49] group-hover:text-emerald-100 transition-colors">
+                                    <p className="text-[13px] font-bold text-[#009E49] group-hover:text-emerald-100 transition-colors">
                                         Create customer profile
                                     </p>
                                 </div>
@@ -832,13 +832,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                 { label: 'Visits/day', pct: 60, color: '#F43F5E' },
                             ].map(({ label, pct, color }) => (
                                 <div key={label} className="space-y-1.5">
-                                    <div className="flex justify-between text-[13.5px] font-bold text-slate-700">
+                                    <div className="flex justify-between text-[14px] sm:text-[14.5px] font-bold text-slate-700">
                                         <span>{label}</span>
                                         <span className="font-extrabold text-slate-900">{pct}%</span>
                                     </div>
                                     <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
                                         <div
-                                            className="h-full rounded-full transition-all duration-500"
+                                             className="h-full rounded-full transition-all duration-500"
                                             style={{ width: `${pct}%`, background: color }}
                                         />
                                     </div>
@@ -851,8 +851,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="lg:col-span-7 xl:col-span-7 bg-white rounded-xl p-6 sm:p-7 flex flex-col justify-between border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,158,73,0.12)] hover:border-[#009E49]/40 hover:-translate-y-0.5 transition-all duration-300 overflow-hidden">
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h3 className="text-[18px] sm:text-[19px] font-extrabold text-slate-900">Top Products</h3>
-                                <p className="text-[13px] text-slate-500 font-semibold mt-0.5">Best selling products in your store</p>
+                                <h3 className="text-[19px] sm:text-[20px] font-extrabold text-slate-900">Top Products</h3>
+                                <p className="text-[13.5px] text-slate-500 font-semibold mt-0.5">Best selling products in your store</p>
                             </div>
                             <Link
                                 href={route('admin.products.index')}
@@ -867,7 +867,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         <div className="overflow-x-auto">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="border-b border-slate-100 text-[12px] font-bold text-slate-400 uppercase tracking-wider">
+                                    <tr className="border-b border-slate-100 text-[12.5px] sm:text-[13px] font-extrabold text-slate-400 uppercase tracking-wider">
                                         <th className="pb-3 px-2 w-8">#</th>
                                         <th className="pb-3 px-3">Product</th>
                                         <th className="pb-3 px-3">Date</th>
@@ -903,22 +903,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                                                 />
                                                             </div>
                                                             <div className="min-w-0">
-                                                                <p className="text-[13.5px] sm:text-[14px] font-bold text-slate-800 truncate max-w-[160px] sm:max-w-[200px]" title={prod.name}>
+                                                                <p className="text-[14px] sm:text-[14.5px] font-bold text-slate-800 truncate max-w-[160px] sm:max-w-[200px]" title={prod.name}>
                                                                     {prod.name}
                                                                 </p>
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td className="py-3.5 px-3 text-[13px] font-semibold text-slate-600 whitespace-nowrap">
+                                                    <td className="py-3.5 px-3 text-[13.5px] sm:text-[14px] font-semibold text-slate-600 whitespace-nowrap">
                                                         {dateFormatted}
                                                     </td>
                                                     <td className="py-3.5 px-3">
-                                                        <span className="inline-block px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-100/70 text-[12.5px] font-black">
+                                                        <span className="inline-block px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 border border-amber-100/70 text-[13px] sm:text-[13.5px] font-black">
                                                             ৳{price.toLocaleString()}
                                                         </span>
                                                     </td>
                                                     <td className="py-3.5 px-3">
-                                                        <span className="inline-block px-2.5 py-1 rounded-lg bg-emerald-50 text-[#009E49] border border-emerald-100/70 text-[12.5px] font-black">
+                                                        <span className="inline-block px-2.5 py-1 rounded-lg bg-emerald-50 text-[#009E49] border border-emerald-100/70 text-[13px] sm:text-[13.5px] font-black">
                                                             ৳{totalEarning.toLocaleString()}
                                                         </span>
                                                     </td>
@@ -935,7 +935,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                         })
                                     ) : (
                                         <tr>
-                                            <td colSpan={6} className="text-center py-8 text-slate-400 text-[13.5px]">
+                                            <td colSpan={6} className="text-center py-8 text-slate-400 text-[14px]">
                                                 No products recorded yet.
                                             </td>
                                         </tr>
@@ -949,8 +949,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <div className="lg:col-span-5 xl:col-span-5 bg-white rounded-xl p-6 sm:p-7 flex flex-col justify-between border border-slate-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_rgba(0,158,73,0.12)] hover:border-[#009E49]/40 hover:-translate-y-0.5 transition-all duration-300">
                         <div className="flex items-center justify-between mb-2">
                             <div>
-                                <h3 className="text-[18px] sm:text-[19px] font-extrabold text-slate-900">Customers</h3>
-                                <p className="text-[13px] text-slate-500 font-semibold mt-0.5">Information about your store's customers</p>
+                                <h3 className="text-[19px] sm:text-[20px] font-extrabold text-slate-900">Customers</h3>
+                                <p className="text-[13.5px] text-slate-500 font-semibold mt-0.5">Information about your store's customers</p>
                             </div>
                             <div className="w-9 h-9 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400">
                                 <SlidersHorizontal className="w-4.5 h-4.5" />
@@ -963,25 +963,25 @@ export const Dashboard: React.FC<DashboardProps> = ({
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="w-2 h-2 rounded-full bg-[#009E49]" />
-                                        <span className="text-[12.5px] font-semibold text-slate-500">Current customers</span>
+                                        <span className="text-[13px] sm:text-[13.5px] font-semibold text-slate-500">Current customers</span>
                                     </div>
-                                    <p className="text-[15px] sm:text-[16px] font-black text-slate-800 pl-4 mt-0.5">66%</p>
+                                    <p className="text-[16px] sm:text-[17px] font-black text-slate-800 pl-4 mt-0.5">66%</p>
                                 </div>
 
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="w-2 h-2 rounded-full bg-[#F43F5E]" />
-                                        <span className="text-[12.5px] font-semibold text-slate-500">New customers</span>
+                                        <span className="text-[13px] sm:text-[13.5px] font-semibold text-slate-500">New customers</span>
                                     </div>
-                                    <p className="text-[15px] sm:text-[16px] font-black text-slate-800 pl-4 mt-0.5">48%</p>
+                                    <p className="text-[16px] sm:text-[17px] font-black text-slate-800 pl-4 mt-0.5">48%</p>
                                 </div>
 
                                 <div>
                                     <div className="flex items-center gap-2">
                                         <span className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-                                        <span className="text-[12.5px] font-semibold text-slate-500">Retargeted customers</span>
+                                        <span className="text-[13px] sm:text-[13.5px] font-semibold text-slate-500">Retargeted customers</span>
                                     </div>
-                                    <p className="text-[15px] sm:text-[16px] font-black text-slate-800 pl-4 mt-0.5">25%</p>
+                                    <p className="text-[16px] sm:text-[17px] font-black text-slate-800 pl-4 mt-0.5">25%</p>
                                 </div>
                             </div>
 

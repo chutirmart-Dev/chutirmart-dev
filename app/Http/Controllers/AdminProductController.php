@@ -383,32 +383,169 @@ class AdminProductController extends Controller
         return redirect()->route('admin.products.index')->with('success', 'পণ্যটি মুছে ফেলা হয়েছে।');
     }
 
-    // Reviews Management inside product section
-    public function reviews()
+    // Reviews Management (Full CRUD & Homepage Control)
+    public function reviews(Request $request)
     {
-        $reviews = Review::with('product')
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $query = Review::with('product');
+
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function ($b) use ($q) {
+                $b->where('customer_name', 'like', "%{$q}%")
+                    ->orWhere('customer_designation', 'like', "%{$q}%")
+                    ->orWhere('review_text', 'like', "%{$q}%");
+            });
+        }
+
+        if ($request->filled('status') && $request->status !== 'all') {
+            if ($request->status === 'home') {
+                $query->where('show_on_home', true);
+            } else {
+                $query->where('status', $request->status);
+            }
+        }
+
+        $reviews = $query->orderBy('sort_order', 'asc')
+            ->latest('id')
+            ->paginate(15)
+            ->withQueryString();
+
+        $stats = [
+            'total' => Review::count(),
+            'approved' => Review::where('status', 'approved')->count(),
+            'on_home' => Review::where('show_on_home', true)->where('status', 'approved')->count(),
+            'avg_rating' => round((float) (Review::where('status', 'approved')->avg('rating') ?: 5.0), 1),
+        ];
+
+        $products = Product::where('status', 'active')
+            ->orderBy('name')
+            ->get(['id', 'name']);
 
         return Inertia::render('Admin/Products/Reviews', [
             'reviews' => $reviews,
+            'stats' => $stats,
+            'products' => $products,
+            'filters' => $request->only(['q', 'status']),
         ]);
+    }
+
+    public function storeReview(Request $request)
+    {
+        $validated = $request->validate([
+            'customer_name' => 'required|string|max:100',
+            'customer_designation' => 'nullable|string|max:100',
+            'rating' => 'required|integer|min:1|max:5',
+            'review_text' => 'required|string|max:1000',
+            'product_id' => 'nullable|exists:products,id',
+            'status' => 'required|string|in:pending,approved,rejected',
+            'verified' => 'boolean',
+            'show_on_home' => 'boolean',
+            'avatar' => 'nullable',
+        ]);
+
+        $avatarPath = null;
+        if ($request->hasFile('avatar')) {
+            $avatarPath = MediaService::storeImage($request->file('avatar'), 'reviews', 400);
+        } elseif ($request->filled('avatar') && is_string($request->avatar) && str_starts_with($request->avatar, 'data:image')) {
+            $avatarPath = MediaService::storeImage($request->avatar, 'reviews', 400);
+        } elseif ($request->filled('avatar') && is_string($request->avatar)) {
+            $avatarPath = $request->avatar;
+        }
+
+        Review::create([
+            'customer_name' => $validated['customer_name'],
+            'customer_designation' => $validated['customer_designation'] ?: 'ভেরিফাইড ক্রেতা',
+            'customer_avatar' => $avatarPath,
+            'rating' => $validated['rating'],
+            'review_text' => $validated['review_text'],
+            'product_id' => $validated['product_id'] ?? null,
+            'status' => $validated['status'],
+            'verified' => $request->boolean('verified', true),
+            'show_on_home' => $request->boolean('show_on_home', true),
+        ]);
+
+        return back()->with('success', 'নতুন রিভিউ সফলভাবে যুক্ত করা হয়েছে।');
+    }
+
+    public function updateReview(Request $request, string $id)
+    {
+        $review = Review::findOrFail($id);
+
+        $validated = $request->validate([
+            'customer_name' => 'required|string|max:100',
+            'customer_designation' => 'nullable|string|max:100',
+            'rating' => 'required|integer|min:1|max:5',
+            'review_text' => 'required|string|max:1000',
+            'product_id' => 'nullable|exists:products,id',
+            'status' => 'required|string|in:pending,approved,rejected',
+            'verified' => 'boolean',
+            'show_on_home' => 'boolean',
+            'avatar' => 'nullable',
+            'remove_avatar' => 'boolean',
+        ]);
+
+        $avatarPath = $review->customer_avatar;
+        if ($request->boolean('remove_avatar')) {
+            $avatarPath = null;
+        } elseif ($request->hasFile('avatar')) {
+            $avatarPath = MediaService::storeImage($request->file('avatar'), 'reviews', 400);
+        } elseif ($request->filled('avatar') && is_string($request->avatar) && str_starts_with($request->avatar, 'data:image')) {
+            $avatarPath = MediaService::storeImage($request->avatar, 'reviews', 400);
+        }
+
+        $review->update([
+            'customer_name' => $validated['customer_name'],
+            'customer_designation' => $validated['customer_designation'] ?: 'ভেরিফাইড ক্রেতা',
+            'customer_avatar' => $avatarPath,
+            'rating' => $validated['rating'],
+            'review_text' => $validated['review_text'],
+            'product_id' => $validated['product_id'] ?? null,
+            'status' => $validated['status'],
+            'verified' => $request->boolean('verified', true),
+            'show_on_home' => $request->boolean('show_on_home', true),
+        ]);
+
+        return back()->with('success', 'রিভিউ সফলভাবে আপডেট করা হয়েছে।');
+    }
+
+    public function destroyReview(string $id)
+    {
+        $review = Review::findOrFail($id);
+        $review->delete();
+
+        return back()->with('success', 'রিভিউটি মুছে ফেলা হয়েছে।');
+    }
+
+    public function toggleReviewHome(string $id)
+    {
+        $review = Review::findOrFail($id);
+        $review->show_on_home = ! $review->show_on_home;
+        $review->save();
+
+        return back()->with('success', $review->show_on_home ? 'রিভিউটি হোমপেজে প্রদর্শন করা হবে।' : 'রিভিউটি হোমপেজ থেকে সরিয়ে নেওয়া হয়েছে।');
+    }
+
+    public function toggleReviewStatus(Request $request, string $id)
+    {
+        $review = Review::findOrFail($id);
+        if ($request->filled('status')) {
+            $review->status = $request->status;
+        } else {
+            $review->status = match ($review->status) {
+                'approved' => 'pending',
+                'pending' => 'approved',
+                'rejected' => 'approved',
+                default => 'approved'
+            };
+        }
+        $review->save();
+
+        return back()->with('success', 'রিভিউ স্ট্যাটাস সফলভাবে পরিবর্তন করা হয়েছে।');
     }
 
     public function updateReviewStatus(Request $request, string $id)
     {
-        $request->validate([
-            'status' => 'required|string|in:pending,approved,rejected',
-            'verified' => 'boolean',
-        ]);
-
-        $review = Review::findOrFail($id);
-        $review->update([
-            'status' => $request->status,
-            'verified' => $request->filled('verified') ? $request->verified : $review->verified,
-        ]);
-
-        return back()->with('success', 'রিভিউ স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে।');
+        return $this->toggleReviewStatus($request, $id);
     }
 
     public function toggleFeatured(Request $request, string $id)

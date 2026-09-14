@@ -100,9 +100,11 @@ class HomeController extends Controller
         }
 
         $reviews = Review::where('status', 'approved')
-            ->orderBy('created_at', 'desc')
-            ->take(8)
-            ->get(['id', 'customer_name', 'rating', 'review_text', 'verified']);
+            ->where('show_on_home', true)
+            ->orderBy('sort_order', 'asc')
+            ->latest('id')
+            ->take(16)
+            ->get(['id', 'customer_name', 'customer_designation', 'customer_avatar', 'rating', 'review_text', 'verified']);
 
         // Urgent CTA banner info
         $urgencyProductId = StoreSetting::getValue('urgency_banner_product_id');

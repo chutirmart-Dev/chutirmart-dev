@@ -23,3 +23,94 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# ============================================================
+# HTTPS Redirect — Uncomment on live hosting
+# ============================================================
+# <IfModule mod_rewrite.c>
+#     RewriteEngine On
+#     RewriteCond %{HTTPS} off
+#     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# </IfModule>
+
+# ============================================================
+# GZIP Compression — Reduces transfer size by up to 70%
+# ============================================================
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE image/svg+xml
+    AddOutputFilterByType DEFLATE font/ttf
+    AddOutputFilterByType DEFLATE font/woff
+    AddOutputFilterByType DEFLATE font/woff2
+</IfModule>
+
+# ============================================================
+# Browser Caching — Faster repeat visits
+# ============================================================
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # Compiled Vite JS/CSS (content-hashed filenames — safe to cache 1 year)
+    <FilesMatch "\.(js|css)$">
+        ExpiresDefault "access plus 1 year"
+    </FilesMatch>
+
+    # Images
+    <FilesMatch "\.(jpg|jpeg|png|gif|ico|svg|webp|avif)$">
+        ExpiresDefault "access plus 1 month"
+    </FilesMatch>
+
+    # Fonts
+    <FilesMatch "\.(woff|woff2|ttf|eot|otf)$">
+        ExpiresDefault "access plus 1 year"
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Compiled Vite assets — immutable (content-hashed)
+    <FilesMatch "\.(js|css|woff|woff2|ttf|eot)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    # Images — 1 month cache
+    <FilesMatch "\.(jpg|jpeg|png|gif|ico|svg|webp|avif)$">
+        Header set Cache-Control "public, max-age=2592000"
+    </FilesMatch>
+
+    # ============================================================
+    # Security Headers
+    # ============================================================
+    # Prevent Clickjacking
+    Header always set X-Frame-Options "SAMEORIGIN"
+
+    # Prevent MIME sniffing
+    Header always set X-Content-Type-Options "nosniff"
+
+    # Referrer Policy
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # XSS Protection (legacy browsers)
+    Header always set X-XSS-Protection "1; mode=block"
+
+    # CORS for fonts
+    <FilesMatch "\.(woff|woff2|ttf|eot)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+</IfModule>
+
+# ============================================================
+# Block direct access to sensitive files
+# ============================================================
+<FilesMatch "(\.env|\.git|composer\.(json|lock)|package(-lock)?\.json|phpunit\.xml)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+

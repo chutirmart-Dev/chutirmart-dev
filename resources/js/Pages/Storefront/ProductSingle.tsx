@@ -170,9 +170,9 @@ export const ProductSingle: React.FC<ProductSingleProps> = ({ product, attribute
                 </nav>
 
                 {/* Product Detail Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8 bg-white border border-gray-200/80 p-4 sm:p-6 md:p-8 rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.04)]">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 bg-white border border-gray-200/80 p-2.5 xs:p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.04)]">
                     {/* Left: Product Images Gallery */}
-                    <div className="space-y-3 sm:space-y-4">
+                    <div className="space-y-2.5 sm:space-y-4">
                         <div className="aspect-square w-full rounded-xl overflow-hidden bg-gray-50 border border-gray-150 shadow-2xs">
                             <img 
                                 src={selectedImage} 
@@ -504,7 +504,7 @@ export const ProductSingle: React.FC<ProductSingleProps> = ({ product, attribute
                         <h2 className="text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 mb-4 sm:mb-6 flex items-center gap-1.5 sm:gap-2 font-bangla">
                             <span className="text-base sm:text-lg">🔗</span> মিলসম্পন্ন অন্যান্য পণ্য
                         </h2>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
+                        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
                             {relatedProducts.map(prod => (
                                 <ProductCard key={prod.id} product={prod} />
                             ))}
@@ -515,7 +515,7 @@ export const ProductSingle: React.FC<ProductSingleProps> = ({ product, attribute
 
             {/* Mobile Sticky Add To Cart Bar (Native App Style) */}
             <div 
-                className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200/90 p-2.5 px-3.5 shadow-[0_-4px_20px_rgba(0,0,0,0.12)] flex items-center gap-2.5 select-none" 
+                className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200/90 p-1.5 xs:p-2.5 px-2 xs:px-3.5 shadow-[0_-4px_20px_rgba(0,0,0,0.12)] flex items-center gap-1.5 xs:gap-2.5 select-none" 
                 style={{ paddingBottom: 'max(0.6rem, env(safe-area-inset-bottom, 10px))' }}
             >
                 {/* Quick WhatsApp Contact Icon */}
@@ -523,11 +523,11 @@ export const ProductSingle: React.FC<ProductSingleProps> = ({ product, attribute
                     href={whatsappUrl} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="w-12 h-12.5 rounded bg-[#25D366] hover:bg-[#20ba56] text-white flex items-center justify-center shrink-0 active:scale-90 transition-transform shadow-xs cursor-pointer"
+                    className="w-9 xs:w-11 h-10 xs:h-11 rounded bg-[#25D366] hover:bg-[#20ba56] text-white flex items-center justify-center shrink-0 active:scale-90 transition-transform shadow-xs cursor-pointer"
                     title="Order via WhatsApp"
                     aria-label="Order via WhatsApp"
                 >
-                    <MessageCircle className="w-5.5 h-5.5 fill-white stroke-none" />
+                    <MessageCircle className="w-4.5 h-4.5 xs:w-5 xs:h-5 fill-white stroke-none" />
                 </a>
 
                 {/* Add to Cart Button */}
@@ -535,9 +535,9 @@ export const ProductSingle: React.FC<ProductSingleProps> = ({ product, attribute
                     onClick={handleAddToCart}
                     disabled={isOutOfStock}
                     type="button"
-                    className="flex-1 h-12.5 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-800 rounded text-sm font-bold border border-gray-200/80 shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer font-bangla"
+                    className="flex-1 h-10 xs:h-11 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 text-gray-800 rounded text-xs xs:text-sm font-bold border border-gray-200/80 shadow-2xs active:scale-95 transition-all flex items-center justify-center gap-1 xs:gap-1.5 cursor-pointer font-bangla"
                 >
-                    <ShoppingCart className="w-4.5 h-4.5 text-[#009E49] shrink-0 stroke-[2.2]" />
+                    <ShoppingCart className="w-4 h-4 text-[#009E49] shrink-0 stroke-[2.2]" />
                     <span>কার্টে যোগ</span>
                 </button>
 
@@ -546,7 +546,7 @@ export const ProductSingle: React.FC<ProductSingleProps> = ({ product, attribute
                     onClick={handleBuyNow}
                     disabled={isOutOfStock}
                     type="button"
-                    className="flex-[1.4] h-12.5 bg-[#E2231A] hover:bg-[#c61e16] disabled:opacity-50 text-white rounded text-sm font-extrabold border-none shadow-[0_4px_14px_rgba(226,35,26,0.25)] active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer font-bangla"
+                    className="flex-[1.3] h-10 xs:h-11 bg-[#E2231A] hover:bg-[#c61e16] disabled:opacity-50 text-white rounded text-xs xs:text-sm font-extrabold border-none shadow-[0_4px_14px_rgba(226,35,26,0.25)] active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer font-bangla"
                 >
                     <span>{isOutOfStock ? 'স্টক শেষ' : 'এখনই অর্ডার 🛍️'}</span>
                 </button>

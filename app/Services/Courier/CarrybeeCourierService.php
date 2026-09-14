@@ -41,7 +41,7 @@ class CarrybeeCourierService implements CourierServiceInterface
         ];
 
         try {
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'Authorization' => 'Bearer '.($this->secretKey ?: $this->apiKey),
                 'api-key' => $this->apiKey,
                 'Content-Type' => 'application/json',
@@ -89,7 +89,7 @@ class CarrybeeCourierService implements CourierServiceInterface
         $trackingId = $order->consignment_id ?: ($order->courier_tracking_code ?: $order->order_number);
 
         try {
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'Authorization' => 'Bearer '.($this->secretKey ?: $this->apiKey),
                 'api-key' => $this->apiKey,
             ])->timeout(15)->get("{$this->baseUrl}/orders/{$trackingId}/track");

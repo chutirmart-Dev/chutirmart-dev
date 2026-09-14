@@ -101,12 +101,14 @@ class CheckoutController extends Controller
             'coupon_code' => 'nullable|string',
             'special_notes' => 'nullable|string',
         ], [
-            'customer_name.required' => 'Your Full Name is required',
-            'mobile.required' => 'Your Mobile Number is required',
-            'mobile.regex' => 'Please enter a valid mobile number (e.g. 017XXXXXXXX)',
-            'district.required' => 'Please select a district',
-            'address.required' => 'Please enter your address',
-            'items.required' => 'Your cart is empty',
+            'customer_name.required' => 'অনুগ্রহ করে আপনার পুরো নাম লিখুন।',
+            'customer_name.min' => 'নাম কমপক্ষে ৩ অক্ষরের হতে হবে।',
+            'mobile.required' => 'অনুগ্রহ করে আপনার মোবাইল নম্বর লিখুন।',
+            'mobile.regex' => 'সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 01XXXXXXXXX)।',
+            'district.required' => 'অনুগ্রহ করে আপনার জেলা নির্বাচন করুন।',
+            'address.required' => 'অনুগ্রহ করে বিস্তারিত ডেলিভারি ঠিকানা লিখুন।',
+            'address.min' => 'ঠিকানা কমপক্ষে ৫ অক্ষরের হতে হবে।',
+            'items.required' => 'আপনার কার্ট খালি!',
         ]);
 
         // Calculate Subtotal & Verify Stock

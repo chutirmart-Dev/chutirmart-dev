@@ -4,6 +4,7 @@ import AdminLayout from '@/layouts/AdminLayout';
 import { AdminCard, CardHead, PageHeader, SaveBtn, AdminInput, AdminTextarea, AdminSelect, FieldLabel } from '@/components/admin/ui';
 import { Save, Settings as SettingsIcon, Image, CreditCard, AlignLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import { MediaPickerModal } from '@/components/admin/MediaPickerModal';
 
 interface SettingsProps {
     settings: Record<string, string>;
@@ -12,6 +13,7 @@ interface SettingsProps {
 
 export const Settings: React.FC<SettingsProps> = ({ settings, preview_urls }) => {
     const [activeTab, setActiveTab] = useState<'general' | 'logos' | 'payments' | 'footer'>('general');
+    const [pickerTarget, setPickerTarget] = useState<'site_logo' | 'site_logo_mobile' | 'favicon' | null>(null);
 
     const getPreviewUrl = (value?: string, field?: string) => {
         if (!value) return '';
@@ -165,22 +167,13 @@ export const Settings: React.FC<SettingsProps> = ({ settings, preview_urls }) =>
                                             No Logo
                                         </div>
                                     )}
-                                    <label className="px-4 py-2 rounded-xl bg-white border border-[#E6F5EC] text-xs font-bold text-[#009E49] hover:bg-[#E6F5EC] cursor-pointer transition-all shadow-2xs">
-                                        Upload Desktop Logo
-                                        <input 
-                                            type="file" 
-                                            accept="image/*" 
-                                            className="hidden" 
-                                            onChange={e => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    const reader = new FileReader();
-                                                    reader.onloadend = () => setData('site_logo', reader.result as string);
-                                                    reader.readAsDataURL(file);
-                                                }
-                                            }}
-                                        />
-                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPickerTarget('site_logo')}
+                                        className="px-4 py-2 rounded-xl bg-white border border-[#E6F5EC] text-xs font-bold text-[#009E49] hover:bg-[#E6F5EC] cursor-pointer transition-all shadow-2xs"
+                                    >
+                                        Select Desktop Logo (Media Library)
+                                    </button>
                                 </div>
                                 <AdminInput placeholder="Or enter logo URL path" value={data.site_logo} onChange={e => setData('site_logo', e.target.value)} />
                             </div>
@@ -209,22 +202,13 @@ export const Settings: React.FC<SettingsProps> = ({ settings, preview_urls }) =>
                                             No Logo
                                         </div>
                                     )}
-                                    <label className="px-4 py-2 rounded-xl bg-white border border-[#E6F5EC] text-xs font-bold text-[#009E49] hover:bg-[#E6F5EC] cursor-pointer transition-all shadow-2xs">
-                                        Upload Mobile Logo
-                                        <input 
-                                            type="file" 
-                                            accept="image/*" 
-                                            className="hidden" 
-                                            onChange={e => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    const reader = new FileReader();
-                                                    reader.onloadend = () => setData('site_logo_mobile', reader.result as string);
-                                                    reader.readAsDataURL(file);
-                                                }
-                                            }}
-                                        />
-                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPickerTarget('site_logo_mobile')}
+                                        className="px-4 py-2 rounded-xl bg-white border border-[#E6F5EC] text-xs font-bold text-[#009E49] hover:bg-[#E6F5EC] cursor-pointer transition-all shadow-2xs"
+                                    >
+                                        Select Mobile Logo (Media Library)
+                                    </button>
                                 </div>
                                 <AdminInput placeholder="Or enter mobile logo URL path" value={data.site_logo_mobile} onChange={e => setData('site_logo_mobile', e.target.value)} />
                             </div>
@@ -253,22 +237,13 @@ export const Settings: React.FC<SettingsProps> = ({ settings, preview_urls }) =>
                                             No Icon
                                         </div>
                                     )}
-                                    <label className="px-4 py-2 rounded-xl bg-white border border-[#E6F5EC] text-xs font-bold text-[#009E49] hover:bg-[#E6F5EC] cursor-pointer transition-all shadow-2xs">
-                                        Upload Favicon File
-                                        <input 
-                                            type="file" 
-                                            accept="image/*,image/x-icon,image/vnd.microsoft.icon" 
-                                            className="hidden" 
-                                            onChange={e => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    const reader = new FileReader();
-                                                    reader.onloadend = () => setData('favicon', reader.result as string);
-                                                    reader.readAsDataURL(file);
-                                                }
-                                            }}
-                                        />
-                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={() => setPickerTarget('favicon')}
+                                        className="px-4 py-2 rounded-xl bg-white border border-[#E6F5EC] text-xs font-bold text-[#009E49] hover:bg-[#E6F5EC] cursor-pointer transition-all shadow-2xs"
+                                    >
+                                        Select Favicon (Media Library)
+                                    </button>
                                 </div>
                                 <AdminInput placeholder="Or enter favicon URL path" value={data.favicon} onChange={e => setData('favicon', e.target.value)} />
                             </div>
@@ -335,6 +310,28 @@ export const Settings: React.FC<SettingsProps> = ({ settings, preview_urls }) =>
                     </SaveBtn>
                 </div>
             </form>
+
+            {/* Logo / Favicon Media Picker Modal */}
+            <MediaPickerModal
+                isOpen={pickerTarget !== null}
+                onClose={() => setPickerTarget(null)}
+                defaultFolder="logos"
+                title={
+                    pickerTarget === 'site_logo'
+                        ? 'Select Desktop Logo'
+                        : pickerTarget === 'site_logo_mobile'
+                        ? 'Select Mobile Logo'
+                        : 'Select Favicon Icon'
+                }
+                confirmText="Use as Logo"
+                onSelect={(item) => {
+                    if (pickerTarget) {
+                        setData(pickerTarget, item.url);
+                        toast.success('Media selected! Click Save Settings to apply. ✨');
+                    }
+                    setPickerTarget(null);
+                }}
+            />
         </AdminLayout>
     );
 };

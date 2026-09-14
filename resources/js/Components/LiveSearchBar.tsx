@@ -421,11 +421,11 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
 
     return (
         <div ref={containerRef} className={`relative ${className}`}>
-            {/* Input Form Bar - Styled to exact user screenshot with branding green */}
+            {/* Input Form Bar - Styled to modern mobile app with ChutirMart branding green */}
             <form 
                 onSubmit={handleSubmit} 
-                className={`relative flex items-center w-full bg-white border-2 border-[#009E49] rounded-lg p-1 shadow-xs transition-all duration-200 focus-within:ring-2 focus-within:ring-[#009E49]/20 ${
-                    mobileMode ? 'h-11' : 'h-[50px]'
+                className={`relative flex items-center w-full bg-slate-50/70 focus-within:bg-white border-2 border-[#009E49] rounded-xl p-1 shadow-xs transition-all duration-200 focus-within:ring-2 focus-within:ring-[#009E49]/20 ${
+                    mobileMode ? 'h-11.5' : 'h-[50px]'
                 }`}
             >
                 <input
@@ -445,7 +445,7 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
                     autoComplete="off"
                     spellCheck={false}
                     className={`flex-1 min-w-0 bg-transparent px-3 text-gray-900 placeholder:text-gray-400 outline-none border-none focus:outline-none focus:ring-0 ${
-                        mobileMode ? 'text-xs' : 'text-[15px]'
+                        mobileMode ? 'text-[13px]' : 'text-[15px]'
                     } ${inputClassName}`}
                 />
 
@@ -474,22 +474,22 @@ export const LiveSearchBar: React.FC<LiveSearchBarProps> = ({
                         </div>
                     )}
 
-                    {/* Rectangular Green Search Button - Switches to icon-only when customer clicks search panel */}
+                    {/* Rectangular Green Search Button */}
                     <button
                         type="submit"
                         aria-label="Search"
-                        className={`bg-[#009E49] hover:bg-[#007F3B] text-white h-full rounded-md font-bold text-xs sm:text-sm flex items-center justify-center transition-all duration-200 active:scale-95 shadow-xs shrink-0 select-none cursor-pointer ${
+                        className={`bg-gradient-to-r from-[#009E49] to-[#00873E] hover:from-[#00873E] hover:to-[#007435] text-white h-full rounded-lg font-bold text-xs sm:text-sm flex items-center justify-center transition-all duration-200 active:scale-95 shadow-xs shrink-0 select-none cursor-pointer ${
                             isFocused 
-                                ? 'w-9 sm:w-10 px-0 gap-0' 
-                                : 'px-4 sm:px-5 gap-1.5 sm:gap-2'
+                                ? 'w-9.5 sm:w-10 px-0 gap-0' 
+                                : 'px-2.5 sm:px-3.5 lg:px-5 gap-1 sm:gap-1.5'
                         }`}
                     >
-                        <Search className="w-4 h-4 stroke-[2.5] shrink-0" />
+                        <Search className="w-4.5 h-4.5 stroke-[2.5] shrink-0" />
                         <span 
                             className={`font-latin tracking-wide transition-all duration-200 overflow-hidden whitespace-nowrap ${
                                 isFocused 
-                                    ? 'max-w-0 opacity-0 -ml-0' 
-                                    : 'max-w-[70px] opacity-100'
+                                    ? 'max-w-0 opacity-0 -ml-0 hidden' 
+                                    : 'max-w-[70px] opacity-100 hidden sm:inline-block'
                             }`}
                         >
                             Search

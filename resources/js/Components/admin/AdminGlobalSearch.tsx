@@ -238,7 +238,7 @@ export const AdminGlobalSearch: React.FC = () => {
         <div ref={containerRef} className="relative w-full max-w-lg min-w-0">
             {/* Search Input Bar */}
             <div className="relative flex items-center">
-                <Search className={`absolute left-3.5 w-4 h-4 transition-colors duration-150 pointer-events-none ${
+                <Search className={`absolute left-3.5 w-4.5 h-4.5 transition-colors duration-150 pointer-events-none ${
                     isOpen ? 'text-[#009E49]' : 'text-slate-400'
                 }`} />
 
@@ -254,11 +254,11 @@ export const AdminGlobalSearch: React.FC = () => {
                         }
                     }}
                     onKeyDown={handleKeyDown}
-                    placeholder="Search orders, products... (Ctrl+K)"
-                    className={`w-full h-10 pl-10 pr-20 rounded-lg border text-[13px] transition-all duration-150 ${
+                    placeholder="Search orders, products, customers..."
+                    className={`w-full h-11 sm:h-11.5 pl-10.5 sm:pl-11 pr-10 sm:pr-20 rounded-xl border text-[13.5px] sm:text-[14px] font-medium transition-all duration-150 shadow-2xs ${
                         isOpen
-                            ? 'bg-white border-[#009E49] ring-2 ring-[#009E49]/15 shadow-sm text-slate-800'
-                            : 'bg-slate-50/80 border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-100/60'
+                            ? 'bg-white border-[#009E49] ring-3 ring-[#009E49]/15 shadow-md text-slate-800'
+                            : 'bg-slate-50/90 border-slate-200/90 text-slate-700 hover:border-slate-300 hover:bg-white'
                     } placeholder-slate-400 focus:outline-none`}
                 />
 

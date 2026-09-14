@@ -1180,17 +1180,27 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, s
 
                             {/* ── Desktop View: Full Data Table (hidden md:block) ── */}
                             <div className="hidden md:block overflow-x-auto">
-                                <table className="w-full text-left">
+                                <table className="w-full table-fixed min-w-[1000px] border-collapse">
+                                    <colgroup>
+                                        <col className="w-[4%]" />
+                                        <col className="w-[11%]" />
+                                        <col className="w-[18%]" />
+                                        <col className="w-[11%]" />
+                                        <col className="w-[10%]" />
+                                        <col className="w-[26%]" />
+                                        <col className="w-[10%]" />
+                                        <col className="w-[10%]" />
+                                    </colgroup>
                                     <thead>
-                                        <tr className="border-b border-slate-200/80 bg-slate-50/80">
-                                            <th className="w-10 px-4 py-3.5 text-center"></th>
-                                            <th className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Order No.</th>
-                                            <th className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Customer</th>
-                                            <th className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Total Price</th>
-                                            <th className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Status</th>
-                                            <th className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Courier & Tracking</th>
-                                            <th className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5">Date</th>
-                                            <th className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-4 py-3.5 text-right">Actions</th>
+                                        <tr className="border-b border-slate-100 bg-slate-50/80">
+                                            <th className="text-center px-2 py-4"></th>
+                                            <th className="text-left text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-3 py-4">Order No.</th>
+                                            <th className="text-left text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-3 py-4">Customer</th>
+                                            <th className="text-center text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-2 py-4">Total Price</th>
+                                            <th className="text-center text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-2 py-4">Status</th>
+                                            <th className="text-center text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-2 py-4">Courier & Tracking</th>
+                                            <th className="text-center text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-2 py-4">Date</th>
+                                            <th className="text-center text-[12px] sm:text-[13px] font-extrabold text-slate-500 uppercase tracking-wider px-2 py-4">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 bg-white">
@@ -1200,52 +1210,54 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, s
 
                                             return (
                                                 <tr key={order.id} className={`hover:bg-slate-50/60 transition-colors ${isSelected ? 'bg-emerald-50/30' : ''}`}>
-                                                    <td className="px-4 py-4 text-center">
+                                                    <td className="px-2 py-4 text-center">
                                                         <input
                                                             type="checkbox"
                                                             checked={isSelected}
                                                             onChange={() => toggleSelectOrder(order.id)}
-                                                            className="w-4 h-4 rounded border-gray-300 text-[#009E49] focus:ring-[#009E49] cursor-pointer"
+                                                            className="w-4.5 h-4.5 rounded border-gray-300 text-[#009E49] focus:ring-[#009E49] cursor-pointer"
                                                         />
                                                     </td>
 
-                                                    <td className="px-4 py-4">
-                                                        <div className="font-mono text-[13.5px] font-bold text-[#009E49]">
+                                                    <td className="px-3 py-4">
+                                                        <div className="font-mono text-[14px] sm:text-[15px] font-bold text-[#009E49]">
                                                             #{order.order_number}
                                                         </div>
-                                                        <div className="text-[11px] text-gray-400 font-semibold">{order.payment_method?.toUpperCase()}</div>
+                                                        <div className="text-[11.5px] sm:text-[12px] text-gray-500 font-bold mt-0.5">{order.payment_method?.toUpperCase()}</div>
                                                     </td>
 
-                                                    <td className="px-4 py-4">
-                                                        <div className="text-[13.5px] font-bold text-slate-800">{order.customer_name}</div>
-                                                        <div className="text-[12px] text-slate-500 font-mono mt-0.5">{order.mobile}</div>
-                                                        <div className="text-[11px] text-slate-400 truncate max-w-[150px]">{order.district}</div>
+                                                    <td className="px-3 py-4">
+                                                        <div className="text-[14px] sm:text-[15px] font-bold text-slate-900 truncate" title={order.customer_name}>{order.customer_name}</div>
+                                                        <div className="text-[12.5px] sm:text-[13px] text-slate-600 font-mono font-bold mt-0.5">{order.mobile}</div>
+                                                        <div className="text-[11.5px] sm:text-[12px] text-slate-400 truncate max-w-[170px]" title={order.district}>{order.district}</div>
                                                     </td>
 
-                                                    <td className="px-4 py-4">
-                                                        <div className="text-[14px] font-black text-slate-800">৳{order.total}</div>
-                                                        <div className="mt-1">
+                                                    <td className="px-2 py-4 text-center">
+                                                        <div className="text-[15px] sm:text-[16px] font-black text-slate-900">৳{order.total}</div>
+                                                        <div className="mt-1 flex justify-center">
                                                             <StatusPill status={order.payment_status} />
                                                         </div>
                                                     </td>
 
-                                                    <td className="px-4 py-4">
-                                                        <StatusPill status={order.status} />
+                                                    <td className="px-2 py-4 text-center">
+                                                        <div className="flex justify-center">
+                                                            <StatusPill status={order.status} />
+                                                        </div>
                                                     </td>
 
                                                     {/* Courier & Tracking Column */}
-                                                    <td className="px-4 py-4">
+                                                    <td className="px-2 py-4 text-center">
                                                         {hasCourier ? (
-                                                            <div className="space-y-1">
-                                                                <div className="flex items-center gap-1.5">
-                                                                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+                                                            <div className="space-y-1.5 flex flex-col items-center justify-center">
+                                                                <div className="flex items-center justify-center gap-1.5">
+                                                                    <span className="text-[11px] font-black uppercase px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
                                                                         {order.courier_name || 'Courier'}
                                                                     </span>
-                                                                    <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded">
+                                                                    <span className="text-[11px] font-bold text-gray-600 bg-gray-100 px-2 py-0.5 rounded">
                                                                         {order.courier_status || 'Sent'}
                                                                     </span>
                                                                 </div>
-                                                                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-gray-700">
+                                                                <div className="flex items-center justify-center gap-1.5 text-[13px] font-mono font-bold text-slate-800">
                                                                     <span>{order.courier_tracking_code || order.consignment_id}</span>
                                                                     <button
                                                                         type="button"
@@ -1253,7 +1265,7 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, s
                                                                         className="text-gray-400 hover:text-emerald-600 border-none bg-transparent cursor-pointer p-0.5"
                                                                         title="Copy Tracking"
                                                                     >
-                                                                        <Copy className="w-3 h-3" />
+                                                                        <Copy className="w-3.5 h-3.5" />
                                                                     </button>
                                                                     {order.tracking_url && (
                                                                         <a 
@@ -1263,7 +1275,7 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, s
                                                                             className="text-gray-400 hover:text-blue-600"
                                                                             title="Open Courier Portal Tracking"
                                                                         >
-                                                                            <ExternalLink className="w-3 h-3" />
+                                                                            <ExternalLink className="w-3.5 h-3.5" />
                                                                         </a>
                                                                     )}
                                                                     {order.mobile && (
@@ -1277,14 +1289,14 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, s
                                                                             className="text-gray-400 hover:text-[#005E26] border-none bg-transparent cursor-pointer p-0.5 ml-1"
                                                                             title="কাস্টমার সাকসেস রেট দেখুন"
                                                                         >
-                                                                            <RotateCcw className="w-3 h-3" />
+                                                                            <RotateCcw className="w-3.5 h-3.5" />
                                                                         </button>
                                                                     )}
                                                                 </div>
                                                             </div>
                                                         ) : (
                                                             /* ── Per-row Courier Select + Send Button ── */
-                                                            <div className="flex items-center gap-2">
+                                                            <div className="flex items-center justify-center gap-2">
                                                                 <CourierSelect
                                                                     value={getRowCourier(order.id)}
                                                                     onChange={val => setRowCourier(order.id, val)}
@@ -1296,9 +1308,9 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, s
                                                                     onClick={() => handleSendToCourier(order.id, getRowCourier(order.id))}
                                                                     disabled={isSubmittingCourier === order.id}
                                                                     className="
-                                                                        h-8 px-3 rounded-lg
+                                                                        h-9 sm:h-10 px-3.5 rounded-xl
                                                                         bg-[#009E49] hover:bg-[#00873E] active:scale-98
-                                                                        text-white text-[12px] font-semibold
+                                                                        text-white text-[13px] font-bold
                                                                         border-none
                                                                         shadow-xs hover:shadow-sm
                                                                         transition-all duration-150
@@ -1331,7 +1343,7 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, s
                                                                             courier: getRowCourier(order.id)
                                                                         })}
                                                                         className="
-                                                                            w-8 h-8 rounded-lg
+                                                                            w-9 h-9 sm:w-10 sm:h-10 rounded-xl
                                                                             bg-slate-100 hover:bg-slate-200
                                                                             border border-slate-200
                                                                             text-slate-600 hover:text-[#009E49]
@@ -1343,19 +1355,19 @@ export const Index: React.FC<IndexProps> = ({ orders, status = 'all', filters, s
                                                                         "
                                                                         title={`${order.customer_name} এর কুরিয়ার সাকসেস রেট দেখুন`}
                                                                     >
-                                                                        <RotateCcw className="w-3.5 h-3.5" />
+                                                                        <RotateCcw className="w-4 h-4" />
                                                                     </button>
                                                                 )}
                                                             </div>
                                                         )}
                                                     </td>
 
-                                                    <td className="px-4 py-4 text-[12px] text-slate-500 font-medium whitespace-nowrap">
+                                                    <td className="px-2 py-4 text-center text-[13px] sm:text-[13.5px] text-slate-500 font-medium whitespace-nowrap">
                                                         {new Date(order.created_at).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
                                                     </td>
 
-                                                    <td className="px-4 py-4 text-right">
-                                                        <div className="flex items-center justify-end gap-2">
+                                                    <td className="px-2 py-4 text-center">
+                                                        <div className="flex items-center justify-center gap-2">
                                                             {hasCourier && (
                                                                 <button
                                                                     type="button"

@@ -53,7 +53,7 @@ class SteadfastCourierService implements CourierServiceInterface
         ];
 
         try {
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'Api-Key' => $this->apiKey,
                 'Secret-Key' => $this->secretKey,
                 'Content-Type' => 'application/json',
@@ -113,7 +113,7 @@ class SteadfastCourierService implements CourierServiceInterface
                 ? "{$this->baseUrl}/status_by_cid/{$consignmentId}"
                 : ($trackingCode ? "{$this->baseUrl}/status_by_trackingcode/{$trackingCode}" : "{$this->baseUrl}/status_by_invoice/{$invoice}");
 
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'Api-Key' => $this->apiKey,
                 'Secret-Key' => $this->secretKey,
                 'Content-Type' => 'application/json',
@@ -147,7 +147,7 @@ class SteadfastCourierService implements CourierServiceInterface
         }
 
         try {
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'Api-Key' => $this->apiKey,
                 'Secret-Key' => $this->secretKey,
                 'Content-Type' => 'application/json',

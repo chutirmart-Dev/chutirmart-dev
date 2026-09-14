@@ -3,7 +3,8 @@ import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import { 
     Mail, Lock, Eye, EyeOff, CheckCircle2, ArrowRight, ShieldCheck, 
     Sparkles, TrendingUp, CreditCard, ShoppingBag, Package, Truck, 
-    Star, AlertTriangle, ChevronLeft, ChevronRight, Users, Award, ArrowLeft
+    Star, AlertTriangle, ChevronLeft, ChevronRight, Users, Award, ArrowLeft,
+    ArrowDown
 } from 'lucide-react';
 
 export const Login: React.FC = () => {
@@ -40,6 +41,17 @@ export const Login: React.FC = () => {
         });
     };
 
+    const scrollToForm = () => {
+        const formElement = document.getElementById('admin-login-form-section');
+        if (formElement) {
+            formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setTimeout(() => {
+                const firstInput = document.getElementById('admin-email-input') as HTMLInputElement | null;
+                firstInput?.focus();
+            }, 350);
+        }
+    };
+
     const slidesMeta = [
         {
             title: "Speedy, Easy and Fast",
@@ -64,10 +76,78 @@ export const Login: React.FC = () => {
             <Head title={`Sign In - ${store_settings?.site_name || 'ChutirMart'} Admin`} />
 
             {/* Main Split Container Card */}
-            <div className="w-full max-w-[1240px] min-h-[740px] bg-white rounded-3xl shadow-[0_20px_60px_rgba(0,158,73,0.08)] overflow-hidden grid grid-cols-1 lg:grid-cols-12 border border-slate-100">
+            <div className="w-full max-w-[1240px] lg:min-h-[720px] min-h-0 bg-white rounded-2xl sm:rounded-3xl shadow-[0_20px_60px_rgba(0,158,73,0.08)] overflow-hidden grid grid-cols-1 lg:grid-cols-12 border border-slate-100">
                 
-                {/* ── LEFT HERO BRAND PANEL (SMOOTH SLIDING CAROUSEL) ───────── */}
-                <div className="lg:col-span-6 bg-gradient-to-br from-[#009E49] via-[#008A40] to-[#006830] p-8 sm:p-10 md:p-12 flex flex-col justify-between relative overflow-hidden text-white select-none">
+                {/* ── MOBILE COMPACT HEADER (Visible on mobile & tablet < lg) ───────── */}
+                <div className="lg:hidden bg-gradient-to-br from-[#009E49] via-[#008A40] to-[#006830] p-4 sm:p-5 text-white relative overflow-hidden">
+                    <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+                    <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-[#E2231A]/20 rounded-full blur-2xl pointer-events-none" />
+
+                    <div className="flex items-center justify-between gap-2.5 relative z-10">
+                        <Link 
+                            href={route('home')} 
+                            className="flex items-center gap-2 group cursor-pointer no-underline select-none"
+                            title="ছুটির মার্ট স্টোর ভিজিট করুন (Visit Store)"
+                        >
+                            {store_settings?.site_logo ? (
+                                <div className="bg-white px-2.5 py-1.5 rounded-xl shadow-xs border border-white/20 flex items-center">
+                                    <img 
+                                        src={store_settings.site_logo} 
+                                        alt={store_settings?.site_name || "ChutirMart"} 
+                                        className="h-7 w-auto object-contain" 
+                                        onError={e => {
+                                            (e.target as HTMLImageElement).style.display = 'none';
+                                        }}
+                                    />
+                                </div>
+                            ) : (
+                                <div className="bg-white px-3 py-1.5 rounded-xl shadow-xs flex items-center gap-1.5">
+                                    <div className="w-5 h-5 rounded-lg bg-[#009E49] flex items-center justify-center text-white">
+                                        <ShoppingBag className="w-3 h-3" />
+                                    </div>
+                                    <div className="flex items-center text-base font-black font-bangla tracking-tight">
+                                        <span className="text-[#009E49]">ছুটির</span>
+                                        <span className="text-[#E2231A] ml-0.5">মার্ট</span>
+                                    </div>
+                                </div>
+                            )}
+                            <span className="text-[10px] font-extrabold bg-white/20 text-white px-2 py-0.5 rounded-full uppercase tracking-wider font-latin">
+                                Admin
+                            </span>
+                        </Link>
+
+                        {/* Action Buttons: Store link + Scroll to Form */}
+                        <div className="flex items-center gap-2">
+                            <Link 
+                                href={route('home')}
+                                className="text-[11px] font-bold text-white/90 hover:text-white bg-white/15 hover:bg-white/25 px-2.5 py-1.5 rounded-xl border border-white/20 flex items-center gap-1 transition-colors no-underline select-none"
+                            >
+                                <span>স্টোর</span>
+                                <span>→</span>
+                            </Link>
+                            <button
+                                type="button"
+                                onClick={scrollToForm}
+                                className="text-[11px] font-extrabold text-[#009E49] bg-white hover:bg-emerald-50 px-3 py-1.5 rounded-xl shadow-xs flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer font-bangla border-none"
+                            >
+                                <span>ফর্ম পূরণ করুন</span>
+                                <ArrowDown className="w-3 h-3 text-[#009E49]" />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Compact Highlight Strip */}
+                    <div className="mt-2.5 pt-2 border-t border-white/15 flex items-center justify-between text-[11px] text-emerald-100 font-medium font-bangla relative z-10">
+                        <span className="flex items-center gap-1">⚡ লাইভ অর্ডার</span>
+                        <span className="opacity-40">•</span>
+                        <span className="flex items-center gap-1">📦 স্টক কন্ট্রোল</span>
+                        <span className="opacity-40">•</span>
+                        <span className="flex items-center gap-1">🛡️ নিরাপদ অ্যাডমিন</span>
+                    </div>
+                </div>
+
+                {/* ── LEFT HERO BRAND PANEL (SMOOTH SLIDING CAROUSEL - DESKTOP ONLY) ───────── */}
+                <div className="hidden lg:flex lg:col-span-6 bg-gradient-to-br from-[#009E49] via-[#008A40] to-[#006830] p-8 sm:p-10 md:p-12 flex-col justify-between relative overflow-hidden text-white select-none">
                     
                     {/* Decorative Background Ambient Glows */}
                     <div className="absolute -top-24 -left-24 w-96 h-96 bg-white/10 rounded-full blur-3xl pointer-events-none" />
@@ -513,17 +593,17 @@ export const Login: React.FC = () => {
                 </div>
 
                 {/* ── RIGHT LOGIN FORM PANEL ──────────────────────────────────── */}
-                <div className="lg:col-span-6 p-8 sm:p-12 md:p-16 flex flex-col justify-between bg-white">
+                <div className="lg:col-span-6 p-4 xs:p-6 sm:p-10 md:p-14 lg:p-16 flex flex-col justify-between bg-white">
                     
-                    <div className="max-w-[420px] w-full mx-auto my-auto space-y-7">
+                    <div id="admin-login-form-section" className="max-w-[420px] w-full mx-auto my-auto space-y-4 sm:space-y-6">
                         
                         {/* Title & Subtitle */}
-                        <div className="space-y-2 text-left">
+                        <div className="space-y-1.5 sm:space-y-2 text-left">
                             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[#009E49] text-[11px] font-bold">
                                 <span className="w-1.5 h-1.5 rounded-full bg-[#009E49]" />
                                 <span>ChutirMart Control Panel</span>
                             </div>
-                            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                            <h1 className="text-xl xs:text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
                                 Sign in to your account
                             </h1>
                             <p className="text-xs sm:text-sm text-slate-500 font-medium">
@@ -535,23 +615,23 @@ export const Login: React.FC = () => {
                         <button
                             type="button"
                             onClick={handleFillDemo}
-                            className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/70 text-slate-700 hover:text-[#009E49] text-xs font-bold transition-all duration-200 cursor-pointer group shadow-2xs"
+                            className="w-full flex items-center justify-center gap-2 py-2.5 px-3 sm:py-3 sm:px-4 rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100/70 text-slate-700 hover:text-[#009E49] text-xs font-bold transition-all duration-200 cursor-pointer group shadow-2xs leading-snug"
                         >
-                            <Sparkles className="w-4 h-4 text-[#E2231A] group-hover:scale-110 transition-transform" />
-                            <span>1-Click Fill Demo Credentials (<code className="font-mono text-[11px] font-semibold text-[#009E49]">admin@chutirmart.com</code>)</span>
+                            <Sparkles className="w-4 h-4 text-[#E2231A] group-hover:scale-110 transition-transform shrink-0" />
+                            <span className="truncate">1-Click Fill Demo Credentials (<code className="font-mono text-[11px] font-bold text-[#009E49]">admin@chutirmart.com</code>)</span>
                         </button>
 
                         {/* Divider */}
                         <div className="relative flex items-center justify-center">
                             <div className="border-t border-slate-200 w-full" />
-                            <span className="bg-white px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
+                            <span className="bg-white px-3 text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider shrink-0">
                                 Or with email
                             </span>
                             <div className="border-t border-slate-200 w-full" />
                         </div>
 
                         {/* Form */}
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-3.5 sm:space-y-4">
                             
                             {/* Email Address */}
                             <div className="space-y-1.5">
@@ -560,12 +640,13 @@ export const Login: React.FC = () => {
                                 </label>
                                 <div className="relative flex items-center">
                                     <input 
+                                        id="admin-email-input"
                                         type="email"
                                         placeholder="admin@chutirmart.com"
                                         value={data.email}
                                         onChange={e => setData('email', e.target.value)}
                                         required
-                                        className={`w-full h-12 px-4 rounded-xl border ${
+                                        className={`w-full h-11 sm:h-12 px-3.5 sm:px-4 rounded-xl border ${
                                             errors.email ? 'border-[#E2231A] ring-2 ring-red-100' : 'border-slate-200'
                                         } bg-white text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#009E49] focus:ring-4 focus:ring-[#009E49]/10 transition-all`}
                                     />
@@ -665,6 +746,23 @@ export const Login: React.FC = () => {
 
                 </div>
 
+            </div>
+
+            {/* Floating Sticky Quick Action Popup on Mobile */}
+            <div className="fixed bottom-5 right-4 z-50 lg:hidden flex items-center shadow-lg rounded-full">
+                <button
+                    type="button"
+                    onClick={scrollToForm}
+                    aria-label="Scroll to admin login form"
+                    className="flex items-center gap-2 bg-gradient-to-r from-[#009E49] to-[#00803A] hover:from-[#00803A] hover:to-[#006830] text-white px-4 py-2.5 rounded-full shadow-[0_8px_25px_rgba(0,158,73,0.45)] border-2 border-white/50 active:scale-95 transition-all text-xs font-black font-bangla cursor-pointer"
+                >
+                    <span className="relative flex h-2.5 w-2.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-200"></span>
+                    </span>
+                    <span>লগইন / সাইন ইন ফর্ম</span>
+                    <ArrowDown className="w-3.5 h-3.5 stroke-[2.5] text-white" />
+                </button>
             </div>
         </div>
     );

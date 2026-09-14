@@ -40,7 +40,7 @@ class PathaoCourierService implements CourierServiceInterface
 
         return Cache::remember('pathao_access_token', 3600 * 24, function () {
             try {
-                $response = Http::post("{$this->baseUrl}/aladdin/api/v1/issue-token", [
+                $response = Http::withoutVerifying()->post("{$this->baseUrl}/aladdin/api/v1/issue-token", [
                     'client_id' => $this->clientId,
                     'client_secret' => $this->clientSecret,
                     'username' => $this->username,
@@ -86,7 +86,8 @@ class PathaoCourierService implements CourierServiceInterface
         ];
 
         try {
-            $response = Http::withToken($token)
+            $response = Http::withoutVerifying()
+                ->withToken($token)
                 ->timeout(20)
                 ->post("{$this->baseUrl}/aladdin/api/v1/orders", $payload);
 
@@ -127,7 +128,8 @@ class PathaoCourierService implements CourierServiceInterface
         }
 
         try {
-            $response = Http::withToken($token)
+            $response = Http::withoutVerifying()
+                ->withToken($token)
                 ->timeout(15)
                 ->get("{$this->baseUrl}/aladdin/api/v1/orders/{$order->consignment_id}/info");
 

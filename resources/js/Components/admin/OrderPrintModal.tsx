@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { usePage } from '@inertiajs/react';
 import { Printer, X, Phone, MapPin, Package, Calendar, Truck, Tag } from 'lucide-react';
 
 export interface OrderPrintData {
@@ -39,10 +40,29 @@ interface OrderPrintModalProps {
     autoPrint?: boolean;
 }
 
+const resolveLogoUrl = (settings?: any): string => {
+    const raw = settings?.site_logo || settings?.site_logo_mobile;
+    if (!raw) {
+        return typeof window !== 'undefined' ? `${window.location.origin}/storage/defaults/default-logo.svg` : '/storage/defaults/default-logo.svg';
+    }
+    if (typeof raw === 'string') {
+        if (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('data:')) {
+            return raw;
+        }
+        const cleaned = raw.startsWith('/') ? raw : `/${raw}`;
+        const withStorage = cleaned.startsWith('/storage') ? cleaned : `/storage${cleaned}`;
+        return typeof window !== 'undefined' ? `${window.location.origin}${withStorage}` : withStorage;
+    }
+    return '/storage/defaults/default-logo.svg';
+};
+
 /* ─────────────────────────────────────────────────────────────
  * Generate Self-Contained Clean HTML for Printing (100% Reliable)
  * ───────────────────────────────────────────────────────────── */
-const generateShippingLabelHtml = (orders: OrderPrintData[]): string => {
+const generateShippingLabelHtml = (orders: OrderPrintData[], settings?: any): string => {
+    const logoUrl = resolveLogoUrl(settings);
+    const siteName = settings?.site_name || 'ChutirMart';
+    const contactPhone = settings?.contact_phone || '01705105889';
     const labelsHtml = orders.map((order, index) => {
         const fullAddress = [order.address, order.thana, order.district].filter(Boolean).join(', ') || 'Address not provided';
         const formattedDate = new Date(order.created_at).toLocaleDateString('en-GB', {
@@ -78,8 +98,19 @@ const generateShippingLabelHtml = (orders: OrderPrintData[]): string => {
                     <!-- 1. Header: Brand & Order Info -->
                     <div class="card-header">
                         <div class="brand-info">
-                            <div class="brand-title">ছুটির মার্ট <span class="brand-en">ChutirMart</span></div>
-                            <div class="brand-sub">📞 01305-654884 | www.chutirmart.com</div>
+                            <div class="brand-logo-wrap">
+                                ${logoUrl ? `
+                                    <img src="${escapeHtml(logoUrl)}" alt="${escapeHtml(siteName)}" class="brand-logo" onerror="this.style.display='none'; var el=document.getElementById('print-brand-fallback-${index}'); if(el) el.style.display='flex';" />
+                                    <div id="print-brand-fallback-${index}" class="brand-title" style="display:none;">
+                                        ছুটির মার্ট <span class="brand-en">${escapeHtml(siteName)}</span>
+                                    </div>
+                                ` : `
+                                    <div class="brand-title">
+                                        ছুটির মার্ট <span class="brand-en">${escapeHtml(siteName)}</span>
+                                    </div>
+                                `}
+                            </div>
+                            <div class="brand-sub">📞 ${escapeHtml(contactPhone)} | www.chutirmart.com</div>
                         </div>
                         <div class="order-badge-col">
                             <div class="badge-label">SHIPPING LABEL</div>
@@ -190,6 +221,19 @@ const generateShippingLabelHtml = (orders: OrderPrintData[]): string => {
                     border-bottom: 2px solid #0f172a;
                     padding-bottom: 6px;
                     margin-bottom: 8px;
+                }
+                .brand-logo-wrap {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 2px;
+                }
+                .brand-logo {
+                    height: 34px;
+                    max-height: 36px;
+                    width: auto;
+                    max-width: 150px;
+                    object-fit: contain;
+                    display: block;
                 }
                 .brand-title {
                     font-size: 16px;
@@ -473,10 +517,10 @@ function escapeHtml(str: string): string {
 /* ─────────────────────────────────────────────────────────────
  * Reliable Iframe-Based Printing (No Blank Pages)
  * ───────────────────────────────────────────────────────────── */
-export const printShippingLabels = (orders: OrderPrintData[]) => {
+export const printShippingLabels = (orders: OrderPrintData[], settings?: any) => {
     if (!orders || orders.length === 0) return;
 
-    const html = generateShippingLabelHtml(orders);
+    const html = generateShippingLabelHtml(orders, settings);
     const iframeId = 'chutirmart-shipping-label-frame';
     let iframe = document.getElementById(iframeId) as HTMLIFrameElement | null;
 
@@ -504,8 +548,7 @@ export const printShippingLabels = (orders: OrderPrintData[]) => {
     doc.write(html);
     doc.close();
 
-    // Trigger print after iframe renders document
-    setTimeout(() => {
+    const triggerPrint = () => {
         try {
             iframe?.contentWindow?.focus();
             iframe?.contentWindow?.print();
@@ -513,7 +556,35 @@ export const printShippingLabels = (orders: OrderPrintData[]) => {
             console.error('Iframe print error fallback to window.print:', e);
             window.print();
         }
-    }, 180);
+    };
+
+    // Wait for images to load in iframe before triggering print
+    const images = iframe.contentDocument?.images;
+    if (images && images.length > 0) {
+        let loaded = 0;
+        const total = images.length;
+        const checkDone = () => {
+            loaded++;
+            if (loaded >= total) {
+                triggerPrint();
+            }
+        };
+        for (let i = 0; i < total; i++) {
+            if (images[i].complete) {
+                loaded++;
+            } else {
+                images[i].onload = checkDone;
+                images[i].onerror = checkDone;
+            }
+        }
+        if (loaded >= total) {
+            setTimeout(triggerPrint, 150);
+        } else {
+            setTimeout(triggerPrint, 800);
+        }
+    } else {
+        setTimeout(triggerPrint, 200);
+    }
 };
 
 /* ─────────────────────────────────────────────────────────────
@@ -525,20 +596,24 @@ export const OrderPrintModal: React.FC<OrderPrintModalProps> = ({
     onClose,
     autoPrint = false,
 }) => {
+    const { store_settings } = usePage().props as any;
+    const logoUrl = resolveLogoUrl(store_settings);
+    const siteName = store_settings?.site_name || 'ChutirMart';
+    const contactPhone = store_settings?.contact_phone || '01705105889';
     const hasAutoPrinted = useRef(false);
 
     useEffect(() => {
         if (isOpen && autoPrint && orders.length > 0 && !hasAutoPrinted.current) {
             hasAutoPrinted.current = true;
             const timer = setTimeout(() => {
-                printShippingLabels(orders);
+                printShippingLabels(orders, store_settings);
             }, 300);
             return () => clearTimeout(timer);
         }
         if (!isOpen) {
             hasAutoPrinted.current = false;
         }
-    }, [isOpen, autoPrint, orders]);
+    }, [isOpen, autoPrint, orders, store_settings]);
 
     // Handle ESC key
     useEffect(() => {
@@ -554,7 +629,7 @@ export const OrderPrintModal: React.FC<OrderPrintModalProps> = ({
     if (!isOpen || orders.length === 0) return null;
 
     const handlePrintClick = () => {
-        printShippingLabels(orders);
+        printShippingLabels(orders, store_settings);
     };
 
     return (
@@ -615,16 +690,31 @@ export const OrderPrintModal: React.FC<OrderPrintModalProps> = ({
                             >
                                 {/* Header */}
                                 <div className="flex items-start justify-between border-b-2 border-slate-900 pb-2 mb-2.5">
-                                    <div>
-                                        <div className="flex items-baseline gap-1.5">
-                                            <span className="text-[16px] font-black text-[#009E49] tracking-tight">ছুটির মার্ট</span>
-                                            <span className="text-[12px] font-bold text-slate-700">ChutirMart</span>
+                                    <div className="flex flex-col items-start gap-1">
+                                        <div className="flex items-center gap-2">
+                                            {logoUrl ? (
+                                                <img 
+                                                    src={logoUrl} 
+                                                    alt={siteName} 
+                                                    className="h-8 sm:h-9 w-auto max-w-[150px] object-contain shrink-0" 
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.style.display = 'none';
+                                                        const fallbackEl = document.getElementById(`preview-brand-fallback-${order.id || idx}`);
+                                                        if (fallbackEl) fallbackEl.style.display = 'flex';
+                                                    }}
+                                                />
+                                            ) : null}
+                                            <div id={`preview-brand-fallback-${order.id || idx}`} className={`items-baseline gap-1.5 ${logoUrl ? 'hidden' : 'flex'}`}>
+                                                <span className="text-[16px] font-black text-[#009E49] tracking-tight">ছুটির মার্ট</span>
+                                                <span className="text-[12px] font-bold text-slate-700">{siteName}</span>
+                                            </div>
                                         </div>
                                         <p className="text-[10px] text-slate-500 font-medium">
-                                            📞 01305-654884 | www.chutirmart.com
+                                            📞 {contactPhone} | www.chutirmart.com
                                         </p>
                                     </div>
-                                    <div className="text-right">
+                                    <div className="text-right shrink-0">
                                         <span className="inline-block px-2 py-0.5 bg-slate-900 text-white font-black text-[9px] uppercase tracking-wider rounded">
                                             SHIPPING LABEL
                                         </span>

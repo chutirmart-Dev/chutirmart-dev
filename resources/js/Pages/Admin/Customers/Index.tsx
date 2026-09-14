@@ -270,8 +270,8 @@ export const Index: React.FC<IndexProps> = ({ customers, filters }) => {
                 {/* ── Table ── */}
                 <AdminCard className="overflow-hidden">
                     <div className="flex items-center justify-between px-6 py-4 border-b border-[#EBEDF2]">
-                        <h3 className="text-[15px] font-black text-[#1A1A2E]">Customer List</h3>
-                        <span className="text-[12px] text-[#9096B0] bg-[#F7F8FA] px-3 py-1 rounded-full font-semibold">
+                        <h3 className="text-[16px] sm:text-[18px] font-black text-[#1A1A2E]">Customer List</h3>
+                        <span className="text-[13px] text-[#64748B] bg-[#F7F8FA] px-3.5 py-1 rounded-full font-bold">
                             {customers.total} customers
                         </span>
                     </div>
@@ -281,7 +281,7 @@ export const Index: React.FC<IndexProps> = ({ customers, filters }) => {
                             <thead>
                                 <tr className="border-b border-[#EBEDF2] bg-[#F7F8FA]">
                                     {['Customer', 'Contact', 'Orders', 'Complete', 'Cancelled', 'Total Spent', 'History'].map(h => (
-                                        <th key={h} className="text-left text-[11px] font-bold text-[#9096B0] uppercase tracking-wider px-5 py-3.5 whitespace-nowrap">
+                                        <th key={h} className="text-left text-[12px] sm:text-[13px] font-extrabold text-[#64748B] uppercase tracking-wider px-6 py-4 whitespace-nowrap">
                                             {h}
                                         </th>
                                     ))}
@@ -292,21 +292,21 @@ export const Index: React.FC<IndexProps> = ({ customers, filters }) => {
                                     <tr>
                                         <td colSpan={7} className="text-center py-20 text-[#9096B0]">
                                             <Users className="w-12 h-12 mx-auto mb-3 text-[#EBEDF2]" />
-                                            <p className="text-[15px] font-semibold">কোনো কাস্টমার পাওয়া যায়নি</p>
+                                            <p className="text-[16px] font-semibold">কোনো কাস্টমার পাওয়া যায়নি</p>
                                         </td>
                                     </tr>
                                 ) : customers.data.map(c => (
                                     <tr key={c.id} className="border-b border-[#F7F8FA] hover:bg-[#FAFBFC] transition-colors">
 
                                         {/* Customer Name */}
-                                        <td className="px-5 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#009E49] to-[#00C95F] text-white flex items-center justify-center font-black text-[14px] shrink-0 shadow-sm shadow-[#009E49]/20">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-3.5">
+                                                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-[#009E49] to-[#00C95F] text-white flex items-center justify-center font-black text-[15px] shrink-0 shadow-sm shadow-[#009E49]/20">
                                                     {c.name?.charAt(0).toUpperCase() || 'C'}
                                                 </div>
                                                 <div>
-                                                    <p className="text-[14px] font-bold text-[#1A1A2E]">{c.name}</p>
-                                                    <p className="text-[11px] text-gray-400">
+                                                    <p className="text-[15px] sm:text-[16px] font-black text-[#1A1A2E]">{c.name}</p>
+                                                    <p className="text-[12px] text-gray-400 mt-0.5">
                                                         {new Date(c.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
                                                     </p>
                                                 </div>
@@ -314,81 +314,81 @@ export const Index: React.FC<IndexProps> = ({ customers, filters }) => {
                                         </td>
 
                                         {/* Contact */}
-                                        <td className="px-5 py-4">
+                                        <td className="px-6 py-4">
                                             <div className="space-y-1">
                                                 {c.mobile && (
-                                                    <div className="flex items-center gap-1.5 text-[12px] font-mono font-semibold text-[#555E7A]">
-                                                        <Phone className="w-3 h-3 text-[#009E49]" /> {c.mobile}
+                                                    <div className="flex items-center gap-1.5 text-[13px] sm:text-[14px] font-mono font-bold text-[#3B4256]">
+                                                        <Phone className="w-3.5 h-3.5 text-[#009E49]" /> {c.mobile}
                                                     </div>
                                                 )}
                                                 {c.email && (
-                                                    <div className="flex items-center gap-1.5 text-[12px] text-[#9096B0]">
-                                                        <Mail className="w-3 h-3 text-gray-300" /> {c.email}
+                                                    <div className="flex items-center gap-1.5 text-[12.5px] sm:text-[13px] text-[#64748B]">
+                                                        <Mail className="w-3.5 h-3.5 text-gray-400" /> {c.email}
                                                     </div>
                                                 )}
                                                 {c.district && (
-                                                    <div className="flex items-center gap-1.5 text-[11px] text-[#9096B0]">
-                                                        <MapPin className="w-3 h-3 text-gray-300" /> {c.district}
+                                                    <div className="flex items-center gap-1.5 text-[12px] sm:text-[12.5px] text-[#64748B]">
+                                                        <MapPin className="w-3.5 h-3.5 text-gray-400" /> {c.district}
                                                     </div>
                                                 )}
                                             </div>
                                         </td>
 
                                         {/* Total Orders */}
-                                        <td className="px-5 py-4">
-                                            <div className="flex items-center gap-1.5">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
                                                 <div className="w-8 h-8 rounded-xl bg-[#009E49]/10 flex items-center justify-center">
-                                                    <ShoppingBag className="w-3.5 h-3.5 text-[#009E49]" />
+                                                    <ShoppingBag className="w-4 h-4 text-[#009E49]" />
                                                 </div>
-                                                <span className="text-[15px] font-black text-[#1A1A2E]">{c.orders_count ?? 0}</span>
+                                                <span className="text-[16px] sm:text-[17px] font-black text-[#1A1A2E]">{c.orders_count ?? 0}</span>
                                             </div>
                                         </td>
 
                                         {/* Completed */}
-                                        <td className="px-5 py-4">
-                                            <div className="flex items-center gap-1.5">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
                                                 <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center">
-                                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                                                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                                                 </div>
-                                                <span className="text-[15px] font-black text-emerald-600">{c.complete_orders ?? 0}</span>
+                                                <span className="text-[16px] sm:text-[17px] font-black text-emerald-600">{c.complete_orders ?? 0}</span>
                                             </div>
                                         </td>
 
                                         {/* Cancelled */}
-                                        <td className="px-5 py-4">
-                                            <div className="flex items-center gap-1.5">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
                                                 <div className="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center">
-                                                    <XCircle className="w-3.5 h-3.5 text-red-400" />
+                                                    <XCircle className="w-4 h-4 text-red-400" />
                                                 </div>
-                                                <span className="text-[15px] font-black text-red-500">{c.cancelled_orders ?? 0}</span>
+                                                <span className="text-[16px] sm:text-[17px] font-black text-red-500">{c.cancelled_orders ?? 0}</span>
                                             </div>
                                         </td>
 
                                         {/* Total Spent */}
-                                        <td className="px-5 py-4">
-                                            <span className="text-[15px] font-black text-[#1A1A2E]">৳{Number(c.total_spent ?? 0).toLocaleString()}</span>
+                                        <td className="px-6 py-4">
+                                            <span className="text-[16px] sm:text-[17px] font-black text-[#1A1A2E]">৳{Number(c.total_spent ?? 0).toLocaleString()}</span>
                                         </td>
 
                                         {/* History Button */}
-                                        <td className="px-5 py-4">
+                                        <td className="px-6 py-4">
                                             <button
                                                 type="button"
                                                 onClick={() => setSelectedCustomer(c)}
                                                 className="
                                                     flex items-center gap-1.5 h-9 px-3.5 rounded-xl
                                                     bg-white border-2 border-[#009E49]/25
-                                                    text-[#009E49] text-[11px] font-black
+                                                    text-[#009E49] text-[12px] sm:text-[13px] font-black
                                                     shadow-[0_2px_8px_rgba(0,158,73,0.1)]
                                                     hover:bg-[#009E49] hover:text-white hover:border-[#009E49]
                                                     hover:shadow-[0_4px_12px_rgba(0,158,73,0.3)]
                                                     transition-all duration-150
-                                                    cursor-pointer whitespace-nowrap border-none
+                                                    cursor-pointer whitespace-nowrap
                                                 "
                                                 title="অর্ডার হিস্ট্রি দেখুন"
                                             >
-                                                <History className="w-3.5 h-3.5" />
+                                                <History className="w-4 h-4" />
                                                 <span>History</span>
-                                                <ChevronRight className="w-3 h-3 opacity-60" />
+                                                <ChevronRight className="w-3.5 h-3.5" />
                                             </button>
                                         </td>
                                     </tr>

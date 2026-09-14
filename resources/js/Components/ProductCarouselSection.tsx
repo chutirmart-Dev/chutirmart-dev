@@ -102,24 +102,49 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
     return (
         <section className="container py-3 sm:py-6">
             {/* Header matching Reference Image with full-width line & branding color active bar */}
-            <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex items-center justify-between">
+            <div className="relative border-b border-gray-200/90 pb-2 sm:pb-3 mb-3.5 sm:mb-6 flex flex-wrap items-center justify-between gap-y-1.5 gap-x-2">
                 <div className="relative">
-                    <h2 className="text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
-                        {icon && <span className="text-base sm:text-lg">{icon}</span>}
+                    <h2 className="text-sm xs:text-[15px] sm:text-lg md:text-xl font-bold text-gray-900 flex items-center gap-1.5 sm:gap-2 tracking-tight font-bangla">
+                        {icon && <span className="text-sm sm:text-lg">{icon}</span>}
                         <span>{title}</span>
                     </h2>
                     {/* Brand Color Underline Accent */}
-                    <div className="absolute -bottom-2.5 sm:-bottom-3 left-0 h-[3px] w-10 sm:w-12 bg-[#009E49] rounded-full" />
+                    <div className="absolute -bottom-2 sm:-bottom-2.5 md:-bottom-3 left-0 h-[2.5px] sm:h-[3px] w-8 sm:w-12 bg-[#009E49] rounded-full" />
                 </div>
-                {viewAllHref && (
-                    <Link
-                        href={viewAllHref}
-                        className="text-xs sm:text-[13px] font-bold text-[#009E49] hover:text-[#008038] tracking-wide uppercase flex items-center gap-1 sm:gap-1.5 transition-colors group font-latin"
-                    >
-                        <span>VIEW ALL PRODUCTS</span>
-                        <span className="text-sm sm:text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
-                    </Link>
-                )}
+                
+                <div className="flex items-center gap-2.5 sm:gap-3.5 ml-auto">
+                    {/* Prev/Next arrows in header — Clean and never blocks product cards */}
+                    {canSlide && (
+                        <div className="hidden md:flex items-center gap-1.5">
+                            <button
+                                type="button"
+                                onClick={handlePrev}
+                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-200 bg-white hover:bg-[#009E49] hover:text-white hover:border-[#009E49] flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95 text-gray-700"
+                                aria-label="Previous products"
+                            >
+                                <ChevronLeft className="w-4 h-4 stroke-[2.2]" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleNext}
+                                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-200 bg-white hover:bg-[#009E49] hover:text-white hover:border-[#009E49] flex items-center justify-center transition-all cursor-pointer shadow-2xs active:scale-95 text-gray-700"
+                                aria-label="Next products"
+                            >
+                                <ChevronRight className="w-4 h-4 stroke-[2.2]" />
+                            </button>
+                        </div>
+                    )}
+
+                    {viewAllHref && (
+                        <Link
+                            href={viewAllHref}
+                            className="text-[11px] xs:text-xs sm:text-[13px] font-bold text-[#009E49] hover:text-[#008038] tracking-wide uppercase flex items-center gap-1 sm:gap-1.5 transition-colors group font-latin"
+                        >
+                            <span>VIEW ALL PRODUCTS</span>
+                            <span className="text-xs sm:text-base transition-transform duration-200 group-hover:translate-x-1">→</span>
+                        </Link>
+                    )}
+                </div>
             </div>
 
             {/* Carousel Container */}
@@ -148,28 +173,6 @@ export const ProductCarouselSection: React.FC<ProductCarouselSectionProps> = ({
                             </CarouselItem>
                         ))}
                     </CarouselContent>
-
-                    {/* Side navigation arrows in Branding Color (Desktop Only - Mobile swipes natively) */}
-                    {canSlide && (
-                        <>
-                            <button
-                                type="button"
-                                onClick={handlePrev}
-                                className="hidden md:flex absolute -left-2 sm:-left-3 md:-left-4 lg:-left-5 top-[35%] -translate-y-1/2 z-30 bg-[#009E49] hover:bg-[#008038] active:scale-90 text-white border-2 border-white shadow-md hover:shadow-lg w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full cursor-pointer transition-all items-center justify-center touch-manipulation select-none"
-                                aria-label="Previous slide"
-                            >
-                                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleNext}
-                                className="hidden md:flex absolute -right-2 sm:-right-3 md:-right-4 lg:-right-5 top-[35%] -translate-y-1/2 z-30 bg-[#009E49] hover:bg-[#008038] active:scale-90 text-white border-2 border-white shadow-md hover:shadow-lg w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full cursor-pointer transition-all items-center justify-center touch-manipulation select-none"
-                                aria-label="Next slide"
-                            >
-                                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
-                            </button>
-                        </>
-                    )}
                 </Carousel>
 
                 {/* Bottom slider dots in Branding Color */}

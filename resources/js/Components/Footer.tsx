@@ -195,7 +195,7 @@ export const Footer: React.FC = () => {
             </div>
 
             {/* Mobile View with Enhanced Accordion */}
-            <div className="container md:hidden px-4 space-y-4">
+            <div className="container md:hidden space-y-4">
                 {/* Mobile Logo & Tagline */}
                 <div>
                     <Link href={route('home')} className="flex items-start shrink-0 select-none no-underline">

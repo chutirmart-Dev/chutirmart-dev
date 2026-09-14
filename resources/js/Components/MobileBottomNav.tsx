@@ -29,40 +29,40 @@ export const MobileBottomNav: React.FC = () => {
     return (
         <>
             <nav 
-                className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200/80 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] flex items-center justify-around py-1 px-1" 
+                className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200/80 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] flex items-center justify-around py-0.5 xs:py-1 px-0.5 xs:px-1" 
                 style={{ paddingBottom: 'max(0.35rem, env(safe-area-inset-bottom, 6px))' }}
             >
                 {/* Home */}
                 <Link 
                     href={route('home')} 
                     prefetch 
-                    className={`flex-1 flex flex-col items-center justify-center py-1 transition-all active:scale-90 ${isHome ? 'text-[#009E49] font-bold' : 'text-gray-500 hover:text-gray-900'}`}
+                    className={`flex-1 flex flex-col items-center justify-center py-0.5 xs:py-1 transition-all active:scale-90 ${isHome ? 'text-[#009E49] font-bold' : 'text-gray-500 hover:text-gray-900'}`}
                 >
-                    <Home className={`w-4.5 h-4.5 xs:w-5 xs:h-5 stroke-[2] ${isHome ? 'text-[#009E49]' : ''}`} />
-                    <span className="text-[9px] xs:text-[10px] mt-0.5 font-semibold font-bangla leading-none">হোম</span>
+                    <Home className={`w-3.5 h-3.5 xs:w-4.5 xs:h-4.5 stroke-[2] ${isHome ? 'text-[#009E49]' : ''}`} />
+                    <span className="text-[8px] xs:text-[9.5px] mt-0.5 font-semibold font-bangla leading-none">হোম</span>
                 </Link>
 
                 {/* Shop */}
                 <Link 
                     href={route('shop')} 
                     prefetch 
-                    className={`flex-1 flex flex-col items-center justify-center py-1 transition-all active:scale-90 ${isShop ? 'text-[#009E49] font-bold' : 'text-gray-500 hover:text-gray-900'}`}
+                    className={`flex-1 flex flex-col items-center justify-center py-0.5 xs:py-1 transition-all active:scale-90 ${isShop ? 'text-[#009E49] font-bold' : 'text-gray-500 hover:text-gray-900'}`}
                 >
-                    <Store className={`w-4.5 h-4.5 xs:w-5 xs:h-5 stroke-[2] ${isShop ? 'text-[#009E49]' : ''}`} />
-                    <span className="text-[9px] xs:text-[10px] mt-0.5 font-semibold font-bangla leading-none">শপ</span>
+                    <Store className={`w-3.5 h-3.5 xs:w-4.5 xs:h-4.5 stroke-[2] ${isShop ? 'text-[#009E49]' : ''}`} />
+                    <span className="text-[8px] xs:text-[9.5px] mt-0.5 font-semibold font-bangla leading-none">শপ</span>
                 </Link>
 
                 {/* Cart (Elevated Center) */}
-                <div className="relative -top-3.5 sm:-top-4 shrink-0 px-1">
+                <div className="relative -top-2.5 xs:-top-3.5 sm:-top-4 shrink-0 px-0.5 xs:px-1">
                     <button 
                         onClick={() => setIsCartOpen(true)}
                         type="button"
-                        className="w-12 h-12 xs:w-13 xs:h-13 rounded-full bg-[#E2231A] text-white flex items-center justify-center shadow-lg shadow-red-500/30 border-[3px] border-white active:scale-90 transition-transform cursor-pointer focus:outline-none"
+                        className="w-10 h-10 xs:w-12 xs:h-12 rounded-full bg-[#E2231A] text-white flex items-center justify-center shadow-lg shadow-red-500/30 border-2 xs:border-[3px] border-white active:scale-90 transition-transform cursor-pointer focus:outline-none"
                         aria-label="View shopping cart"
                     >
-                        <ShoppingCart className="w-5 h-5 xs:w-5.5 xs:h-5.5 stroke-[2.2]" />
+                        <ShoppingCart className="w-4 h-4 xs:w-5 xs:h-5 stroke-[2.2]" />
                         {cartCount > 0 && (
-                            <span className="absolute -top-0.5 -right-0.5 bg-[#009E49] text-white text-[9px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border-2 border-white shadow-2xs font-latin">
+                            <span className="absolute -top-0.5 -right-0.5 bg-[#009E49] text-white text-[8px] xs:text-[9px] font-black w-3.5 h-3.5 xs:w-4.5 xs:h-4.5 rounded-full flex items-center justify-center border xs:border-2 border-white shadow-2xs font-latin">
                                 {cartCount}
                             </span>
                         )}
@@ -73,20 +73,20 @@ export const MobileBottomNav: React.FC = () => {
                 <button 
                     onClick={() => setIsTrackOpen(true)}
                     type="button"
-                    className="flex-1 flex flex-col items-center justify-center py-1 text-gray-500 hover:text-gray-900 focus:outline-none active:scale-90 transition-all cursor-pointer"
+                    className="flex-1 flex flex-col items-center justify-center py-0.5 xs:py-1 text-gray-500 hover:text-gray-900 focus:outline-none active:scale-90 transition-all cursor-pointer"
                 >
-                    <Box className="w-4.5 h-4.5 xs:w-5 xs:h-5 stroke-[2]" />
-                    <span className="text-[9px] xs:text-[10px] mt-0.5 font-semibold font-bangla leading-none">ট্র্যাকিং</span>
+                    <Box className="w-3.5 h-3.5 xs:w-4.5 xs:h-4.5 stroke-[2]" />
+                    <span className="text-[8px] xs:text-[9.5px] mt-0.5 font-semibold font-bangla leading-none">ট্র্যাকিং</span>
                 </button>
 
                 {/* Menu */}
                 <button 
                     onClick={() => setIsMenuOpen(true)}
                     type="button"
-                    className="flex-1 flex flex-col items-center justify-center py-1 text-gray-500 hover:text-gray-900 focus:outline-none active:scale-90 transition-all cursor-pointer"
+                    className="flex-1 flex flex-col items-center justify-center py-0.5 xs:py-1 text-gray-500 hover:text-gray-900 focus:outline-none active:scale-90 transition-all cursor-pointer"
                 >
-                    <Menu className="w-4.5 h-4.5 xs:w-5 xs:h-5 stroke-[2]" />
-                    <span className="text-[9px] xs:text-[10px] mt-0.5 font-semibold font-bangla leading-none">মেনু</span>
+                    <Menu className="w-3.5 h-3.5 xs:w-4.5 xs:h-4.5 stroke-[2]" />
+                    <span className="text-[8px] xs:text-[9.5px] mt-0.5 font-semibold font-bangla leading-none">মেনু</span>
                 </button>
             </nav>
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminAttributeController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminCourierController;
 use App\Http\Controllers\AdminCustomerController;
+use App\Http\Controllers\AdminFileManagerController;
 use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\AdminProductController;
 use App\Http\Controllers\AdminSearchController;
@@ -108,9 +109,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/products/{id}/toggle-featured', [AdminProductController::class, 'toggleFeatured'])->name('products.toggle-featured');
         Route::post('/products/{id}/toggle-status', [AdminProductController::class, 'toggleStatus'])->name('products.toggle-status');
 
-        // Reviews approval
+        // Reviews Management (Full CRUD & Homepage Control)
         Route::get('/reviews', [AdminProductController::class, 'reviews'])->name('reviews.index');
-        Route::put('/reviews/{id}', [AdminProductController::class, 'updateReviewStatus'])->name('reviews.update');
+        Route::post('/reviews', [AdminProductController::class, 'storeReview'])->name('reviews.store');
+        Route::put('/reviews/{id}', [AdminProductController::class, 'updateReview'])->name('reviews.update');
+        Route::delete('/reviews/{id}', [AdminProductController::class, 'destroyReview'])->name('reviews.destroy');
+        Route::post('/reviews/{id}/toggle-home', [AdminProductController::class, 'toggleReviewHome'])->name('reviews.toggle-home');
+        Route::post('/reviews/{id}/toggle-status', [AdminProductController::class, 'toggleReviewStatus'])->name('reviews.toggle-status');
 
         // Taxonomies CRUD (Brands, Categories, Tags, Attributes)
         Route::get('/brands', [AdminTaxonomyController::class, 'brands'])->name('brands.index');
@@ -176,6 +181,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/banners', [AdminStoreController::class, 'storeBanner'])->name('banners.store');
         Route::put('/banners/{id}', [AdminStoreController::class, 'updateBanner'])->name('banners.update');
         Route::delete('/banners/{id}', [AdminStoreController::class, 'destroyBanner'])->name('banners.destroy');
+
+        // File Manager (WordPress-style Media Library)
+        Route::get('/file-manager', [AdminFileManagerController::class, 'index'])->name('file-manager.index');
+        Route::post('/file-manager/upload', [AdminFileManagerController::class, 'upload'])->name('file-manager.upload');
+        Route::delete('/file-manager/delete', [AdminFileManagerController::class, 'destroy'])->name('file-manager.destroy');
+        Route::post('/file-manager/bulk-delete', [AdminFileManagerController::class, 'bulkDestroy'])->name('file-manager.bulk-destroy');
 
         Route::get('/landing-pages', [AdminStoreController::class, 'landingPages'])->name('landing-pages.index');
         Route::get('/landing-pages/create', [AdminStoreController::class, 'createLandingPage'])->name('landing-pages.create');

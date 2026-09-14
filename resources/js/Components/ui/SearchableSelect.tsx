@@ -8,6 +8,7 @@ export interface Option {
 }
 
 interface SearchableSelectProps {
+    id?: string;
     options: Option[];
     value: string | number;
     onChange: (value: string) => void;
@@ -23,6 +24,7 @@ interface SearchableSelectProps {
 }
 
 export const SearchableSelect: React.FC<SearchableSelectProps> = ({
+    id,
     options,
     value,
     onChange,
@@ -94,18 +96,19 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                         onDisabledClick();
                     }
                 }}
-                className={`w-full h-13 sm:h-14 px-3.5 sm:px-4 rounded-lg border flex items-center justify-between gap-2.5 transition-all cursor-pointer select-none bg-white shadow-xs ${
-                    disabled ? 'opacity-50 cursor-not-allowed bg-gray-50 border-gray-200' : ''
+                id={id}
+                className={`w-full h-13 sm:h-14 px-3.5 sm:px-4 rounded-lg border-2 flex items-center justify-between gap-2.5 transition-all cursor-pointer select-none bg-white shadow-xs ${
+                    disabled ? 'opacity-60 cursor-not-allowed bg-gray-50 border-gray-200' : ''
                 } ${
                     isOpen 
                         ? 'border-[#009E49] ring-4 ring-[#009E49]/12 shadow-sm' 
                         : error 
-                            ? 'border-red-500 bg-red-50/20 ring-2 ring-red-500/10' 
+                            ? 'border-[#E2231A] bg-red-50/25 ring-4 ring-[#E2231A]/15' 
                             : 'border-gray-300 hover:border-gray-400'
                 }`}
             >
                 <div className="flex-1 flex items-center gap-2.5 min-w-0">
-                    {icon && <div className="text-gray-400 shrink-0 pointer-events-none">{icon}</div>}
+                    {icon && <div className={`${error ? 'text-[#E2231A]' : 'text-gray-400'} shrink-0 pointer-events-none transition-colors`}>{icon}</div>}
                     {isOpen ? (
                         <div className="flex-1 flex items-center gap-2 min-w-0" onClick={e => e.stopPropagation()}>
                             <Search className="w-4.5 h-4.5 text-gray-400 shrink-0" />
@@ -141,17 +144,17 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                             )}
                         </div>
                     ) : (
-                        <span className={`text-base sm:text-[16.5px] truncate font-bangla ${selectedOption || value ? 'text-gray-900 font-semibold' : 'text-gray-400 font-normal'}`}>
+                        <span className={`text-base sm:text-[16.5px] truncate font-bangla ${selectedOption || value ? 'text-gray-900 font-semibold' : error ? 'text-red-700/80 font-normal' : 'text-gray-400 font-normal'}`}>
                             {selectedOption ? selectedOption.label : (value ? String(value) : placeholder)}
                         </span>
                     )}
                 </div>
 
-                <div className="text-gray-400 shrink-0 ml-1">
+                <div className="shrink-0 ml-1">
                     {isOpen ? (
                         <ChevronUp className="w-5 h-5 text-[#009E49]" />
                     ) : (
-                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                        <ChevronDown className={`w-5 h-5 ${error ? 'text-[#E2231A]' : 'text-gray-400'} transition-colors`} />
                     )}
                 </div>
             </div>

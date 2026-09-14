@@ -3,6 +3,7 @@ import { Head, useForm } from '@inertiajs/react';
 import AdminLayout from '@/layouts/AdminLayout';
 import { AdminCard, PageHeader, SaveBtn, AdminInput, FieldLabel } from '@/components/admin/ui';
 import { CourierSelect } from '@/components/admin/CourierSelect';
+import { PurchaseTriggerSelect } from '@/components/admin/PurchaseTriggerSelect';
 import { 
     Save, Facebook, Truck, MessageSquare, ShieldCheck, 
     CheckCircle2, AlertCircle, RefreshCw, Key, ExternalLink, 
@@ -200,15 +201,15 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
                 {/* ─────────────────────────────────────────────────────────────
                  * COURIER INTEGRATIONS HUB
                  * ───────────────────────────────────────────────────────────── */}
-                <AdminCard className="p-6 border-2 border-emerald-500/20 bg-gradient-to-b from-white to-[#F9FDFB]">
+                <AdminCard className="p-5 sm:p-7 border-2 border-emerald-500/20 bg-gradient-to-b from-white to-[#F9FDFB]">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-[#E6F5EC]">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-2xl bg-[#009E49] text-white flex items-center justify-center shadow-md">
-                                <Truck className="w-5 h-5" />
+                        <div className="flex items-center gap-3.5">
+                            <div className="w-12 h-12 rounded-2xl bg-[#009E49] text-white flex items-center justify-center shadow-md">
+                                <Truck className="w-6 h-6" />
                             </div>
                             <div>
-                                <h3 className="text-base font-black text-[#1A1A2E]">Universal Courier Integration Hub</h3>
-                                <p className="text-xs text-gray-400 font-semibold">1-Click parcel booking, automatic consignment generation, and real-time status tracking.</p>
+                                <h3 className="text-lg sm:text-xl font-black text-[#1A1A2E]">Universal Courier Integration Hub</h3>
+                                <p className="text-xs sm:text-[13.5px] text-slate-500 font-medium mt-0.5">1-Click parcel booking, automatic consignment generation, and real-time status tracking.</p>
                             </div>
                         </div>
 
@@ -230,15 +231,15 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
                                 key={c.id}
                                 type="button"
                                 onClick={() => setActiveCourierTab(c.id)}
-                                className={`px-4 py-2.5 rounded-xl text-xs font-black whitespace-nowrap transition-all flex items-center gap-2 border-none cursor-pointer ${
+                                className={`px-4.5 py-3 rounded-xl text-xs sm:text-[13.5px] font-black whitespace-nowrap transition-all flex items-center gap-2 border-none cursor-pointer ${
                                     activeCourierTab === c.id 
                                         ? 'bg-[#009E49] text-white shadow-sm' 
-                                        : 'bg-gray-100/80 hover:bg-gray-200/80 text-gray-600'
+                                        : 'bg-gray-100/80 hover:bg-gray-200/80 text-gray-700'
                                 }`}
                             >
                                 <span>{c.name}</span>
                                 {data.default_courier === c.id && (
-                                    <span className={`text-[9px] px-1.5 py-0.5 rounded-md font-bold ${
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-md font-bold ${
                                         activeCourierTab === c.id ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'
                                     }`}>
                                         DEFAULT
@@ -577,17 +578,17 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
                 {/* ─────────────────────────────────────────────────────────────
                  * FACEBOOK PIXEL & CAPI
                  * ───────────────────────────────────────────────────────────── */}
-                <AdminCard className="p-6">
-                    <div className="flex items-center gap-3 mb-5 pb-3 border-b border-[#E6F5EC]">
-                        <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                            <Facebook className="w-5 h-5" />
+                <AdminCard className="p-5 sm:p-7">
+                    <div className="flex items-center gap-3.5 mb-6 pb-4 border-b border-[#E6F5EC]">
+                        <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                            <Facebook className="w-6 h-6" />
                         </div>
                         <div>
-                            <h3 className="text-sm font-black text-[#1A1A2E]">Meta Facebook Pixel & Conversions API</h3>
-                            <p className="text-[10px] text-gray-400 font-bold">Track purchase events and optimize Facebook / Instagram ads ROI.</p>
+                            <h3 className="text-base sm:text-lg font-black text-[#1A1A2E]">Meta Facebook Pixel & Conversions API</h3>
+                            <p className="text-xs sm:text-[13px] text-slate-500 font-medium mt-0.5">Track purchase events and optimize Facebook / Instagram ads ROI.</p>
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
                             <FieldLabel>Facebook Pixel ID</FieldLabel>
                             <AdminInput 
@@ -612,20 +613,20 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
                                 value={data.facebook_test_event_code} 
                                 onChange={e => setData('facebook_test_event_code', e.target.value)} 
                             />
-                            <p className="text-[10px] text-gray-400 mt-1">Leave empty in production so events register as live conversions.</p>
+                            <p className="text-xs sm:text-[12.5px] text-slate-500 mt-1.5 font-medium">Leave empty in production so events register as live conversions.</p>
                         </div>
                         <div>
                             <FieldLabel>Purchase Event ট্রিগার মোড (Trigger Mode)</FieldLabel>
-                            <select
+                            <PurchaseTriggerSelect
                                 value={data.facebook_purchase_trigger}
-                                onChange={e => setData('facebook_purchase_trigger', e.target.value)}
-                                className="w-full h-11 px-3.5 bg-gray-50/50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:bg-white focus:border-[#009E49] focus:ring-2 focus:ring-[#009E49]/10 outline-none transition-all font-bangla"
-                            >
-                                <option value="admin_confirmed">অ্যাডমিন প্যানেল থেকে কনফার্ম/Completed করলে (Recommended for COD)</option>
-                                <option value="instant_checkout">চেকআউটে প্লেস করার সাথে সাথে তাৎক্ষণিক (Instant Tracking)</option>
-                            </select>
-                            <p className="text-[10px] text-emerald-700 mt-1 font-medium font-bangla">
-                                💡 <strong>admin_confirmed:</strong> ক্যাশ অন ডেলিভারিতে ফেক বা ক্যান্সেল অর্ডার ফিল্টার করতে সেরা।
+                                onChange={val => setData('facebook_purchase_trigger', val)}
+                            />
+                            <p className="text-xs sm:text-[13px] text-emerald-800 mt-2 font-medium font-bangla flex items-center gap-1.5">
+                                {data.facebook_purchase_trigger === 'admin_confirmed' ? (
+                                    <>💡 <strong>admin_confirmed:</strong> ক্যাশ অন ডেলিভারিতে ফেক বা ক্যান্সেল অর্ডার ফিল্টার করতে সেরা। ডেলিভারি কনফার্ম হলেই Purchase ইভেন্ট মেটাতে যাবে।</>
+                                ) : (
+                                    <>⚡ <strong>instant_checkout:</strong> কাস্টমার অর্ডার সাবমিট করা মাত্রই লাইভ Purchase ইভেন্ট মেটাতে পাঠানো হবে।</>
+                                )}
                             </p>
                         </div>
                         <div>
@@ -635,33 +636,33 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
                                 value={data.gtm_container_id} 
                                 onChange={e => setData('gtm_container_id', e.target.value)} 
                             />
-                            <p className="text-[10px] text-gray-400 mt-1">Loads GTM container across storefront pages automatically.</p>
+                            <p className="text-xs sm:text-[12.5px] text-slate-500 mt-1.5 font-medium">Loads GTM container across storefront pages automatically.</p>
                         </div>
                     </div>
 
                     {/* Meta CAPI Test Action Bar */}
-                    <div className="mt-5 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
+                    <div className="mt-6 pt-5 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                             <button
                                 type="button"
                                 disabled={isTestingCapi || !data.facebook_pixel_id || !data.facebook_access_token}
                                 onClick={handleTestMetaCapi}
-                                className="h-9 px-4 rounded-lg font-bold text-xs bg-blue-50/80 hover:bg-blue-100 text-blue-700 border border-blue-200/80 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-98"
+                                className="h-11 px-5 rounded-xl font-bold text-xs sm:text-[13.5px] bg-blue-50/80 hover:bg-blue-100 text-blue-700 border border-blue-200/80 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed active:scale-98"
                             >
                                 {isTestingCapi ? (
-                                    <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                                    <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                                 ) : (
-                                    <Facebook className="w-3.5 h-3.5 text-blue-600" />
+                                    <Facebook className="w-4 h-4 text-blue-600" />
                                 )}
                                 <span>{isTestingCapi ? 'টেস্ট রিকোয়েস্ট পাঠানো হচ্ছে...' : 'Meta CAPI কানেকশন টেস্ট করুন'}</span>
                             </button>
-                            <span className="text-[11px] text-gray-400 font-bangla hidden sm:inline">
+                            <span className="text-xs sm:text-[12.5px] text-slate-400 font-bangla hidden sm:inline">
                                 (মেটা গ্রাফ এপিআই-তে একটি টেস্ট ইভেন্ট পাঠাবে)
                             </span>
                         </div>
 
                         {capiTestResult && (
-                            <div className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 ${
+                            <div className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 ${
                                 capiTestResult.success 
                                     ? 'bg-emerald-50 text-[#009E49] border border-emerald-200' 
                                     : 'bg-red-50 text-red-600 border border-red-200'
@@ -669,7 +670,7 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
                                 <span>{capiTestResult.success ? '✔' : '✖'}</span>
                                 <span>{capiTestResult.message}</span>
                                 {capiTestResult.fbtrace_id && (
-                                    <span className="text-[10px] text-gray-400 font-mono hidden md:inline">
+                                    <span className="text-xs text-gray-400 font-mono hidden md:inline">
                                         [Trace: {capiTestResult.fbtrace_id}]
                                     </span>
                                 )}
@@ -681,17 +682,17 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
                 {/* ─────────────────────────────────────────────────────────────
                  * SMS GATEWAY
                  * ───────────────────────────────────────────────────────────── */}
-                <AdminCard className="p-6">
-                    <div className="flex items-center gap-3 mb-5 pb-3 border-b border-[#E6F5EC]">
-                        <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                            <MessageSquare className="w-5 h-5" />
+                <AdminCard className="p-5 sm:p-7">
+                    <div className="flex items-center gap-3.5 mb-6 pb-4 border-b border-[#E6F5EC]">
+                        <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                            <MessageSquare className="w-6 h-6" />
                         </div>
                         <div>
-                            <h3 className="text-sm font-black text-[#1A1A2E]">SMS Notification Gateway</h3>
-                            <p className="text-[10px] text-gray-400 font-bold">Send automated order confirmation and courier tracking SMS alerts.</p>
+                            <h3 className="text-base sm:text-lg font-black text-[#1A1A2E]">SMS Notification Gateway</h3>
+                            <p className="text-xs sm:text-[13px] text-slate-500 font-medium mt-0.5">Send automated order confirmation and courier tracking SMS alerts.</p>
                         </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
                             <FieldLabel>SMS API Key (Elitbuzz / Bulksmsbd / Greenweb)</FieldLabel>
                             <AdminInput 
@@ -713,13 +714,13 @@ export const Integrations: React.FC<IntegrationsProps> = ({ settings, couriers =
                 </AdminCard>
 
                 {/* Submit Action */}
-                <div className="flex justify-end pt-2">
+                <div className="flex justify-center sm:justify-end pt-4 pb-8 w-full">
                     <SaveBtn 
                         type="submit" 
                         disabled={processing}
-                        className="px-8 py-3.5 text-sm"
+                        className="w-full sm:w-auto justify-center px-8 py-3.5 text-sm sm:text-base font-bold shadow-lg shadow-red-500/20 active:scale-98"
                     >
-                        <Save className="w-4 h-4 mr-2" />
+                        <Save className="w-4 h-4 mr-2 shrink-0" />
                         <span>Save Integrations & Courier Settings</span>
                     </SaveBtn>
                 </div>

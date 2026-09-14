@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Trash2, Plus, Minus, CreditCard, Truck, ShoppingBag, ChevronDown, CheckCircle2, User, Phone, MapPin, Building2, Navigation } from 'lucide-react';
+import { Trash2, Plus, Minus, CreditCard, Truck, ShoppingBag, ChevronDown, CheckCircle2, User, Phone, MapPin, Building2, Navigation, AlertCircle } from 'lucide-react';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { useCart } from '@/context/CartContext';
 import axios from 'axios';
@@ -78,7 +78,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
         }
     }, []);
 
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, setError, clearErrors } = useForm({
         customer_name: authUser?.name || '',
         mobile: authUser?.phone || '',
         email: authUser?.email || '',
@@ -160,7 +160,9 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
 
     // Handle district change for delivery charges, AJAX thanas, and auto-filling address
     const handleDistrictChange = async (districtName: string) => {
+        if (errors.district) clearErrors('district');
         const newAddress = updateAddressWithLocation(data.address, districtName, '', data.district, data.thana);
+        if (errors.address && newAddress.trim().length >= 5) clearErrors('address');
         setData(prev => ({
             ...prev,
             district: districtName,
@@ -246,12 +248,52 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
         e.preventDefault();
         
         if (cartItems.length === 0) {
-            toast.error('আপনার কার্ট খালি!');
+            toast.error('আপনার কার্ট খালি! অর্ডার করতে কার্টে পণ্য যোগ করুন।');
             return;
         }
 
+        const newErrors: Record<string, string> = {};
+
+        if (!data.customer_name || data.customer_name.trim().length < 3) {
+            newErrors.customer_name = 'অনুগ্রহ করে আপনার পুরো নাম লিখুন (কমপক্ষে ৩ অক্ষর)।';
+        }
+
+        const trimmedMobile = data.mobile ? data.mobile.trim() : '';
+        if (!trimmedMobile) {
+            newErrors.mobile = 'অনুগ্রহ করে আপনার মোবাইল নম্বর লিখুন।';
+        } else if (!/^(?:\+?88)?01[3-9]\d{8}$/.test(trimmedMobile)) {
+            newErrors.mobile = 'সঠিক ১১ ডিজিটের মোবাইল নম্বর দিন (যেমন: 01XXXXXXXXX)।';
+        }
+
+        if (!data.address || data.address.trim().length < 5) {
+            newErrors.address = 'অনুগ্রহ করে বিস্তারিত ডেলিভারি ঠিকানা লিখুন (যেমন: বাড়ি নং, রোড, এলাকা)।';
+        }
+
+        if (!data.district) {
+            newErrors.district = 'অনুগ্রহ করে আপনার জেলা নির্বাচন করুন।';
+        }
+
         if (!data.agree) {
-            toast.error('অর্ডার করতে শর্তাবলীতে টিক দিন।');
+            newErrors.agree = 'অর্ডার কনফার্ম করতে শর্তাবলীতে সম্মতি দিন।';
+        }
+
+        if (Object.keys(newErrors).length > 0) {
+            Object.entries(newErrors).forEach(([key, msg]) => {
+                setError(key as any, msg);
+            });
+
+            // Smooth scroll to the first invalid field
+            const firstErrorKey = Object.keys(newErrors)[0];
+            const targetElement = document.getElementById(firstErrorKey);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                targetElement.focus?.();
+            }
+
+            toast.error('অনুগ্রহ করে সঠিক তথ্য দিয়ে ফর্মটি পূরণ করুন।', {
+                description: 'লাল চিহ্নিত ঘরগুলো সঠিকভাবে পূরণ করুন।',
+                duration: 4000,
+            });
             return;
         }
 
@@ -260,8 +302,19 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                 clearCart();
                 toast.success('অর্ডারটি সফলভাবে সম্পন্ন হয়েছে! 🎉');
             },
-            onError: () => {
-                toast.error('অনুগ্রহ করে সঠিক তথ্য দিয়ে ফর্মটি পূরণ করুন।');
+            onError: (errs) => {
+                const firstKey = Object.keys(errs)[0];
+                if (firstKey) {
+                    const el = document.getElementById(firstKey);
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.focus?.();
+                    }
+                }
+                toast.error('অনুগ্রহ করে সঠিক তথ্য দিয়ে ফর্মটি পূরণ করুন।', {
+                    description: 'লাল চিহ্নিত ঘরগুলো সঠিকভাবে পূরণ করুন।',
+                    duration: 4000,
+                });
             }
         });
     };
@@ -299,20 +352,20 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-20 md:pb-0">
+                <form id="checkout-form" onSubmit={handleSubmit} noValidate className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start pb-20 md:pb-0">
                     
                     {/* Left Column: Product Overview and Delivery Address */}
-                    <div className="lg:col-span-7 space-y-6">
+                    <div className="lg:col-span-7 space-y-4 sm:space-y-6">
                         {/* 1. Ordered Products List Card */}
-                        <div className="bg-white border border-gray-200/90 rounded-xl p-3 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-3.5 sm:space-y-4">
-                            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                        <div className="bg-white border border-gray-200/90 rounded-xl p-2.5 xs:p-3.5 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-3 sm:space-y-4">
+                            <div className="flex items-center justify-between border-b border-gray-100 pb-2.5 sm:pb-3">
                                 <div className="flex items-center gap-2 sm:gap-2.5">
                                     <div className="w-1 h-4 sm:h-5 bg-[#009E49] rounded-full" />
-                                    <h2 className="text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
+                                    <h2 className="text-sm xs:text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
                                         অর্ডারকৃত পণ্যসমূহ
                                     </h2>
                                 </div>
-                                <span className="text-xs sm:text-sm font-bold text-gray-500 font-latin bg-gray-100 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shrink-0">
+                                <span className="text-[11px] xs:text-xs sm:text-sm font-bold text-gray-500 font-latin bg-gray-100 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shrink-0">
                                     {cartCount} {cartCount === 1 ? 'item' : 'items'}
                                 </span>
                             </div>
@@ -320,10 +373,10 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                 {cartItems.map((item, index) => (
                                     <div 
                                         key={`${item.id}-${index}`} 
-                                        className="bg-white hover:bg-gray-50/50 border border-gray-200/85 rounded-xl p-2.5 sm:p-3.5 flex gap-2.5 sm:gap-3.5 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.03)] relative"
+                                        className="bg-white hover:bg-gray-50/50 border border-gray-200/85 rounded-xl p-2 xs:p-2.5 sm:p-3.5 flex gap-2 xs:gap-2.5 sm:gap-3.5 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.03)] relative"
                                     >
                                         {/* Product Image */}
-                                        <div className="w-14 h-14 sm:w-18 sm:h-18 rounded-lg border border-gray-150 overflow-hidden shrink-0 bg-gray-50 flex items-center justify-center self-start">
+                                        <div className="w-12 h-12 xs:w-14 xs:h-14 sm:w-18 sm:h-18 rounded-lg border border-gray-150 overflow-hidden shrink-0 bg-gray-50 flex items-center justify-center self-start">
                                             <img 
                                                 src={item.image} 
                                                 alt={item.name} 
@@ -407,16 +460,16 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                         </div>
 
                         {/* 2. Delivery Address Card (Modern & Clean Design) */}
-                        <div className="bg-white border border-gray-200/90 rounded-xl p-4 sm:p-7 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-4 sm:space-y-5">
+                        <div className="bg-white border border-gray-200/90 rounded-xl p-2.5 xs:p-4 sm:p-7 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-3.5 sm:space-y-5">
                             {/* Header with vertical accent bar */}
-                            <div className="flex items-center justify-between border-b border-gray-100 pb-3.5">
-                                <div className="flex items-center gap-2.5 sm:gap-3">
-                                    <div className="w-1.5 h-6 bg-[#009E49] rounded-full" />
-                                    <h2 className="text-lg sm:text-xl font-black text-gray-950 font-bangla tracking-tight">
+                            <div className="flex items-center justify-between border-b border-gray-100 pb-2.5 sm:pb-3.5">
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <div className="w-1.5 h-5 sm:h-6 bg-[#009E49] rounded-full" />
+                                    <h2 className="text-base sm:text-xl font-black text-gray-950 font-bangla tracking-tight">
                                         ডেলিভারি ঠিকানা
                                     </h2>
                                 </div>
-                                <span className="text-xs sm:text-[13px] font-semibold text-[#009E49] bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-md font-bangla flex items-center gap-1">
+                                <span className="text-[11px] xs:text-xs sm:text-[13px] font-semibold text-[#009E49] bg-emerald-50 border border-emerald-100 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-md font-bangla flex items-center gap-1">
                                     <span>সঠিক তথ্য দিন</span>
                                 </span>
                             </div>
@@ -427,58 +480,97 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                     {/* Name Input */}
                                     <div>
                                         <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3.5 sm:pl-4 flex items-center pointer-events-none text-gray-400">
+                                            <div className={`absolute inset-y-0 left-0 pl-3.5 sm:pl-4 flex items-center pointer-events-none transition-colors ${errors.customer_name ? 'text-[#E2231A]' : 'text-gray-400'}`}>
                                                 <User className="w-5 h-5" />
                                             </div>
                                             <input 
                                                 id="customer_name" 
                                                 placeholder="আপনার নাম *" 
                                                 value={data.customer_name} 
-                                                onChange={e => setData('customer_name', e.target.value)} 
-                                                className={`w-full h-13 sm:h-14 pl-11 sm:pl-12 pr-4 rounded-lg border ${errors.customer_name ? 'border-red-500 bg-red-50/20 ring-2 ring-red-500/10' : 'border-gray-300 bg-white hover:border-gray-400'} text-base sm:text-[16.5px] font-semibold text-gray-900 placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:border-[#009E49] focus:ring-4 focus:ring-[#009E49]/12 transition-all font-bangla shadow-xs`}
-                                                required
+                                                onChange={e => {
+                                                    setData('customer_name', e.target.value);
+                                                    if (errors.customer_name) clearErrors('customer_name');
+                                                }} 
+                                                className={`w-full h-13 sm:h-14 pl-11 sm:pl-12 pr-4 rounded-lg border-2 ${
+                                                    errors.customer_name 
+                                                        ? 'border-[#E2231A] bg-red-50/25 ring-4 ring-[#E2231A]/15 text-gray-950 placeholder:text-red-400' 
+                                                        : 'border-gray-300 bg-white hover:border-gray-400 text-gray-900 focus:border-[#009E49] focus:ring-4 focus:ring-[#009E49]/12'
+                                                } text-base sm:text-[16.5px] font-semibold placeholder:font-normal focus:outline-none transition-all font-bangla shadow-xs`}
                                             />
                                         </div>
-                                        {errors.customer_name && <p className="text-red-500 text-xs sm:text-sm mt-1.5 font-bangla">{errors.customer_name}</p>}
+                                        {errors.customer_name && (
+                                            <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-red-50 border border-red-200/90 rounded-lg text-[#E2231A] text-xs sm:text-[13.5px] font-bold font-bangla shadow-2xs animate-in fade-in slide-in-from-top-1">
+                                                <AlertCircle className="w-4 h-4 shrink-0 text-[#E2231A]" />
+                                                <span>{errors.customer_name}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Mobile Input with 88 Prefix */}
                                     <div>
-                                        <div className={`flex rounded-lg border ${errors.mobile ? 'border-red-500 bg-red-50/20 ring-2 ring-red-500/10' : 'border-gray-300 bg-white hover:border-gray-400'} overflow-hidden h-13 sm:h-14 focus-within:border-[#009E49] focus-within:ring-4 focus-within:ring-[#009E49]/12 transition-all shadow-xs`}>
-                                            <div className="px-3.5 sm:px-4 bg-gray-50/90 border-r border-gray-200/90 flex items-center justify-center gap-1.5 text-base sm:text-[16.5px] font-bold text-gray-700 font-latin select-none shrink-0">
-                                                <Phone className="w-4.5 h-4.5 text-gray-400" />
+                                        <div className={`flex rounded-lg border-2 ${
+                                            errors.mobile 
+                                                ? 'border-[#E2231A] bg-red-50/25 ring-4 ring-[#E2231A]/15' 
+                                                : 'border-gray-300 bg-white hover:border-gray-400 focus-within:border-[#009E49] focus-within:ring-4 focus-within:ring-[#009E49]/12'
+                                        } overflow-hidden h-13 sm:h-14 transition-all shadow-xs`}>
+                                            <div className={`px-3.5 sm:px-4 ${
+                                                errors.mobile 
+                                                    ? 'bg-red-50/60 border-r-2 border-r-[#E2231A]/40 text-[#E2231A]' 
+                                                    : 'bg-gray-50/90 border-r border-gray-200/90 text-gray-700'
+                                            } border-r flex items-center justify-center gap-1.5 text-base sm:text-[16.5px] font-bold font-latin select-none shrink-0 transition-colors`}>
+                                                <Phone className={`w-4.5 h-4.5 ${errors.mobile ? 'text-[#E2231A]' : 'text-gray-400'} transition-colors`} />
                                                 <span>88</span>
                                             </div>
                                             <input 
                                                 id="mobile" 
                                                 placeholder="আপনার মোবাইল নম্বর *" 
                                                 value={data.mobile} 
-                                                onChange={e => setData('mobile', e.target.value)} 
-                                                className="flex-1 px-3.5 sm:px-4 h-full border-none bg-transparent text-base sm:text-[16.5px] font-semibold text-gray-900 placeholder:text-gray-400 placeholder:font-normal focus:outline-none font-bangla"
+                                                onChange={e => {
+                                                    setData('mobile', e.target.value);
+                                                    if (errors.mobile) clearErrors('mobile');
+                                                }} 
+                                                className={`flex-1 px-3.5 sm:px-4 h-full border-none bg-transparent text-base sm:text-[16.5px] font-semibold ${
+                                                    errors.mobile ? 'text-gray-950 placeholder:text-red-400' : 'text-gray-900 placeholder:text-gray-400'
+                                                } placeholder:font-normal focus:outline-none font-bangla`}
                                                 type="tel"
-                                                required
                                             />
                                         </div>
-                                        {errors.mobile && <p className="text-red-500 text-xs sm:text-sm mt-1.5 font-bangla">{errors.mobile}</p>}
+                                        {errors.mobile && (
+                                            <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-red-50 border border-red-200/90 rounded-lg text-[#E2231A] text-xs sm:text-[13.5px] font-bold font-bangla shadow-2xs animate-in fade-in slide-in-from-top-1">
+                                                <AlertCircle className="w-4 h-4 shrink-0 text-[#E2231A]" />
+                                                <span>{errors.mobile}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
                                 {/* Row 2: Full Detailed Address */}
                                 <div>
                                     <div className="relative">
-                                        <div className="absolute inset-y-0 left-0 pl-3.5 sm:pl-4 flex items-center pointer-events-none text-gray-400">
+                                        <div className={`absolute inset-y-0 left-0 pl-3.5 sm:pl-4 flex items-center pointer-events-none transition-colors ${errors.address ? 'text-[#E2231A]' : 'text-gray-400'}`}>
                                             <MapPin className="w-5 h-5" />
                                         </div>
                                         <input 
                                             id="address" 
                                             placeholder="জেলা, থানা, বাড়ি/ফ্ল্যাট নম্বর, রোড, এলাকা *" 
                                             value={data.address} 
-                                            onChange={e => setData('address', e.target.value)} 
-                                            className={`w-full h-13 sm:h-14 pl-11 sm:pl-12 pr-4 rounded-lg border ${errors.address ? 'border-red-500 bg-red-50/20 ring-2 ring-red-500/10' : 'border-gray-300 bg-white hover:border-gray-400'} text-base sm:text-[16.5px] font-semibold text-gray-900 placeholder:text-gray-400 placeholder:font-normal focus:outline-none focus:border-[#009E49] focus:ring-4 focus:ring-[#009E49]/12 transition-all font-bangla shadow-xs`}
-                                            required
+                                            onChange={e => {
+                                                setData('address', e.target.value);
+                                                if (errors.address) clearErrors('address');
+                                            }} 
+                                            className={`w-full h-13 sm:h-14 pl-11 sm:pl-12 pr-4 rounded-lg border-2 ${
+                                                errors.address 
+                                                    ? 'border-[#E2231A] bg-red-50/25 ring-4 ring-[#E2231A]/15 text-gray-950 placeholder:text-red-400' 
+                                                    : 'border-gray-300 bg-white hover:border-gray-400 text-gray-900 focus:border-[#009E49] focus:ring-4 focus:ring-[#009E49]/12'
+                                            } text-base sm:text-[16.5px] font-semibold placeholder:font-normal focus:outline-none transition-all font-bangla shadow-xs`}
                                         />
                                     </div>
-                                    {errors.address && <p className="text-red-500 text-xs sm:text-sm mt-1.5 font-bangla">{errors.address}</p>}
+                                    {errors.address && (
+                                        <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-red-50 border border-red-200/90 rounded-lg text-[#E2231A] text-xs sm:text-[13.5px] font-bold font-bangla shadow-2xs animate-in fade-in slide-in-from-top-1">
+                                            <AlertCircle className="w-4 h-4 shrink-0 text-[#E2231A]" />
+                                            <span>{errors.address}</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Row 3: District and Thana searchable dropdowns */}
@@ -486,6 +578,7 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                     {/* District Searchable Dropdown */}
                                     <div>
                                         <SearchableSelect
+                                            id="district"
                                             options={districts.map(d => ({
                                                 value: d.name,
                                                 label: getDistrictLabel(d.name),
@@ -496,14 +589,20 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                             placeholder="জেলা সিলেক্ট করুন *"
                                             searchPlaceholder="জেলা খুঁজুন (যেমন: ঢাকা, Mymensingh)..."
                                             error={errors.district}
-                                            icon={<Building2 className="w-5 h-5 text-gray-400" />}
+                                            icon={<Building2 className="w-5 h-5" />}
                                         />
-                                        {errors.district && <p className="text-red-500 text-xs sm:text-sm mt-1.5 font-bangla">{errors.district}</p>}
+                                        {errors.district && (
+                                            <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-red-50 border border-red-200/90 rounded-lg text-[#E2231A] text-xs sm:text-[13.5px] font-bold font-bangla shadow-2xs animate-in fade-in slide-in-from-top-1">
+                                                <AlertCircle className="w-4 h-4 shrink-0 text-[#E2231A]" />
+                                                <span>{errors.district}</span>
+                                            </div>
+                                        )}
                                     </div>
 
                                     {/* Thana Searchable Dropdown */}
                                     <div>
                                         <SearchableSelect
+                                            id="thana"
                                             options={thanas.map(t => ({
                                                 value: t.name,
                                                 label: getThanaLabel(t.name),
@@ -521,10 +620,17 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                             searchPlaceholder="থানা খুঁজুন (যেমন: ত্রিশাল, Trishal)..."
                                             disabled={!data.district || isLoadingThanas}
                                             allowCustom={true}
-                                            icon={<Navigation className="w-5 h-5 text-gray-400" />}
+                                            icon={<Navigation className="w-5 h-5" />}
                                             onDisabledClick={() => {
                                                 if (!data.district) {
-                                                    toast.info('অনুগ্রহ করে প্রথমে আপনার জেলা নির্বাচন করুন।');
+                                                    const distEl = document.getElementById('district');
+                                                    if (distEl) {
+                                                        distEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                    }
+                                                    toast.error('অনুগ্রহ করে প্রথমে আপনার জেলা নির্বাচন করুন!', {
+                                                        description: 'জেলা সিলেক্ট করার পর থানার তালিকা দেখতে পাবেন।',
+                                                        duration: 3500,
+                                                    });
                                                 }
                                             }}
                                         />
@@ -535,42 +641,42 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                     </div>
 
                     {/* Right Column: Payment & Order Summary */}
-                    <div className="lg:col-span-5 space-y-6">
+                    <div className="lg:col-span-5 space-y-4 sm:space-y-6">
                         {/* 1. Payment Method radio cards */}
-                        <div className="bg-white border border-gray-200/90 rounded-lg p-5 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-4">
-                            <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3">
+                        <div className="bg-white border border-gray-200/90 rounded-lg p-3 xs:p-5 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-3.5 sm:space-y-4">
+                            <div className="flex items-center gap-2.5 border-b border-gray-100 pb-2.5 sm:pb-3">
                                 <div className="w-1 h-5 bg-[#009E49] rounded-full" />
-                                <h2 className="text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
+                                <h2 className="text-sm xs:text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
                                     পেমেন্ট পদ্ধতি
                                 </h2>
                             </div>
                             <div className="space-y-3 font-bangla">
                                 <div className="grid grid-cols-1 xs:grid-cols-2 gap-2.5 sm:gap-3">
                                     {/* Cash on Delivery */}
-                                    <div className="border-2 border-[#009E49] bg-emerald-50/40 rounded-md p-3.5 sm:p-4 flex items-center justify-between cursor-pointer transition-all shadow-2xs">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="w-4.5 h-4.5 rounded-full border-2 border-[#009E49] flex items-center justify-center shrink-0">
-                                                <div className="w-2.5 h-2.5 rounded-full bg-[#009E49]" />
+                                    <div className="border-2 border-[#009E49] bg-emerald-50/40 rounded-md p-3 sm:p-4 flex items-center justify-between cursor-pointer transition-all shadow-2xs">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 rounded-full border-2 border-[#009E49] flex items-center justify-center shrink-0">
+                                                <div className="w-2 h-2 rounded-full bg-[#009E49]" />
                                             </div>
-                                            <span className="text-sm sm:text-base font-bold text-gray-950">ক্যাশ অন ডেলিভারি</span>
+                                            <span className="text-xs xs:text-sm sm:text-base font-bold text-gray-950">ক্যাশ অন ডেলিভারি</span>
                                         </div>
-                                        <span className="text-[#009E49] font-black text-sm">✔</span>
+                                        <span className="text-[#009E49] font-black text-xs xs:text-sm">✔</span>
                                     </div>
 
                                     {/* Online Payment */}
-                                    <div className="border border-gray-200 opacity-60 rounded-md p-3.5 sm:p-4 flex items-center gap-2.5 bg-gray-50/50 cursor-not-allowed">
-                                        <div className="w-4.5 h-4.5 rounded-full border border-gray-300 shrink-0" />
-                                        <span className="text-sm sm:text-base font-bold text-gray-600">অনলাইন পেমেন্ট</span>
+                                    <div className="border border-gray-200 opacity-60 rounded-md p-3 sm:p-4 flex items-center gap-2 bg-gray-50/50 cursor-not-allowed">
+                                        <div className="w-4 h-4 rounded-full border border-gray-300 shrink-0" />
+                                        <span className="text-xs xs:text-sm sm:text-base font-bold text-gray-600">অনলাইন পেমেন্ট</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* 2. Coupon Validation & Order Summary */}
-                        <div className="bg-white border border-gray-200/90 rounded-xl p-3.5 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-4">
-                            <div className="flex items-center gap-2.5 border-b border-gray-100 pb-3">
+                        <div className="bg-white border border-gray-200/90 rounded-xl p-2.5 xs:p-3.5 sm:p-6 shadow-[0_2px_10px_rgba(0,0,0,0.04)] space-y-3.5 sm:space-y-4">
+                            <div className="flex items-center gap-2.5 border-b border-gray-100 pb-2.5 sm:pb-3">
                                 <div className="w-1 h-5 bg-[#009E49] rounded-full" />
-                                <h2 className="text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
+                                <h2 className="text-sm xs:text-base sm:text-lg font-extrabold text-gray-950 font-bangla">
                                     অর্ডার বিবরণ ও সামারি
                                 </h2>
                             </div>
@@ -599,8 +705,18 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                                     </div>
                                 </div>
                             )}
-                            {couponError && <p className="text-red-500 text-xs sm:text-sm mt-1 font-bangla">{couponError}</p>}
-                            {couponSuccess && <p className="text-green-600 text-xs sm:text-sm mt-1 font-bangla">{couponSuccess}</p>}
+                            {couponError && (
+                                <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-red-50 border border-red-200/90 rounded-lg text-[#E2231A] text-xs sm:text-[13.5px] font-bold font-bangla shadow-2xs animate-in fade-in slide-in-from-top-1">
+                                    <AlertCircle className="w-4 h-4 shrink-0 text-[#E2231A]" />
+                                    <span>{couponError}</span>
+                                </div>
+                            )}
+                            {couponSuccess && (
+                                <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-emerald-50 border border-emerald-200/90 rounded-lg text-[#009E49] text-xs sm:text-[13.5px] font-bold font-bangla shadow-2xs animate-in fade-in slide-in-from-top-1">
+                                    <CheckCircle2 className="w-4 h-4 shrink-0 text-[#009E49]" />
+                                    <span>{couponSuccess}</span>
+                                </div>
+                            )}
 
                             {/* Cost Lines */}
                             <div className="space-y-3 pt-2 text-sm sm:text-base text-gray-700 border-t border-gray-100 font-bangla">
@@ -643,16 +759,27 @@ export const Checkout: React.FC<CheckoutProps> = ({ districts, thanasByDistrict,
                             </div>
 
                             {/* Terms & conditions check */}
-                            <div className="flex items-start gap-2.5 pt-2">
-                                <Checkbox 
-                                    id="agree" 
-                                    checked={data.agree} 
-                                    onCheckedChange={checked => setData('agree', !!checked)} 
-                                    className="border-gray-400 data-[state=checked]:bg-[#009E49] data-[state=checked]:border-[#009E49] w-4.5 h-4.5 mt-0.5 rounded cursor-pointer shrink-0"
-                                />
-                                <Label htmlFor="agree" className="text-sm text-gray-800 leading-relaxed cursor-pointer font-medium font-bangla select-none">
-                                    আমি টার্মস & কন্ডিশনস, প্রাইভেসি পলিসি এবং রিফান্ড পলিসি পড়েছি এবং সম্মত আছি।
-                                </Label>
+                            <div className="pt-2">
+                                <div className={`flex items-start gap-2.5 p-2 rounded-lg transition-colors ${errors.agree ? 'bg-red-50/60 border border-red-200' : ''}`}>
+                                    <Checkbox 
+                                        id="agree" 
+                                        checked={data.agree} 
+                                        onCheckedChange={checked => {
+                                            setData('agree', !!checked);
+                                            if (errors.agree) clearErrors('agree');
+                                        }} 
+                                        className={`${errors.agree ? 'border-[#E2231A]' : 'border-gray-400'} data-[state=checked]:bg-[#009E49] data-[state=checked]:border-[#009E49] w-4.5 h-4.5 mt-0.5 rounded cursor-pointer shrink-0`}
+                                    />
+                                    <Label htmlFor="agree" className="text-sm text-gray-800 leading-relaxed cursor-pointer font-medium font-bangla select-none">
+                                        আমি টার্মস & কন্ডিশনস, প্রাইভেসি পলিসি এবং রিফান্ড পলিসি পড়েছি এবং সম্মত আছি।
+                                    </Label>
+                                </div>
+                                {errors.agree && (
+                                    <div className="flex items-center gap-2 mt-2 px-3 py-2 bg-red-50 border border-red-200/90 rounded-lg text-[#E2231A] text-xs sm:text-[13.5px] font-bold font-bangla shadow-2xs animate-in fade-in slide-in-from-top-1">
+                                        <AlertCircle className="w-4 h-4 shrink-0 text-[#E2231A]" />
+                                        <span>{errors.agree}</span>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Original In-Place Order Button (Visible in summary card on both mobile & desktop) */}

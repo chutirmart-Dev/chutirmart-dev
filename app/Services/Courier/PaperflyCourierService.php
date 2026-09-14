@@ -45,7 +45,7 @@ class PaperflyCourierService implements CourierServiceInterface
         ];
 
         try {
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'paperflykey' => $this->paperflyKey,
                 'Content-Type' => 'application/json',
             ])->withBasicAuth($this->username, $this->password)
@@ -92,7 +92,7 @@ class PaperflyCourierService implements CourierServiceInterface
         $trackingNumber = $order->courier_tracking_code ?: ($order->consignment_id ?: $order->order_number);
 
         try {
-            $response = Http::withHeaders([
+            $response = Http::withoutVerifying()->withHeaders([
                 'paperflykey' => $this->paperflyKey,
             ])->withBasicAuth($this->username, $this->password)
                 ->timeout(15)
